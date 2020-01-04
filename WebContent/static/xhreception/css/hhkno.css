@@ -1,0 +1,52 @@
+*{
+	margin: 0;
+	padding: 0;
+}
+a{
+	color: #000000;
+}
+li{
+	list-style: none;
+}
+.tbbox{
+	width: 100%;
+}
+.tbbox li{
+	float: left;
+	width: 25%;
+	text-align: center;
+	height: 40px;
+	line-height: 40px;
+	border-bottom:1px solid #efefef ;
+	font-size: 1.5rem;
+}
+.tbbox li.selected{
+	border-bottom:2px solid #FE5479 ;
+}
+.conbox{
+	width: 100%;
+	padding: 4%;
+	clear: both;
+}
+.conbox li{
+	border-bottom: 1px solid #efefef;
+	overflow: hidden;
+	padding: 4% 0;
+}
+.conbox li a p{
+	width: 71%;
+	float: left;
+	font-size: 1.5rem;
+	margin-top: 7%;
+}
+.conbox li a img{
+	width: 90px;
+	height: 70px;
+	float: right;
+}
+.conbox li:last-child{
+	margin-bottom: 60px;
+}
+.dishide{
+	display: none;
+}

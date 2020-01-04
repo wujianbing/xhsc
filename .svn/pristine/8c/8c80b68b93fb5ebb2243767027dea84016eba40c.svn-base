@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.xhshoper.dao.XhShopcarDao">
+    
+	<sql id="xhShopcarColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.uid AS "xhUser.id",
+		a.gid AS "xhGoods.id",
+		(select xhGoods.name from xh_goods xhGoods where xhGoods.id = a.gid) AS "xhGoods.name",
+		(select xhGoods.title from xh_goods xhGoods where xhGoods.id = a.gid) AS "xhGoods.title",
+		(select uploadFile.rela_path from sys_upload_file uploadFile where uploadFile.id=(select xhGoods.upload_file_id from xh_goods xhGoods where xhGoods.id =a.gid)) AS "xhGoods.uploadFile.relaPath",
+		a.message AS "message",
+		a.price AS "price",
+		a.rid AS "xhRule.id",
+		(select xhRule.rule from xh_rule xhRule where xhRule.id = a.rid) AS "xhRule.rule",
+		(select xhRule.unit_price from xh_rule xhRule where xhRule.id = a.rid) AS "xhRule.unitPrice",
+		a.sid AS "xhColor.id",
+		(select xhColor.color from xh_color xhColor where xhColor.id = a.sid) AS "xhColor.color",
+		a.tid AS "xhTime.id",
+		(select xhTime.xh_time from xh_time xhTime where xhTime.id = a.tid) AS "xhTime.xhTime",
+		a.num AS "num",
+		a.mid AS "monthTime.id"
+	</sql>
+	
+	<sql id="xhShopcarJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="XhShopcar" >
+		SELECT 
+			<include refid="xhShopcarColumns"/>
+		FROM xh_shopcar a
+		<include refid="xhShopcarJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="XhShopcar" >
+		SELECT 
+			<include refid="xhShopcarColumns"/>
+		FROM xh_shopcar a
+		<include refid="xhShopcarJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="xhUser != null and xhUser.id != null and xhUser.id != ''">
+				AND a.uid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{xhUser.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{xhUser.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{xhUser.id},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="XhShopcar" >
+		SELECT 
+			<include refid="xhShopcarColumns"/>
+		FROM xh_shopcar a
+		<include refid="xhShopcarJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO xh_shopcar(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			uid,
+			gid,
+			message,
+			price,
+			rid,
+			sid,
+			tid,
+			num,
+			mid
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{xhUser.id},
+			#{xhGoods.id},
+			#{message},
+			#{price},
+			#{xhRule.id},
+			#{xhColor.id},
+			#{xhTime.id},
+			#{num},
+			#{monthTime.id}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE xh_shopcar SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			uid = #{xhUser.id},
+			gid = #{xhGoods.id},
+			message = #{message},
+			price = #{price},
+			rid = #{xhRule.id},
+			sid = #{xhColor.id},
+			tid = #{xhTime.id},
+			num = #{num},
+			mid = #{monthTime.id}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM xh_shopcar
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE xh_shopcar SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="XhShopcar" statementType="STATEMENT">
+		select * FROM xh_shopcar  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.xhorder.dao.XhOrderDao">
+    
+	<sql id="xhOrderColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.order_no AS "orderNo",
+		a.gid AS "xhGoods.id",
+		a.uid AS "xhUser.id",
+		(select xhUser.username from xh_user xhUser where xhUser.id = a.uid) AS "xhUser.username",
+		a.rec_user AS "recUser",
+		a.rec_phone AS "recPhone",
+		a.rec_addr AS "recAddr",
+		a.amount AS "amount",
+		a.pay_method AS "payMethod",
+		a.pay_status AS "payStatus",
+		a.order_status AS "orderStatus",
+		a.rec_date AS "recDate",
+		a.rec_time AS "recTime",
+		a.order_detail AS "orderDetail",
+		a.remarks AS "remarks",
+		a.comment AS "comment"
+	</sql>
+	
+	<sql id="xhOrderJoins">
+	</sql>
+    
+	<select id="get" resultType="XhOrder" >
+		SELECT 
+			<include refid="xhOrderColumns"/>
+		FROM xh_order a
+		<include refid="xhOrderJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="XhOrder" >
+		SELECT 
+			<include refid="xhOrderColumns"/>
+		FROM xh_order a
+		<include refid="xhOrderJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="orderNo !=null and orderNo != ''">
+				AND a.order_no like concat(#{orderNo},'%')
+			</if>
+			<if test="createDate != null and createDate != ''">
+				AND a.create_date = #{createDate}
+			</if>
+			<if test="payStatus !=null and payStatus !=''">
+				AND a.pay_status = #{payStatus}
+			</if>
+			<if test="orderStatus !=null and orderStatus != ''">
+				AND a.order_status = #{orderStatus}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	<!--未处理订单  -->
+	<!--findUntreated  -->
+	<select id="findUntreated" resultType="XhOrder">
+		select
+			<include refid="xhOrderColumns"/>
+		 from xh_order a
+		 where a.order_status = '1'
+	</select>
+	<select id="findAllList" resultType="XhOrder" >
+		SELECT 
+			<include refid="xhOrderColumns"/>
+		FROM xh_order a
+		<include refid="xhOrderJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+		<!-- findnewOrder -->
+		<!-- 查找最新生成的一个订单订单号 -->
+		<select id="findnewOrder" resultType="String" >
+			select a.order_no AS "orderNo"
+				from xh_order a
+				order by a.update_date DESC		
+				limit 0,1
+		</select>
+		<!--findOidByOrderNo  -->
+		<!--通过订单号获取唯一id-->
+	<select id="findOidByOrderNo" resultType="String" >
+			select a.id AS "id"
+				from xh_order a
+				where a.order_no = #{orderNo}
+	</select>
+	
+	<!--订单总数  -->
+		<select id="getAllOrderNum" resultType="String">
+			SELECT count(1) from xh_order; 
+		</select>
+	<!--待付款总数  -->	
+		<select id="getDOrderNum" resultType="String">
+			select count(1) from xh_order a where a.pay_status = '1';
+		</select>
+	<!--已支付订单总数  -->
+		<select id="getEOrderNum" resultType="String">
+			SELECT count(1) from xh_order a where a.pay_status = '2';
+		</select>
+	<!-- 销售总额 -->
+		<select id="getOrderAmount" resultType="String">
+			SELECT sum(amount) from xh_order;
+		</select>
+	<!-- 每天的销售额 -->
+		<select id="getEOrderAmount" resultType="XhOrder">
+			SELECT sum(amount) AS amount,create_date AS createDate from xh_order where pay_status='2' GROUP BY DATE_FORMAT(create_date,'%Y%m%d') ORDER BY create_date DESC limit 7;
+		</select>
+	<insert id="insert">
+		INSERT INTO xh_order(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag,
+			order_no,
+			gid,
+			uid,
+			rec_user,
+			rec_phone,
+			rec_addr,
+			amount,
+			pay_method,
+			pay_status,
+			order_status,
+			rec_date,
+			rec_time,
+			order_detail,
+			remarks
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag},
+			#{orderNo},
+			#{xhGoods.id},
+			#{xhUser.id},
+			#{recUser},
+			#{recPhone},
+			#{recAddr},
+			#{amount},
+			#{payMethod},
+			#{payStatus},
+			#{orderStatus},
+			#{recDate},
+			#{recTime},
+			#{orderDetail},
+			#{remarks}
+		)
+	</insert>
+	
+	<!--upStatusById -->
+	<!--修改订单状态  -->
+	<update id="upStatusById" >
+		update xh_order set
+			order_status = #{orderStatus}	
+		where id = #{id}
+	</update>
+	<!--upPayStatusById-->
+	<update id="upPayStatusById">
+		update xh_order set
+			pay_status = #{payStatus}
+		where id = #{id}
+	</update>
+	<update id="update">
+		UPDATE xh_order SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			order_no=#{orderNo},
+			gid = #{xhGoods.id},
+			uid = #{xhUser.id},
+			rec_user = #{recUser},
+			rec_phone = #{recPhone},
+			rec_addr = #{recAddr},
+			amount = #{amount},
+			pay_method = #{payMethod},
+			pay_status = #{payStatus},
+			order_status = #{orderStatus},
+			rec_date = #{recDate},
+			rec_time = #{recTime},
+			order_detail=#{orderDetail},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+		<!--updateCommentById -->
+	<update id="updateCommentById">
+		update xh_order set
+			comment = #{comment}
+		where id = #{id}
+	</update>
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM xh_order
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE xh_order SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="XhOrder" statementType="STATEMENT">
+		select * FROM xh_order  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

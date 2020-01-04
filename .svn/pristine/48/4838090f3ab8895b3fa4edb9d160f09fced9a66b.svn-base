@@ -1,0 +1,9 @@
+package com.jeeplus.modules.xhreception.xhController;
+
+import org.springframework.stereotype.Controller;
+
+
+public class OrderController {
+	
+	
+}

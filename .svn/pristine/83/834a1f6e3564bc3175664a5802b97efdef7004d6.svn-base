@@ -1,0 +1,176 @@
+$(document).ready(function(){
+	/*购物车编辑修改样式切换*/
+	$(".optright").click(function(){
+			$(".det p").not(".ppri").toggle();
+			$(".det .optnum").toggle();
+			$("button").toggle();
+			$(".btright p").toggle();
+			var text = $(this).text();
+            if (text) {
+                  $(this).text(text === '完成' ? '编辑' : '完成');
+            }
+            $("img.checkout").attr("src","static/xhreception/images/checkout.png");
+            $(".totlnum").text(0);
+			$("#totalPrice").text(0);
+		});
+		
+	/*购物车数量加减、价格计算*/
+	/*数量增加*/
+$(".optnumadd").click(function(){
+		var num=$(this).parent().children("input");
+		num.val(parseInt(num.val())+1);
+		$(this).parent().siblings("p.ppri").children("span.num").text('x'+num.val());
+		
+		
+	})
+	
+	/*$(".optnum").children("input").bind('input propertychange', function () {
+		$(this).siblings(".optnumadd").click(function(){
+		var num=$(this).parent().children("input");
+		num.val(parseInt(num.val())+1);
+		alert(num.val());
+		 			/*var num=$(this)
+                   $(this).parent(".optnum").siblings("p.ppri").children("span.num").text('x'+num.val());
+               /* });
+	
+	})*/
+	
+	
+	/*数量减少*/
+	$(".optnumdec").click(function(){
+		var num=$(this).parent().children("input");
+		if(num.val()>0){
+			num.val(parseInt(num.val())-1);
+			$(this).parent().siblings("p.ppri").children("span.num").text('x'+num.val());
+		}
+		else{
+			num.val(0);
+		}
+		
+	});
+	
+	
+	/*选择商品*/
+	$(".gdlist").children("img.checkout").click(function(){
+		var totlnum=parseInt($(".totlnum").text());
+		var totlprice=parseFloat($("#totalPrice").text());
+		/*选中商品*/
+		if($(this).attr('src')=='static/xhreception/images/checkout.png'){
+			$(this).attr("src","static/xhreception/images/checkon.png");
+			$(this).parent(".gdlist").addClass("on");
+			var obj1=$(this).siblings(".det").children("p.ppri").children("span.num").text().substr(1);
+			totlnum+=parseInt(obj1);
+			var obj2=$(this).siblings(".det").children("p.ppri").children("span.price").text();
+			totlprice+=parseFloat(obj2*obj1);
+			$(".totlnum").text(totlnum);
+			$("#totalPrice").text(totlprice);
+			
+			
+			
+			
+			/*************购物车选中所有项，上下项自动显示全选状态**************/
+			var x=$(this).parents(".carlist").children(".gdlist").length;
+			var y=$(this).parents(".carlist").children(".on").length;
+			if(x==y){
+			$(".topopt").children("img.checkout").attr("src","static/xhreception/images/checkon.png");
+			$(".btleft").children("img.checkout").attr("src","static/xhreception/images/checkon.png");
+			}
+			
+			
+			
+			
+			
+		}
+		/*不选中商品*/
+		else{
+			$(this).attr("src","static/xhreception/images/checkout.png");
+			$(this).parent(".gdlist").removeClass("on");
+			$(".btleft").children("img").attr("src","static/xhreception/images/checkout.png");
+			$(".topopt").children("img").attr("src","static/xhreception/images/checkout.png");
+			
+			var obj1=$(this).siblings(".det").children("p.ppri").children("span.num").text().substr(1);
+			totlnum-=parseInt(obj1);
+			var obj2=$(this).siblings(".det").children("p.ppri").children("span.price").text();
+			totlprice-=parseFloat(obj2*obj1);
+			$(".totlnum").text(totlnum);
+			$("#totalPrice").text(totlprice);
+			
+			
+		}
+		
+	
+	});
+	
+	
+	
+	
+	
+	
+	
+	/*底部全选*/
+	$(".btleft").click(function(){
+		if(($(this).children("img").attr('src')=='static/xhreception/images/checkout.png')){
+			$(this).children("img").attr("src","static/xhreception/images/checkon.png");
+			$(".gdlist").children("img.checkout").attr("src","static/xhreception/images/checkon.png");
+			$(".topopt").children("img.checkout").attr("src","static/xhreception/images/checkon.png");
+			$(".gdlist").addClass("on");
+			totlmony();
+		}else{
+			$(this).children("img").attr("src","static/xhreception/images/checkout.png");
+		$(".gdlist").children("img.checkout").attr("src","static/xhreception/images/checkout.png");
+		$(".topopt").children("img.checkout").attr("src","static/xhreception/images/checkout.png");
+		$(".gdlist").removeClass("on");
+		$(".totlnum").text(0);
+		$("#totalPrice").text(0);
+		}
+		
+	})
+	
+	/*顶部全选*/
+	$(".topopt").children("img.checkout").click(function(){
+		if($(this).attr('src')=='static/xhreception/images/checkout.png'){
+			$(this).attr("src","static/xhreception/images/checkon.png");
+			$(".gdlist").children("img.checkout").attr("src","static/xhreception/images/checkon.png");
+			$(".btleft").children("img.checkout").attr("src","static/xhreception/images/checkon.png");
+			$(".gdlist").addClass("on");
+			totlmony();
+		}else{
+			$(this).attr("src","static/xhreception/images/checkout.png");
+			$(".gdlist").children("img.checkout").attr("src","static/xhreception/images/checkout.png");
+			$(".btleft").children("img.checkout").attr("src","static/xhreception/images/checkout.png");
+			$(".gdlist").removeClass("on");
+			$(".totlnum").text(0);
+			$("#totalPrice").text(0);
+			}
+		
+	})
+	
+	
+	
+	/*购物车商品数量及总金额*/
+	function totlmony(){
+		var totlnum=0;
+		var totlprice=0;
+		$(".gdlist").each(function(){
+			if($(this).hasClass("on")){
+				var obj1=$(this).children(".det").children("p.ppri").children("span.num").text().substr(1);
+				totlnum+=parseInt(obj1);
+				var obj2=$(this).children(".det").children("p.ppri").children("span.price").text();
+				/*totlprice-=parseFloat(obj2*obj1);*/
+				totlprice+=parseFloat(obj2*obj1);
+				$(".totlnum").text(totlnum);
+				$("#totalPrice").text(totlprice);
+			}
+		})
+	}
+	
+	
+	
+	
+	
+	})
+
+	
+				
+
+	

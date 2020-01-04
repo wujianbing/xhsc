@@ -1,0 +1,298 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.xhgoods.web;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolationException;
+
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.collect.Lists;
+import com.jeeplus.common.config.Global;
+import com.jeeplus.common.persistence.Page;
+import com.jeeplus.common.utils.DateUtils;
+import com.jeeplus.common.utils.FileUtils;
+import com.jeeplus.common.utils.MyBeanUtils;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.common.utils.excel.ExportExcel;
+import com.jeeplus.common.utils.excel.ImportExcel;
+import com.jeeplus.common.web.BaseController;
+import com.jeeplus.modules.sys.entity.UploadFile;
+import com.jeeplus.modules.sys.entity.User;
+import com.jeeplus.modules.sys.service.UploadFileService;
+import com.jeeplus.modules.sys.utils.UserUtils;
+import com.jeeplus.modules.xhcategory.entity.XhCategory;
+import com.jeeplus.modules.xhgoods.entity.XhGoods;
+import com.jeeplus.modules.xhgoods.service.XhGoodsService;
+
+/**
+ * 商品管理Controller
+ * @author wujianbing
+ * @version 2019-04-04
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/xhgoods/xhGoods")
+public class XhGoodsController extends BaseController {
+
+	@Autowired
+	private XhGoodsService xhGoodsService;
+	@Autowired
+	private UploadFileService uploadFileService;
+	@ModelAttribute
+	public XhGoods get(@RequestParam(required=false) String id) {
+		XhGoods entity = null;
+		if (StringUtils.isNotBlank(id)){
+			entity = xhGoodsService.get(id);
+		}
+		if (entity == null){
+			entity = new XhGoods();
+		}
+		return entity;
+	}
+	
+	@RequiresPermissions("xhgoods:xhGoods:index")
+	@RequestMapping(value = "index")
+	public String index(XhGoods xhGoods, Model model) {
+		return "modules/xhgoods/xhGoodsIndex";
+	}
+	
+	/**
+	 * 商品管理列表页面
+	 */
+	@RequiresPermissions("xhgoods:xhGoods:index")
+	@RequestMapping(value = {"list"})
+	public String list(XhGoods xhGoods, HttpServletRequest request, HttpServletResponse response, Model model) {
+		XhGoods xhGoods1 = new XhGoods();
+		List<XhGoods> goods =xhGoodsService.findList(xhGoods1); 
+		model.addAttribute("goods", goods);
+		String cid =request.getParameter("cid");
+		XhCategory xhCategory = new XhCategory();
+		xhCategory.setId(cid);
+		xhGoods.setXhCategory(xhCategory);
+		Page<XhGoods> page = xhGoodsService.findPage(new Page<XhGoods>(request, response), xhGoods); 
+		model.addAttribute("page", page);
+		return "modules/xhgoods/xhGoodsList";
+	}
+
+	/**
+	 * 查看，增加，编辑商品管理表单页面
+	 */
+	@RequiresPermissions(value={"xhgoods:xhGoods:view","xhgoods:xhGoods:add","xhgoods:xhGoods:edit"},logical=Logical.OR)
+	@RequestMapping(value = "form")
+	public String form(XhGoods xhGoods, Model model) {
+		model.addAttribute("xhGoods", xhGoods);
+		return "modules/xhgoods/xhGoodsForm";
+	}
+	@RequestMapping(value="special")
+	public String updateSpecial(XhGoods xhGoods,RedirectAttributes redirectAttributes,HttpServletRequest request) throws Exception{
+		String special = request.getParameter("special");
+		xhGoods.setSpecial(special);
+		if(!xhGoods.getIsNewRecord()){//编辑表单保存
+			XhGoods t = xhGoodsService.get(xhGoods.getId());//从数据库取出记录的值
+			MyBeanUtils.copyBeanNotNull2Bean(xhGoods, t);//将编辑表单中的非NULL值覆盖数据库记录中的值
+			xhGoodsService.save(t);//保存
+		}else{//新增表单保存
+			xhGoodsService.save(xhGoods);//保存
+		}
+		return "redirect:"+Global.getAdminPath()+"/xhgoods/xhGoods/list?repage";
+	}
+	
+	/**
+	 * 保存商品管理
+	 */
+	@RequiresPermissions(value={"xhgoods:xhGoods:add","xhgoods:xhGoods:edit"},logical=Logical.OR)
+	@RequestMapping(value = "save")
+	public String save(XhGoods xhGoods, Model model, RedirectAttributes redirectAttributes,HttpServletRequest request) throws Exception{
+		if (!beanValidator(model, xhGoods)){
+			return form(xhGoods, model);
+		}
+		MultipartFile multipartFile1 = FileUtils.getMultipartFile(request, "imgNews1");
+		MultipartFile multipartFile2 = FileUtils.getMultipartFile(request, "imgNews2");
+		MultipartFile multipartFile3 = FileUtils.getMultipartFile(request, "imgNews3");
+		MultipartFile multipartFile4 = FileUtils.getMultipartFile(request, "imgNews4");
+		MultipartFile multipartFile5 = FileUtils.getMultipartFile(request, "imgNews5");
+		MultipartFile multipartFile6 = FileUtils.getMultipartFile(request, "imgNews6");
+		User user = UserUtils.getUser();
+		UploadFile uploadFile = new UploadFile();
+		
+		if (multipartFile1.getSize()>0){
+			uploadFile = FileUtils.saveNomalFile(multipartFile1, "imgNews1", user);
+			uploadFileService.saveAndReturnId(uploadFile);
+			xhGoods.setUploadFile(uploadFileService.get(uploadFile.getId()));
+		}
+		if (multipartFile2.getSize()>0){
+			uploadFile = FileUtils.saveNomalFile(multipartFile2, "imgNews2", user);
+			uploadFileService.saveAndReturnId(uploadFile);
+			xhGoods.setUploadFile1(uploadFileService.get(uploadFile.getId()));
+		}
+		if (multipartFile3.getSize()>0){
+			uploadFile = FileUtils.saveNomalFile(multipartFile3, "imgNews3", user);
+			uploadFileService.saveAndReturnId(uploadFile);
+			xhGoods.setUploadFile2(uploadFileService.get(uploadFile.getId()));
+		}
+		if (multipartFile4.getSize()>0){
+			uploadFile = FileUtils.saveNomalFile(multipartFile4, "imgNews4", user);
+			uploadFileService.saveAndReturnId(uploadFile);
+			xhGoods.setUploadFile3(uploadFileService.get(uploadFile.getId()));
+		}
+		if (multipartFile5.getSize()>0){
+			uploadFile = FileUtils.saveNomalFile(multipartFile5, "imgNews5", user);
+			uploadFileService.saveAndReturnId(uploadFile);
+			xhGoods.setUploadFile4(uploadFileService.get(uploadFile.getId()));
+		}
+		if (multipartFile6.getSize()>0){
+			uploadFile = FileUtils.saveNomalFile(multipartFile6, "imgNews6", user);
+			uploadFileService.saveAndReturnId(uploadFile);
+			xhGoods.setUploadFile5(uploadFileService.get(uploadFile.getId()));
+		}
+		if(!xhGoods.getIsNewRecord()){//编辑表单保存
+			XhGoods t = xhGoodsService.get(xhGoods.getId());//从数据库取出记录的值
+			MyBeanUtils.copyBeanNotNull2Bean(xhGoods, t);//将编辑表单中的非NULL值覆盖数据库记录中的值
+			xhGoodsService.save(t);//保存
+		}else{//新增表单保存
+			if(xhGoods != null && xhGoods.getStatus() == null){
+				xhGoods.setStatus("1");
+			}
+			xhGoodsService.save(xhGoods);//保存
+		}
+		addMessage(redirectAttributes, "保存商品管理成功");
+		return "redirect:"+Global.getAdminPath()+"/xhgoods/xhGoods/index?repage";
+	}
+	
+	/**
+	 * 删除商品管理
+	 */
+	@RequiresPermissions("xhgoods:xhGoods:del")
+	@RequestMapping(value = "delete")
+	public String delete(XhGoods xhGoods, RedirectAttributes redirectAttributes) {
+		xhGoodsService.delete(xhGoods);
+		addMessage(redirectAttributes, "删除商品管理成功");
+		return "redirect:"+Global.getAdminPath()+"/xhgoods/xhGoods/list?repage";
+	}
+	
+	/**
+	 * 批量删除商品管理
+	 */
+	@RequiresPermissions("xhgoods:xhGoods:del")
+	@RequestMapping(value = "deleteAll")
+	public String deleteAll(String ids, RedirectAttributes redirectAttributes) {
+		String idArray[] =ids.split(",");
+		for(String id : idArray){
+			xhGoodsService.delete(xhGoodsService.get(id));
+		}
+		addMessage(redirectAttributes, "删除商品管理成功");
+		return "redirect:"+Global.getAdminPath()+"/xhgoods/xhGoods/list?repage";
+	}
+	
+	/**
+	 * 导出excel文件
+	 */
+	@RequiresPermissions("xhgoods:xhGoods:export")
+    @RequestMapping(value = "export", method=RequestMethod.POST)
+    public String exportFile(XhGoods xhGoods, HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes) {
+		try {
+            String fileName = "商品管理"+DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
+            Page<XhGoods> page = xhGoodsService.findPage(new Page<XhGoods>(request, response, -1), xhGoods);
+    		new ExportExcel("商品管理", XhGoods.class).setDataList(page.getList()).write(response, fileName).dispose();
+    		return null;
+		} catch (Exception e) {
+			addMessage(redirectAttributes, "导出商品管理记录失败！失败信息："+e.getMessage());
+		}
+		return "redirect:"+Global.getAdminPath()+"/xhgoods/xhGoods/list?repage";
+    }
+
+	/**
+	 * 导入Excel数据
+
+	 */
+	@RequiresPermissions("xhgoods:xhGoods:import")
+    @RequestMapping(value = "import", method=RequestMethod.POST)
+    public String importFile(MultipartFile file, RedirectAttributes redirectAttributes) {
+		try {
+			int successNum = 0;
+			int failureNum = 0;
+			StringBuilder failureMsg = new StringBuilder();
+			ImportExcel ei = new ImportExcel(file, 1, 0);
+			List<XhGoods> list = ei.getDataList(XhGoods.class);
+			for (XhGoods xhGoods : list){
+				try{
+					xhGoodsService.save(xhGoods);
+					successNum++;
+				}catch(ConstraintViolationException ex){
+					failureNum++;
+				}catch (Exception ex) {
+					failureNum++;
+				}
+			}
+			if (failureNum>0){
+				failureMsg.insert(0, "，失败 "+failureNum+" 条商品管理记录。");
+			}
+			addMessage(redirectAttributes, "已成功导入 "+successNum+" 条商品管理记录"+failureMsg);
+		} catch (Exception e) {
+			addMessage(redirectAttributes, "导入商品管理失败！失败信息："+e.getMessage());
+		}
+		return "redirect:"+Global.getAdminPath()+"/xhgoods/xhGoods/list?repage";
+    }
+	
+	/**
+	 * 下载导入商品管理数据模板
+	 */
+	@RequiresPermissions("xhgoods:xhGoods:import")
+    @RequestMapping(value = "import/template")
+    public String importFileTemplate(HttpServletResponse response, RedirectAttributes redirectAttributes) {
+		try {
+            String fileName = "商品管理数据导入模板.xlsx";
+    		List<XhGoods> list = Lists.newArrayList(); 
+    		new ExportExcel("商品管理数据", XhGoods.class, 1).setDataList(list).write(response, fileName).dispose();
+    		return null;
+		} catch (Exception e) {
+			addMessage(redirectAttributes, "导入模板下载失败！失败信息："+e.getMessage());
+		}
+		return "redirect:"+Global.getAdminPath()+"/xhgoods/xhGoods/list?repage";
+    }
+	
+	
+	/**
+	 * 选择商品种类
+	 */
+	@RequestMapping(value = "selectxhCategory")
+	public String selectxhCategory(XhCategory xhCategory, String url, String fieldLabels, String fieldKeys, String searchLabel, String searchKey, HttpServletRequest request, HttpServletResponse response, Model model) {
+		Page<XhCategory> page = xhGoodsService.findPageByxhCategory(new Page<XhCategory>(request, response),  xhCategory);
+		try {
+			fieldLabels = URLDecoder.decode(fieldLabels, "UTF-8");
+			fieldKeys = URLDecoder.decode(fieldKeys, "UTF-8");
+			searchLabel = URLDecoder.decode(searchLabel, "UTF-8");
+			searchKey = URLDecoder.decode(searchKey, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		model.addAttribute("labelNames", fieldLabels.split("\\|"));
+		model.addAttribute("labelValues", fieldKeys.split("\\|"));
+		model.addAttribute("fieldLabels", fieldLabels);
+		model.addAttribute("fieldKeys", fieldKeys);
+		model.addAttribute("url", url);
+		model.addAttribute("searchLabel", searchLabel);
+		model.addAttribute("searchKey", searchKey);
+		model.addAttribute("obj", xhCategory);
+		model.addAttribute("page", page);
+		return "modules/sys/gridselect";
+	}
+	
+
+}

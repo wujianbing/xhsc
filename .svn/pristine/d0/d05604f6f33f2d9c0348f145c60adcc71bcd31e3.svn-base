@@ -1,0 +1,181 @@
+package com.jeeplus.modules.xhreception.xhController;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.jeeplus.modules.monthtime.entity.MonthTime;
+import com.jeeplus.modules.monthtime.service.MonthTimeService;
+import com.jeeplus.modules.recaddress.entity.RecAddr;
+import com.jeeplus.modules.recaddress.service.RecAddrService;
+import com.jeeplus.modules.xhcategory.entity.XhCategory;
+import com.jeeplus.modules.xhcolor.entity.XhColor;
+import com.jeeplus.modules.xhcolor.service.XhColorService;
+import com.jeeplus.modules.xhfloor.entity.XhFloor;
+import com.jeeplus.modules.xhfloor.service.XhFloorService;
+import com.jeeplus.modules.xhgoods.entity.XhGoods;
+import com.jeeplus.modules.xhgoods.service.XhGoodsService;
+import com.jeeplus.modules.xhreception.domain.NextLoad;
+import com.jeeplus.modules.xhrim.entity.XhRim;
+import com.jeeplus.modules.xhrim.service.XhRimService;
+import com.jeeplus.modules.xhrule.entity.XhRule;
+import com.jeeplus.modules.xhrule.service.XhRuleService;
+import com.jeeplus.modules.xhtime.entity.XhTime;
+import com.jeeplus.modules.xhtime.service.XhTimeService;
+import com.jeeplus.modules.xhuser.entity.XhUser;
+
+/**
+ * 商品controller
+ * @author Administrator
+ *
+ */
+@Controller
+public class ProductController {
+	
+	@Autowired
+	private XhGoodsService xhGoodsService;
+	@Autowired
+	private XhFloorService xhFloorService;
+	@Autowired
+	private XhRuleService xhRuleService;
+	@Autowired
+	private XhRimService xhRimService;
+	@Autowired
+	private XhTimeService xhTimeService;
+	@Autowired
+	private XhColorService xhColorService;
+	@Autowired
+	private RecAddrService recAddrService;
+	@Autowired
+	private MonthTimeService monthTimeService;
+	/**
+	 * 单品
+	 * @return
+	 */
+	@RequestMapping("item")
+	public String item(HttpServletRequest request, HttpServletResponse response, Model model){
+		List<XhFloor> xhFloors = xhFloorService.findListByNum();
+		model.addAttribute("xhFloors", xhFloors);
+		XhGoods xhGoods = new XhGoods();
+		String cid ="368d426edf6a42308e724d6065fdaf5f";
+		XhCategory xhCategory = new XhCategory();
+		xhCategory.setId(cid);
+		xhGoods.setXhCategory(xhCategory);
+		List<XhGoods> item = xhGoodsService.findList(xhGoods);
+		model.addAttribute("item", item);
+		//楼层选择
+		XhFloor xhFloor = new XhFloor();
+		//1楼
+		xhFloor.setFloorNum("8");
+		XhFloor xhFloor1 = xhFloorService.findFloorByNum(xhFloor);
+		model.addAttribute("xhFloor8", xhFloor1);
+		return "modules/xhreception/item";
+	}
+	
+	/**
+	 * 单品详情
+	 */
+	@RequestMapping("itemDetail")
+	public String itemDetail(HttpServletRequest request, HttpServletResponse response, Model model,HttpSession session){
+		String id = request.getParameter("id");
+		session.setAttribute("gid", id);
+		XhGoods xhGoods = xhGoodsService.get(id);
+		model.addAttribute("xhGoods", xhGoods);
+		
+		List<XhRule> xhRules = xhRuleService.findRuleBygid(id);
+		model.addAttribute("xhRules", xhRules);
+		
+		List<XhTime> xhTimes = xhTimeService.findListBygid(id);
+		model.addAttribute("xhTimes", xhTimes);
+		
+		List<XhColor> xhColors = xhColorService.findListBygid(id);
+		model.addAttribute("xhColors", xhColors);
+		
+		List<XhRim> xhRims = xhRimService.findListBygid(id);
+		model.addAttribute("xhRims", xhRims);
+		
+		return "modules/xhreception/itemDetail";
+	}
+
+	/**
+	 * 单品购买下一步
+	 * @param request
+	 * @param response
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping("nextLoad")
+	public String nextLoad(HttpServletRequest request, HttpServletResponse response, Model model,HttpSession session) {
+		NextLoad nextLoad = new NextLoad();
+		NextLoad nextLoad1 =(NextLoad)session.getAttribute("nextLoad");
+		if(nextLoad1 != null){
+			nextLoad = nextLoad1;
+			model.addAttribute("nextLoad", nextLoad);
+			String gid = nextLoad.getGid();
+			XhGoods xhGoods = xhGoodsService.get(gid);
+			model.addAttribute("xhGoods", xhGoods);
+			String uid ="0001";
+			String recid = request.getParameter("recid");
+			RecAddr recAddress = new RecAddr();
+			XhUser xhUser = new XhUser();
+			xhUser.setId(uid);
+			recAddress.setXhUser(xhUser);
+			recAddress.setId(recid);
+			RecAddr recAddr = recAddrService.findAddrFirst(recAddress);
+			model.addAttribute("recAddr", recAddr);
+		}else{
+			String uid = "0001";
+			String gid = request.getParameter("gid");
+			String rid = request.getParameter("rid");
+			String sid = request.getParameter("sid");
+			String tid = request.getParameter("tid");
+			String num =request.getParameter("num");
+			
+			XhRule xhRule = xhRuleService.get(rid);
+			BigDecimal num1 = new BigDecimal(num);
+			BigDecimal price1 = xhRule.getUnitPrice();
+			BigDecimal amount1=price1.multiply(num1);
+			String price = price1.toString();
+			String amount = amount1.toString();
+			
+			nextLoad.setNum(num);
+			nextLoad.setPrice(price);
+			nextLoad.setAmount(amount);
+			nextLoad.setGid(gid);
+			nextLoad.setRid(rid);
+			nextLoad.setSid(sid);
+			nextLoad.setTid(tid);
+			model.addAttribute("nextLoad", nextLoad);
+			XhGoods xhGoods = xhGoodsService.get(gid);
+			model.addAttribute("xhGoods", xhGoods);
+			
+			RecAddr recAddress = new RecAddr();
+			XhUser xhUser = new XhUser();
+			xhUser.setId(uid);
+			recAddress.setXhUser(xhUser);
+			RecAddr recAddr = recAddrService.findAddrFirst(recAddress);
+			model.addAttribute("recAddr", recAddr);
+			
+			session.setAttribute("nextLoad", nextLoad);
+		}
+		
+		return "modules/xhreception/nextLoad";
+	}
+	
+	/**
+	 * 提交订单进入支付页面
+	 * @return
+	 */
+	@RequestMapping("saveOrder")
+	public String saveOrder(){
+		return "";
+	}
+}

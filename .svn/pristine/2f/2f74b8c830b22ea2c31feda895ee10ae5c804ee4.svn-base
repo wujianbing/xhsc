@@ -1,0 +1,229 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+<html>
+<head>
+	<title>商品管理管理</title>
+	<meta name="decorator" content="default"/>
+	<link href="${ctxStatic}/ueditor/themes/default/css/ueditor.css" type="text/css" rel="stylesheet">
+	<script type="text/javascript" charset="utf-8" src="${ctxStatic}/ueditor/ueditor.config.js"></script>
+	<script type="text/javascript" charset="utf-8" src="${ctxStatic}/ueditor/ueditor.all.js"></script>
+	<script type="text/javascript" charset="utf-8" src="${ctxStatic}/pingying/pinying.js"></script>
+	<script type="text/javascript">
+		var validateForm;
+		function doSubmit(){//回调函数，在编辑和保存动作时，供openDialog调用提交表单。
+		  if(validateForm.form()){
+			  $("#inputForm").submit();
+			  return true;
+		  }
+	
+		  return false;
+		}
+		$(document).ready(function() {
+			debugger;
+			var aaa = ${xhGoods.uploadFile.relaPath };
+			if(	 aaa == null || aaa ==""){
+				$("#oldImg").hide();
+				$("#btnC").hide();
+				$("#btnR").hide();
+			}
+			
+			
+			
+			$("#td1").hide();
+			$("#td2").hide();
+			$("#btnC").hide();
+			$("#reInput").hide();
+			
+			$("#btnR").click(function(){
+				$("#btnR").hide();
+				$("#oldImg").hide();
+				$("#btnC").show();
+				$("#reInput").show();
+			});
+			
+			$("#btnC").click(function(){
+				$("#btnC").hide();
+				$("#reInput").hide();
+				$("#btnR").show();
+				$("#oldImg").show();
+			});
+			validateForm = $("#inputForm").validate({
+				submitHandler: function(form){
+					loading('正在提交，请稍等...');
+					form.submit();
+				},
+				errorContainer: "#messageBox",
+				errorPlacement: function(error, element) {
+					$("#messageBox").text("输入有误，请先更正。");
+					if (element.is(":checkbox")||element.is(":radio")||element.parent().is(".input-append")){
+						error.appendTo(element.parent().parent());
+					} else {
+						error.insertAfter(element);
+					}
+				}
+			});
+			var ue = UE.getEditor('xhUE');
+		});
+	</script>
+	
+	
+
+</head>
+<body class="hideScroll">
+		<form:form id="inputForm" modelAttribute="xhGoods" action="${ctx}/xhgoods/xhGoods/save" method="post" class="form-horizontal" enctype="multipart/form-data">
+		<form:hidden path="id"/>
+		<sys:message content="${message}"/>	
+		<table class="table table-bordered  table-condensed dataTables-example dataTable no-footer">
+		   <tbody>
+				<tr>
+					<td class="width-15 active"><label class="pull-right">商品种类：</label></td>
+					<td class="width-35">
+						<sys:gridselect url="${ctx}/xhgoods/xhGoods/selectxhCategory" id="xhCategory" name="xhCategory.id"  value="${xhGoods.xhCategory.id}"  title="选择商品种类" labelName="xhCategory.name" 
+						 labelValue="${xhGoods.xhCategory.name}" cssClass="form-control required" fieldLabels="name" fieldKeys="name" searchLabel="name" searchKey="name" ></sys:gridselect>
+					</td>
+					<td class="width-15 active"><label class="pull-right">商品名称：</label></td>
+					<td class="width-35">
+						<form:input path="name" htmlEscape="false" id="txtChinese" class="form-control " onKeyUp="query()"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="width-15 active"><label class="pull-right">英文缩写：</label></td>
+					<td class="width-35">
+						<form:select path="initial" id="select11"  htmlEscape="false" class="form-control " >
+						</form:select>
+					</td>
+					<td class="width-15 active"><label class="pull-right">鲜花物语：</label></td>
+					<td class="width-35">
+						<form:input path="title" htmlEscape="false"    class="form-control "/>
+					</td>
+				</tr>
+				<tr>
+					<td class="width-15 active"><label class="pull-right">价格单位：</label></td>
+					<td class="width-35">
+						<form:select path="unit" class="form-control ">
+							<form:options items="${fns:getDictList('unit')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+						</form:select>
+					</td>
+					<td class="width-15 active"><label class="pull-right">商品单位：</label></td>
+					<td class="width-35">
+						<form:select path="bigUnit" class="form-control ">
+							<form:options items="${fns:getDictList('bigunit')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+						</form:select>
+					</td>
+				</tr>
+				<tr>
+					<td class="width-15 active"><label class="pull-right">商品最低定价(元)：</label></td>
+					<td class="width-35">
+						<form:input path="price" htmlEscape="false"    class="form-control "  />
+					</td>
+					<td class="width-15 active"><label class="pull-right">商品最高定价(元)：</label></td>
+					<td class="width-35">
+						<form:input path="maxPrice" htmlEscape="false"    class="form-control "  />
+					</td>
+					
+				</tr>
+				<tr>
+					<td class="width-15 active"><label class="pull-right">商品上下架：</label></td>
+					<td class="width-35">
+						<form:radiobuttons path="status" items="${fns:getDictList('xh_status')}"  itemLabel="label" itemValue="value" htmlEscape="false" class="i-checks "/>
+					</td>
+					<td class="width-15 active"><label class="pull-right">商品积分：</label></td>
+					<td class="width-35">
+						<form:input path="integral" htmlEscape="false"    class="form-control "  onkeyup="this.value=this.value.replace(/\D/g, '')"/>
+					</td>
+					<%-- <td class="width-15 active"><label class="pull-right">商品库存：</label></td>
+					<td class="width-35">
+						<form:input path="xhInventory" htmlEscape="false"    class="form-control "  onkeyup="this.value=this.value.replace(/\D/g, '')"/>
+					</td> --%>
+				</tr>
+				<tr>
+					<td class="width-15 active"><label id="td4" class="pull-right">信息图片1：</label></td>
+							<td class="width-35" colspan="3">
+								<span id="td3">
+									<img id="oldImg" src="${xhGoods.uploadFile.relaPath }" width="150px" height="150px" />
+									<input id="reInput" type="file" name="imgNews" />
+									<input type="button"" id="btnR"  value="重新上传" />
+									<input type="button" id="btnC"  value="取消上传" />
+								</span>
+					</td>
+				</tr>
+				<tr>
+					<td class="width-15 active"><label id="td4" class="pull-right">商品图片2：</label></td>
+					<td class="width-35" colspan="3">
+						<span id="td3">
+							<img id="oldImg" src="${xhGoods.uploadFile1.relaPath}" width="150px" height="150px" />
+							<input id="reInput" type="file" name="imgNews2" />
+						</span>
+					</td>
+				</tr>
+				<tr>
+					<td class="width-15 active"><label id="td4" class="pull-right">商品图片3：</label></td>
+					<td class="width-35" colspan="3">
+						<span id="td3">
+							<img id="oldImg" src="${xhGoods.uploadFile2.relaPath}" width="150px" height="150px" />
+							<input id="reInput" type="file" name="imgNews3" />
+						</span>
+					</td>
+				</tr>
+				<tr>
+					<td class="width-15 active"><label id="td4" class="pull-right">商品图片4：</label></td>
+					<td class="width-35" colspan="3">
+						<span id="td3">
+							<img id="oldImg" src="${xhGoods.uploadFile3.relaPath}" width="150px" height="150px" />
+							<input id="reInput" type="file" name="imgNews4" />
+						</span>
+					</td>
+				</tr>
+				<tr>
+					<td class="width-15 active"><label id="td4" class="pull-right">商品图片5：</label></td>
+					<td class="width-35" colspan="3">
+						<span id="td3">
+							<img id="oldImg" src="${xhGoods.uploadFile4.relaPath}" width="150px" height="150px" />
+							<input id="reInput" type="file" name="imgNews5" />
+						</span>
+					</td>
+				</tr>
+				<tr>
+					<td class="width-15 active"><label id="td4" class="pull-right">商品图片6：</label></td>
+					<td class="width-35" colspan="3">
+						<span id="td3">
+							<img id="oldImg" src="${xhGoods.uploadFile5.relaPath}" width="150px" height="150px" />
+							<input id="reInput" type="file" name="imgNews6" />
+						</span>
+					</td>
+				</tr>
+				<tr >
+					<td class="width-15 active"><label class="pull-right">商品介绍：</label></td>
+					<td  class="width-35" colspan="3">
+						<div>
+							<form:textarea path="description"  id="xhUE" />
+                        </div>
+					</td>
+		  		</tr>
+		 	</tbody>
+		</table>
+	</form:form>
+	
+		<script type="text/javascript">
+			debugger;
+			//根据文本框输入的汉字自动获取汉字拼音首字母到下拉列表中，支持多音字，需引入库pinying.js
+			function query(){
+		    var str = document.getElementById("txtChinese").value.trim();
+		    if(str == "") return;
+		    var arrRslt = makePy(str);
+		    //循环将值到下拉框
+		    var option = null;
+		    document.getElementById("select11").innerHTML="";//清空下拉框
+		    var first = document.getElementById("select11");
+		    for(var j=0;j<arrRslt.length;j++){
+				var obj = document.getElementById("select11");
+				obj.add(new Option(arrRslt[j],arrRslt[j]));
+	 	   }
+		}
+ 	</script>
+  </body>
+</html>

@@ -1,0 +1,379 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>单品购买</title>
+		<link rel="stylesheet" type="text/css" href="static/xhreception/css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="static/xhreception/css/shopping.css"/>
+		<link rel="stylesheet" type="text/css" href="static/xhreception/css/base/base.css"/>
+		<link rel="stylesheet" type="text/css" href="static/xhreception/css/arguments.css"/>
+	</head>
+	<script type="text/javascript" src="static/xhreception/js/TouchSlide.1.1.js"></script>
+	<script type="text/javascript" src="static/xhreception/js/jquery.js"></script>
+	<script type="text/javascript" src="static/xhreception/js/layer/layer.js"></script>
+	
+	<body>
+		<header>
+			<div class="logo"><img src="static/xhreception/images/logo.jpg"/></div>
+			<div class="gzhu"><a href="#"><span>+</span>关注</a></div>
+		</header>
+		
+		<div id="slideBox" class="slideBox">
+			<div class="bd">
+				<ul>
+					<li>
+						<c:if test="${xhGoods.uploadFile1.id != null}">
+						<a class="pic" href="#"><img src="${xhGoods.uploadFile1.relaPath}" /></a>
+						<!--<a class="tit" href="#">鲜花物语</a>-->
+						</c:if>
+					</li>
+					<li>
+					<c:if test="${xhGoods.uploadFile2.id != null}">
+						<a class="pic" href="#"><img src="${xhGoods.uploadFile2.relaPath}"/></a>
+						<!--<a class="tit" href="#">鲜花物语</a>-->
+						</c:if>
+					</li>
+					<li>
+					<c:if test="${xhGoods.uploadFile3.id != null}">
+						<a class="pic" href="#"><img src="${xhGoods.uploadFile3.relaPath}"/></a>
+						<!--<a class="tit" href="#">鲜花物语</a>-->
+						</c:if>
+					</li>
+					<li>
+					<c:if test="${xhGoods.uploadFile4.id != null}">
+						<a class="pic" href="#"><img src="${xhGoods.uploadFile4.relaPath}"/></a>
+						<!--<a class="tit" href="#">鲜花物语</a>-->
+						</c:if>
+					</li>
+				</ul>
+			</div>
+
+			<div class="hd">
+				<ul></ul>
+			</div>
+		</div>
+		
+		<section>
+			<h5>${xhGoods.name}</h5>
+			<p class="notice">${xhGoods.title}</p>
+			<p class="price">￥<span>${xhGoods.price}-${xhGoods.maxPrice}</span><br /><!-- <s>159</s> --></p>
+			<p class="yunf">运费：<span>免运费</span></p>
+			<p class="select">选择：规格参数</p>
+		</section>
+			<div>${xhGoods.description}</div>
+		
+		
+		<div class="bottom">
+			<div class="icon"><a href="shopCar">购物车</a></div>
+			<button id="buy">立刻购买</button>
+			<button id="addcar">加入购物车</button>
+		</div>
+<!-----------------------------------------------------------------------------------------------------------------  -->
+<!--弹出窗立即购买  -->
+		<div class="back">
+		<div class="overfl">
+		<div id="close">
+					X
+		</div>
+		<div id="div1">
+		<div class="gdinfo">
+			<img src="${xhGoods.uploadFile.relaPath}"/>
+			<div class="gdname">
+				<h5 id="${xhGoods.id}">${xhGoods.name}</h5>
+				<p class="iteminfo_price"><m>￥</m><span class="sys_item_price">${xhGoods.price}-${xhGoods.maxPrice}</span></p>
+			</div>
+		</div>
+		<div class="iteminfo_buying">
+		<!--规格属性-->
+			<div class="sys_item_spec">
+				<form action="nextLoad" method="post" id="form1" onsubmit="return cc()">
+				 <input hidden="hidden" value="${xhGoods.id}" name="gid"> 
+				 
+				<c:if test="${!empty xhRules}">
+				<dl class="clearfix iteminfo_parameter sys_item_specpara">
+					<dt>规格选择：</dt>
+					<dd>
+						<c:forEach items="${xhRules}" var="xhRules">
+						<label><input name="rid" price="${xhRules.unitPrice}" type="radio" value="${xhRules.id}" class="r1" />${xhRules.rule}</label>
+						</c:forEach>
+					</dd>
+				</dl>
+				</c:if>
+				<c:if test="${!empty xhColors}">
+				<dl class="clearfix iteminfo_parameter sys_item_specpara">
+					<dt>颜色偏好：</dt>
+					<dd>
+						<c:forEach items="${xhColors}" var="xhColors">
+						<label><input price="0" name="sid" type="radio" value="${xhColors.id}" />${xhColors.color}</label>
+						</c:forEach>
+					</dd>
+				</dl>
+				</c:if>
+				<c:if test="${!empty xhTimes}">
+				<dl class="clearfix iteminfo_parameter sys_item_specpara">
+					<dt>收花时间：</dt>
+					<dd>
+						<c:forEach items="${xhTimes}" var="xhTimes">
+						<label><input name="tid" price="0" type="radio" value="${xhTimes.id}"  class=""/>${xhTimes.xhTime}</label>
+						</c:forEach>
+					</dd>
+				</dl>
+				</c:if>
+				<dl class="clearfix iteminfo_parameter sys_item_specpara mb100">
+					<dt class="gnum">购买数量：</dt>
+					<dd class="gopnm">
+						<div class="optnum">
+						<div class="optnumdec left">-</div>
+						<input id="num0" type="text" value="0" class="shang" name="num" onkeyup="this.value=this.value.replace(/\D/g, '')"/>
+						<div class="optnumadd left">+</div>
+					</div>
+					</dd>
+				</dl>
+				<!-- <dl class="clearfix iteminfo_parameter sys_item_specpara mb-50">
+					<dt class="bzhu ">卡片留言：</dt>
+					<dd class="bzhucotn">
+						<input id="message" type="text" name="remarks"/>
+					</dd>
+				</dl> -->
+				<input id="buy" type="submit" value="下一步" />
+				</form>
+				</div>
+			
+				</div>
+				</div>
+<!-- --------------------------------------------------------------------------------------------------------------- -->
+<div id="div2">
+		<div class="gdinfo">
+			<img src="${xhGoods.uploadFile.relaPath}"/>
+			<div class="gdname">
+				<h5 id="${xhGoods.id}">${xhGoods.name}</h5>
+				<p class="iteminfo_price"><m>￥</m><span class="sys_item_price">${xhGoods.price}-${xhGoods.maxPrice}</span></p>
+			</div>
+		</div>
+		<div class="iteminfo_buying">
+		<!--规格属性-->
+			<div class="sys_item_spec">
+			<!--加入购物车  -->
+				<form action="addcar" method="post" id="form2" onsubmit="return aa()">
+				<input hidden="hidden" value="${xhGoods.id}" name="gid">
+				
+				 
+				<c:if test="${!empty xhRules}">
+				<dl class="clearfix iteminfo_parameter sys_item_specpara">
+					<dt>规格选择：</dt>
+					<dd>
+						<c:forEach items="${xhRules}" var="xhRules">
+						<label><input name="rid" price="${xhRules.unitPrice}" type="radio" value="${xhRules.id}" class="r1"/>${xhRules.rule}</label>
+						</c:forEach>
+					</dd>
+				</dl>
+				</c:if>
+				<c:if test="${!empty xhColors}">
+				<dl class="clearfix iteminfo_parameter sys_item_specpara">
+					<dt>颜色偏好：</dt>
+					<dd>
+						<c:forEach items="${xhColors}" var="xhColors">
+						<label><input price="0" name="sid" type="radio" value="${xhColors.id}" />${xhColors.color}</label>
+						</c:forEach>
+					</dd>
+				</dl>
+				</c:if>
+				<c:if test="${!empty xhTimes}">
+				<dl class="clearfix iteminfo_parameter sys_item_specpara">
+					<dt>收花时间：</dt>
+					<dd>
+						<c:forEach items="${xhTimes}" var="xhTimes">
+						<label><input name="tid" price="0" type="radio" value="${xhTimes.id}" class=""/>${xhTimes.xhTime}</label>
+						</c:forEach>
+					</dd>
+				</dl>
+				</c:if>
+				<dl class="clearfix iteminfo_parameter sys_item_specpara mb100">
+					<dt class="gnum">购买数量：</dt>
+					<dd class="gopnm">
+						<div class="optnum">
+						<div class="optnumdec left">-</div>
+						<input id="num1" type="text" value="0" class="shang" name="num" onkeyup="this.value=this.value.replace(/\D/g, '')"/>
+						<div class="optnumadd left">+</div>
+					</div>
+					</dd>
+				</dl>
+				<!-- <dl class="clearfix iteminfo_parameter sys_item_specpara mb-50">
+					<dt class="bzhu ">卡片留言：</dt>
+					<dd class="bzhucotn">
+						<input id="message" type="text" name="remarks"/>
+					</dd>
+				</dl> -->
+				<input id="buy" type="submit" value="加入购物车">
+				</form>
+				
+			</div>		
+			</div>
+	<!--规格属性-->
+	</div>
+	</div>
+	</div>
+<!--------------------------------------------------------------------------------------------------------------------  -->
+<script type="text/javascript">
+	 /*加入购物车*/
+				var btn = document.getElementById('buy');
+				var addcar = document.getElementById('addcar');
+				var close = document.getElementById('close');
+				var div = $('.back');
+				var form1 = document.getElementById('div1');
+				var form2 = document.getElementById('div2');
+				
+				btn.onclick = function show() {
+					div.show();
+					form2.style.display="none";
+					form1.style.display="block";
+					
+					var o = 0;
+				//商品规格选择
+				$(".sys_item_spec .sys_item_specpara").each(function(){
+					var i=$(this);
+					var p=$(this).find("label");
+					p.click(function(){
+						var s = 0;
+						var m = 0;
+						$(this).addClass("selected").siblings("label").removeClass("selected");
+						$(this).addClass("selected").siblings("label").children("input");
+						s=$(this).children("input").attr("price");
+						i.attr("data-val",s);
+						if(s != 0 && typeof s!="undefined"){
+								o = i.attr("data-val")*100/100;
+								$("#div1 ").find(".sys_item_price").text(o);
+							}
+						})
+					});	
+				}
+				
+				 addcar.onclick = function show() {
+					div.show();
+					form1.style.display="none";
+					form2.style.display="block";
+					
+					var o = 0;
+				//商品规格选择
+				$(".sys_item_spec .sys_item_specpara").each(function(){
+					var i=$(this);
+					var p=$(this).find("label");
+					p.click(function(){
+						var s = 0;
+						var m = 0;
+						$(this).addClass("selected").siblings("label").removeClass("selected");
+						$(this).addClass("selected").siblings("label").children("input");
+						s=$(this).children("input").attr("price");
+						i.attr("data-val",s);
+						if(s != 0 && typeof s!="undefined"){
+								o = i.attr("data-val")*100/100;
+								$("#div2 ").find(".sys_item_price").text(o);
+							}
+						})
+					});	
+					
+				}
+				 
+				
+				close.onclick = function close() {
+					
+					div.hide();
+					
+				}	
+				
+				
+			$().each(function(){
+			})
+			 
+				 /*购买数量增加*/
+					$(".optnumadd").click(function(){
+						var num=$(this).parent().children("input");
+						num.val(parseInt(num.val())+1);
+						$(this).parent().siblings("p.ppri").children("span.num").text('x'+num.val());
+						
+					})
+					/*数量减少*/
+					$(".optnumdec").click(function(){
+						var num=$(this).parent().children("input");
+						if(num.val()>0){
+							num.val(parseInt(num.val())-1);
+							$(this).parent().siblings("p.ppri").children("span.num").text('x'+num.val());
+						}
+						else{
+							num.val(0);
+						}
+						
+					});		
+</script>
+
+<script type="text/javascript" language="javascript"> 
+		function cc(){
+		 
+		for(var i = 1;i<2;i++){ 
+		var num = $(".r"+i).length; 
+		var x = 0; 
+		var bool = true; 
+		for(var j=0;j<num;j++){ 
+		var aa = $(".r"+i+":eq("+j+"):checked").val();    
+		if(aa == null){ 
+		x++ 
+		}    
+		} 
+		if(x == num ){
+		alert("请选择参数"); 
+		bool = false; 
+		return bool; 
+		}    
+		
+		}
+		var shuliang = $("#num0").val();
+		 if(shuliang == 0){
+		 	alert("请选择参数");
+		 	bool=false;
+		 	return false;
+		 }
+		if(bool){
+		  
+		return true; 
+		} 
+		} 
+</script>
+
+<script type="text/javascript" language="javascript"> 
+		function aa(){
+		debugger; 
+		for(var i = 1;i<2;i++){ 
+		var num = $(".r"+i).length; 
+		var x = 0; 
+		var bool = true; 
+		for(var j=0;j<num;j++){ 
+		var aa = $(".r"+i+":eq("+j+"):checked").val();    
+		if(aa == null){ 
+		x++ 
+		}    
+		} 
+		if(x == num ){ 
+		alert("请选择参数"); 
+		bool = false; 
+		return bool; 
+		}    
+		
+		}
+		var shuliang = $("#num1").val();
+		 if(shuliang == 0){
+		 	alert("请选择参数");
+		 	bool=false;
+		 	return false;
+		 } 
+		if(bool){
+		alert("加入购物车成功");  
+		return true; 
+		} 
+		} 
+</script>
+</body>
+		<script type="text/javascript" src="static/xhreception/js/order1.js"></script>
+</html>

@@ -1,0 +1,117 @@
+package com.jeeplus.modules.xhreception.pay;
+
+import java.util.Date;
+
+import org.apache.http.Consts;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.jeeplus.common.utils.ReadResource;
+
+
+/**
+ * 微信支付工具类
+ * @author Administrator
+ *
+ */
+public class PayUtils {
+	
+	public static Logger LOGGER = LoggerFactory.getLogger(PayUtils.class);
+	//公众号获取
+	public static final String appid = ReadResource.appid;
+	public static final String secret = ReadResource.secret;
+	//商户号获取
+	public static final String mch_id = ReadResource.mch_id;
+	public static final String KEY= ReadResource.KEY;
+	//重定向地址
+	public static final String redirect_uri = "";
+	//支付成功回调通知地址
+	public static final String NOTIFY_URL = "";
+	//state
+	public static final String state ="xhdhpt";
+	//1 获取普通access_token,需要在网页定时刷新
+	public static final String access_token ="https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=APPID&secret=APPSECRET";
+	//2 获取code redirect_uri授权后重定向的回调链接地址， 请使用 urlEncode 对链接进行处理  state 重定向后会带上state参数，开发者可以填写a-zA-Z0-9的参数值，最多128字节
+	public static final String code = "https://open.weixin.qq.com/connect/oauth2/authorize?appid={APPID}&redirect_uri={REDIRECT_URI}&response_type=code&scope=SCOPE&state={STATE}#wechat_redirect";
+	//3 通过普通access_token获取jsapi_ticket
+	public static final String jsapi_ticket = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=ACCESS_TOKEN&type=jsapi";
+	//4 通过code 获取oppenid 和 用户授权access_token
+	public static final String access_TOKEN = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=APPID&secret=SECRET&code=CODE&grant_type=authorization_code";
+	//5 刷新access_token 使用
+	public static final String access_Token = "https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=APPID&grant_type=refresh_token&refresh_token=REFRESH_TOKEN";
+	//56校验access_token 的有效性
+	public static final String token_ok = "https://api.weixin.qq.com/sns/auth?access_token=ACCESS_TOKEN&openid=OPENID";
+	//7统一下单 
+	public static final String xiadan = "https://api.mch.weixin.qq.com/pay/unifiedorder";
+	
+	public  String url = code.replace("{APPID}", appid).replace("{REDIRECT_URI}", redirect_uri).replace("{STATE}", state);
+	
+	public static final String device_info = "WEB";
+	public static final String fee_type = "CNY";
+	public static final String TRADE_TYPE_JSAPI = "JSAPI";
+	public static final String TRADE_TYPE_NATIVE = "NATIVE";
+	public static final String TRADE_TYPE_APP = "APP";
+	public static final String DATE_FORMAT = "yyyyMMddHHmmss";
+	
+	public static final String SUCCESS = "SUCCESS";
+	
+	
+	
+	
+	public static final  WxReturnData createOrder(String outOrderNo, int totalFee,
+			String spbillCreateIp, String goodsTag, String tradeType,
+			String limitPay, String openId) {
+		String body = "cnxianzhi365";
+		String detail = "cnxianzhi365";
+		String attach = "cnxianzhi365";
+		Date now = new Date();
+		String timeStart = DateUtil.format(now, "yyyyMMddHHmmss");
+		DateTime expire = new DateTime(now).plusDays(1);
+		String timeExpire = DateUtil.format(expire.toDate(), "yyyyMMddHHmmss");
+		return createOrder(appid, mch_id, device_info, body, detail, attach,
+				outOrderNo, totalFee, spbillCreateIp, timeStart, timeExpire,
+				null, tradeType, "1", limitPay, openId);
+	}
+	
+	public static WxReturnData createOrder(String appId, String mchId,
+			String deviceInfo, String body, String detail, String attach,
+			String outOrderNo, int totalFee, String spbillCreateIp,
+			String timeStart, String timeExpire, String goodsTag,
+			String tradeType, String productId, String limitPay, String openId) {
+
+		WxPayRequestBody requestBody = new WxPayRequestBody();
+		requestBody.setAppid(appId);
+		requestBody.setAttach(attach);
+		requestBody.setBody(body);
+		requestBody.setDetail(detail);
+		requestBody.setDevice_info(deviceInfo);
+		requestBody.setFee_type(fee_type);
+		requestBody.setMch_id(mchId);
+		requestBody.setNotify_url(NOTIFY_URL);
+		requestBody.setOpenid(openId);
+		requestBody.setOut_trade_no(outOrderNo);
+		requestBody.setProduct_id(productId);
+		requestBody.setSpbill_create_ip(spbillCreateIp);
+		requestBody.setTime_expire(timeExpire);
+		requestBody.setTime_start(timeStart);
+		requestBody.setTotal_fee(totalFee);
+		requestBody.setTrade_type(tradeType);
+
+		LOGGER.info("requestBody=" + requestBody.toString());
+		requestBody.sign();
+
+		LOGGER.info("requestBody signed=" + requestBody.toString());
+
+		String result = HttpKit.post(xiadan, new String(requestBody.toString()
+				.getBytes(), Consts.UTF_8));
+		LOGGER.info("weixin order result={}", result);
+
+		DOMParser domParser = new DOMParser();
+		WxReturnData data = domParser.makeData(result);
+		LOGGER.info("weixin order result after parse={}", data);
+		String code_url = data.getCode_url();
+		System.out.println(code_url);
+		return data;
+	}
+}

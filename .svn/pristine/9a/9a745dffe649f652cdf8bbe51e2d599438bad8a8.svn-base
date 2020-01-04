@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.xhgroups.dao.XhGroupsDao">
+    
+	<sql id="xhGroupsColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.gid AS "xhGoods.id",
+		(select xhGoods.name from xh_goods xhGoods where xhGoods.id = a.gid) AS "xhGoods.name",
+		(select xhGoods.title from xh_goods xhGoods where xhGoods.id = a.gid) AS "xhGoods.title",
+		(select xhGoods.price from xh_goods xhGoods where xhGoods.id = a.gid) AS "xhGoods.price",
+		(select xhGoods.max_price from xh_goods xhGoods where xhGoods.id = a.gid) AS "xhGoods.maxPrice",
+		(select xhGoods.big_unit from xh_goods xhGoods where xhGoods.id = a.gid) AS "xhGoods.bigUnit",
+		(select xhGoods.integral from xh_goods xhGoods where xhGoods.id = a.gid) AS "xhGoods.integral",
+		(select uploadFile.rela_path from sys_upload_file uploadFile where uploadFile.id=(select xhGoods.upload_file_id from xh_goods xhGoods where xhGoods.id =a.gid)) AS "xhGoods.uploadFile.relaPath",
+		(select uploadFile1.rela_path from sys_upload_file uploadFile1 where uploadFile1.id=(select xhGoods.upload_file_id1 from xh_goods xhGoods where xhGoods.id =a.gid)) AS "xhGoods.uploadFile1.relaPath",
+		(select uploadFile2.rela_path from sys_upload_file uploadFile2 where uploadFile2.id=(select xhGoods.upload_file_id2 from xh_goods xhGoods where xhGoods.id =a.gid)) AS "xhGoods.uploadFile2.relaPath",
+		(select uploadFile3.rela_path from sys_upload_file uploadFile3 where uploadFile3.id=(select xhGoods.upload_file_id3 from xh_goods xhGoods where xhGoods.id =a.gid)) AS "xhGoods.uploadFile3.relaPath",
+		(select uploadFile4.rela_path from sys_upload_file uploadFile4 where uploadFile4.id=(select xhGoods.upload_file_id4 from xh_goods xhGoods where xhGoods.id =a.gid)) AS "xhGoods.uploadFile4.relaPath",
+		(select uploadFile5.rela_path from sys_upload_file uploadFile5 where uploadFile5.id=(select xhGoods.upload_file_id5 from xh_goods xhGoods where xhGoods.id =a.gid)) AS "xhGoods.uploadFile5.relaPath",
+		a.group_no AS "groupNo",
+		a.group_title AS "groupTitle",
+		a.l_title AS "lTitle",
+		a.group_cycle AS "groupCycle",
+		a.group_area AS "groupArea",
+		a.begin_time AS "beginTime",
+		a.end_time AS "endTime",
+		a.max_num AS "maxNum",
+		a.buyer_amt AS "buyerAmt",
+		a.group_status AS "groupStatus",
+		a.remarks AS "remarks",
+		a.status AS "status",
+		a.l_price AS "lPrice",
+		a.max_price AS "maxPrice"
+	</sql>
+	
+	<sql id="xhGroupsJoins">
+		LEFT join xh_goods xhGoods on xhGoods.id = a.gid
+	</sql>
+	
+    
+	<select id="get" resultType="XhGroups" >
+		SELECT 
+			<include refid="xhGroupsColumns"/>
+		FROM xh_groups a
+		<include refid="xhGroupsJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<!--findTwoGroups-->
+	<!--首页显示前两个团购商品  -->
+	<select id="findTwoGroups" resultType="XhGroups">
+		select 	
+			<include refid="xhGroupsColumns"/>
+		from xh_groups a
+		where a.group_status = '1'
+		order by a.update_date DESC
+		limit 0,2
+	</select>
+	<select id="findList" resultType="XhGroups" >
+		SELECT 
+			<include refid="xhGroupsColumns"/>
+		FROM xh_groups a
+		<include refid="xhGroupsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="groupNo != null and groupNo != ''">
+				AND a.group_no LIKE concat('%',#{groupNo}) 
+			</if>
+			<if test="groupStatus != null and groupStatus != ''">
+				AND a.group_status = #{groupStatus}
+			</if>
+			<if test="xhGoods != null and xhGoods != '' and xhGoods.id !=null and xhGoods.id !=''">
+				AND a.gid = #{xhGoods.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="XhGroups" >
+		SELECT 
+			<include refid="xhGroupsColumns"/>
+		FROM xh_groups a
+		<include refid="xhGroupsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	<!--getInfoByGid  -->
+	<select id="getInfoByGid" resultType="XhGroups">
+		select 
+			<include refid="xhGroupsColumns"/>
+		FROM xh_groups a
+		where 
+			a.gid = #{gid}
+	</select>
+	<insert id="insert">
+		INSERT INTO xh_groups(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag,
+			gid,
+			group_no,
+			group_title,
+			l_title,
+			group_cycle,
+			group_area,
+			begin_time,
+			end_time,
+			max_num,
+			buyer_amt,
+			group_status,
+			remarks,
+			status,
+			l_price,
+			max_price
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag},
+			#{xhGoods.id},
+			#{groupNo},
+			#{groupTitle},
+			#{lTitle},
+			#{groupCycle},
+			#{groupArea},
+			#{beginTime},
+			#{endTime},
+			#{maxNum},
+			#{buyerAmt},
+			#{groupStatus},
+			#{remarks},
+			#{status},
+			#{lPrice},
+			#{maxPrice}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE xh_groups SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			gid = #{xhGoods.id},
+			group_no = #{groupNo},
+			group_title = #{groupTitle},
+			l_title = #{lTitle},
+			group_cycle = #{groupCycle},
+			group_area = #{groupArea},
+			begin_time = #{beginTime},
+			end_time = #{endTime},
+			max_num = #{maxNum},
+			buyer_amt = #{buyerAmt},
+			group_status = #{groupStatus},
+			remarks = #{remarks},
+			status = #{status},
+			l_price = #{lPrice},
+			max_price = #{maxPrice}
+		WHERE id = #{id}
+	</update>
+	<update id="updateStatus">
+		UPDATE xh_groups SET
+		 	group_status = #{groupStatus}
+		WHERE id = #{id} 		
+	</update>
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM xh_groups
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE xh_groups SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="XhGroups" statementType="STATEMENT">
+		select * FROM xh_groups  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

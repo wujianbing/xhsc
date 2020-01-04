@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.xhbuyer.dao.XhBuyerDao">
+    
+	<sql id="xhBuyerColumns">
+		a.id AS "id",
+		a.group_no AS "groupNo",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.buyer_id AS "xhUser.id",
+		(select xhUser.username from xh_user xhUser where xhUSer.id = a.buyer_id) AS "xhUser.username",
+		a.group_id AS "xhGroups.id",
+		(select xhGroups.group_title from xh_groups xhGroups where xhGroups.id = a.group_id) AS "xhGroups.groupTitle",
+		(select xhGroups.l_price from xh_groups xhGroups where xhGroups.id = a.group_id) AS "xhGroups.lPrice",
+		a.gid AS "xhGoods.id",
+		(select xhGoods.name from xh_goods xhGoods where xhGoods.id = a.gid) AS "xhGoods.name",
+		(select xhGoods.price from xh_goods xhGoods where xhGoods.id = a.gid) AS "xhGoods.price",
+		a.order_id AS "xhOrder.id",
+		a.gb_num AS "gbNum",
+		a.gb_price AS "gbPrice",
+		a.gb_status AS "gbStatus",
+		a.begin_time AS "beginTime",
+		a.end_time AS "endTime",
+		a.remarks AS "remarks",
+		a.has_num AS "hasNum"
+	</sql>
+	
+	<sql id="xhBuyerJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="XhBuyer" >
+		SELECT 
+			<include refid="xhBuyerColumns"/>
+		FROM xh_buyer a
+		<include refid="xhBuyerJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="XhBuyer" >
+		SELECT 
+			<include refid="xhBuyerColumns"/>
+		FROM xh_buyer a
+		<include refid="xhBuyerJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="xhUser != null and xhUser.id != null and xhUser.id != ''">
+				AND a.buyer_id = #{xhUser.id}
+			</if>
+			<if test="groupNo !=null and groupNo != ''">
+				AND a.group_no = #{groupNo}
+			</if>
+			<if test="xhGroups != null and xhGroups.id !=null and xhGroups.id != ''">
+				AND a.group_id = #{xhGroups.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	<!-- findListByGroupId -->
+	<select id="findListByGroupId" resultType="XhBuyer">
+		select
+			<include refid="xhBuyerColumns"/>,count(distinct a.group_no)
+		FROM xh_buyer a
+		where
+			a.gb_status = '1'
+		    and	 a.group_id = #{groupId} 
+		   	group by a.group_no
+			order by a.update_date
+	</select>
+	<!--findInfoByGroupNo  -->
+	<select id="findInfoByGroupNo" resultType="XhBuyer">
+		select
+			<include refid="xhBuyerColumns"/>
+		from xh_buyer a
+		where a.group_no = #{groupNo}
+		order by a.update_date
+		limit 0,1
+	</select>
+	
+	<select id="findAllList" resultType="XhBuyer" >
+		SELECT 
+			<include refid="xhBuyerColumns"/>
+		FROM xh_buyer a
+		<include refid="xhBuyerJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO xh_buyer(
+			id,
+			group_no,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag,
+			buyer_id,
+			group_id,
+			gid,
+			order_id,
+			gb_num,
+			gb_price,
+			gb_status,
+			begin_time,
+			end_time,
+			remarks,
+			has_num
+		) VALUES (
+			#{id},
+			#{groupNo},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag},
+			#{xhUser.id},
+			#{xhGroups.id},
+			#{xhGoods.id},
+			#{xhOrder.id},
+			#{gbNum},
+			#{gbPrice},
+			#{gbStatus},
+			#{beginTime},
+			#{endTime},
+			#{remarks},
+			#{hasNum}
+		)
+	</insert>
+	<!--updateStatusByGroupNo -->
+	<update id="updateStatusByGroupNo">
+		update xh_buyer set
+			gb_status = #{gbStatus}
+		where group_no = #{groupNo}
+	</update>
+	
+	<update id="update">
+		UPDATE xh_buyer SET
+			group_no = #{groupNo}, 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			buyer_id = #{xhUser.id},
+			group_id = #{xhGroups.id},
+			gid = #{xhGoods.id},
+			order_id = #{xhOrder.id},
+			gb_num = #{gbNum},
+			gb_price = #{gbPrice},
+			gb_status = #{gbStatus},
+			begin_time = #{beginTime},
+			end_time = #{endTime},
+			remarks = #{remarks},
+			has_num = #{hasNum}
+		WHERE id = #{id}
+	</update>
+	<update id="">
+		UPDATE xh_buyer SET
+			gb_status = #{gbStatus}
+		WHERE id = #{id}	
+	</update>
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM xh_buyer
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE xh_buyer SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="XhBuyer" statementType="STATEMENT">
+		select * FROM xh_buyer  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

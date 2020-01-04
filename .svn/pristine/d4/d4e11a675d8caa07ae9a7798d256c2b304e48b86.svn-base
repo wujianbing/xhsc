@@ -1,0 +1,293 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.xhorder.web;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolationException;
+
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.collect.Lists;
+import com.jeeplus.common.config.Global;
+import com.jeeplus.common.persistence.Page;
+import com.jeeplus.common.utils.DateUtils;
+import com.jeeplus.common.utils.MyBeanUtils;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.common.utils.excel.ExportExcel;
+import com.jeeplus.common.utils.excel.ImportExcel;
+import com.jeeplus.common.web.BaseController;
+import com.jeeplus.modules.xhorder.entity.XhOrder;
+import com.jeeplus.modules.xhorder.service.XhOrderService;
+
+/**
+ * 订单信息Controller
+ * @author wujianbing
+ * @version 2019-04-09
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/xhorder/xhOrder")
+public class XhOrderController extends BaseController {
+
+	@Autowired
+	private XhOrderService xhOrderService;
+	
+	@ModelAttribute
+	public XhOrder get(@RequestParam(required=false) String id) {
+		XhOrder entity = null;
+		if (StringUtils.isNotBlank(id)){
+			entity = xhOrderService.get(id);
+		}
+		if (entity == null){
+			entity = new XhOrder();
+		}
+		return entity;
+	}
+	
+	/**
+	 * 订单信息列表页面
+	 */
+	@RequiresPermissions("xhorder:xhOrder:list")
+	@RequestMapping(value = {"list", ""})
+	public String list(XhOrder xhOrder, HttpServletRequest request, HttpServletResponse response, Model model) {
+		Page<XhOrder> page = xhOrderService.findPage(new Page<XhOrder>(request, response), xhOrder); 
+		model.addAttribute("page", page);
+		return "modules/xhorder/xhOrderList";
+	}
+	/**
+	 * 未处理订单
+	 * @return
+	 */
+	@RequestMapping("untreated")
+	public String untreated(XhOrder xhOrder, HttpServletRequest request, HttpServletResponse response, Model model){
+	//TODO 逻辑实现
+		xhOrder.setOrderStatus("1");
+		Page<XhOrder> page = xhOrderService.findPage(new Page<XhOrder>(request, response), xhOrder); 
+		model.addAttribute("page", page);
+		return "modules/xhorder/untreatedOrder";
+	}
+	/**
+	 *  未处理订单处理
+	 * @return
+	 */
+	@RequestMapping("disposeOrder")
+	public String disposeOrder(XhOrder xhOrder, HttpServletRequest request, HttpServletResponse response, Model model){
+		String id = request.getParameter("id");
+		String orderStatus = "2";
+		xhOrder.setId(id);
+		xhOrder.setOrderStatus(orderStatus);
+		int line = xhOrderService.upStatusById(xhOrder);
+		 return "redirect:"+Global.getAdminPath()+"/xhorder/xhOrder/untreated?repage";
+	}
+	/**
+	 * 已处理订单
+	 * @return
+	 */
+	@RequestMapping("treated")
+	public String treated(XhOrder xhOrder, HttpServletRequest request, HttpServletResponse response, Model model){
+	//TODO 逻辑实现
+		xhOrder.setOrderStatus("2");
+		Page<XhOrder> page = xhOrderService.findPage(new Page<XhOrder>(request, response), xhOrder); 
+		model.addAttribute("page", page);
+		return "modules/xhorder/xhOrderList";
+	}
+	/**
+	 * 已发货订单
+	 * @return
+	 */
+	@RequestMapping("delivered")
+	public String delivered(XhOrder xhOrder, HttpServletRequest request, HttpServletResponse response, Model model){
+		//TODO 逻辑实现
+		xhOrder.setOrderStatus("3");
+		Page<XhOrder> page = xhOrderService.findPage(new Page<XhOrder>(request, response), xhOrder); 
+		model.addAttribute("page", page);
+		return "modules/xhorder/xhOrderList";
+	}
+	/**
+	 * 已收货订单
+	 * @return
+	 */
+	@RequestMapping("received")
+	public String received(XhOrder xhOrder, HttpServletRequest request, HttpServletResponse response, Model model){
+		//TODO 逻辑实现
+		xhOrder.setOrderStatus("4");
+		Page<XhOrder> page = xhOrderService.findPage(new Page<XhOrder>(request, response), xhOrder); 
+		model.addAttribute("page", page);
+		return "modules/xhorder/xhOrderList";
+	}
+	/**
+	 * 未支付订单
+	 * @return
+	 */
+	@RequestMapping("unpaidOrder")
+	public String unpaidOrder(XhOrder xhOrder, HttpServletRequest request, HttpServletResponse response, Model model){
+		//TODO 逻辑实现
+		xhOrder.setPayStatus("1");
+		Page<XhOrder> page = xhOrderService.findPage(new Page<XhOrder>(request, response), xhOrder); 
+		model.addAttribute("page", page);
+		return "modules/xhorder/xhOrderList";
+	}
+	/**
+	 * 已支付订单
+	 * @return
+	 */
+	@RequestMapping("paidOrder")
+	public String paidOrder(XhOrder xhOrder, HttpServletRequest request, HttpServletResponse response, Model model){
+		//TODO 逻辑实现
+		xhOrder.setPayStatus("2");
+		Page<XhOrder> page = xhOrderService.findPage(new Page<XhOrder>(request, response), xhOrder); 
+		model.addAttribute("page", page);
+		return "modules/xhorder/xhOrderList";
+	}
+	/**
+	 * 已退款订单
+	 * @return
+	 */
+	@RequestMapping("refunded")
+	public String refunded(XhOrder xhOrder, HttpServletRequest request, HttpServletResponse response, Model model){
+		//TODO 逻辑实现
+		xhOrder.setPayStatus("3");
+		Page<XhOrder> page = xhOrderService.findPage(new Page<XhOrder>(request, response), xhOrder); 
+		model.addAttribute("page", page);
+		return "modules/xhorder/xhOrderList";
+	}
+	
+	/**
+	 * 查看，增加，编辑订单信息表单页面
+	 */
+	@RequiresPermissions(value={"xhorder:xhOrder:view","xhorder:xhOrder:add","xhorder:xhOrder:edit"},logical=Logical.OR)
+	@RequestMapping(value = "form")
+	public String form(XhOrder xhOrder, Model model) {
+		model.addAttribute("xhOrder", xhOrder);
+		return "modules/xhorder/xhOrderForm";
+	}
+
+	/**
+	 * 保存订单信息
+	 */
+	@RequiresPermissions(value={"xhorder:xhOrder:add","xhorder:xhOrder:edit"},logical=Logical.OR)
+	@RequestMapping(value = "save")
+	public String save(XhOrder xhOrder, Model model, RedirectAttributes redirectAttributes) throws Exception{
+		if (!beanValidator(model, xhOrder)){
+			return form(xhOrder, model);
+		}
+		if(!xhOrder.getIsNewRecord()){//编辑表单保存
+			XhOrder t = xhOrderService.get(xhOrder.getId());//从数据库取出记录的值
+			MyBeanUtils.copyBeanNotNull2Bean(xhOrder, t);//将编辑表单中的非NULL值覆盖数据库记录中的值
+			xhOrderService.save(t);//保存
+		}else{//新增表单保存
+			xhOrderService.save(xhOrder);//保存
+		}
+		addMessage(redirectAttributes, "保存订单信息成功");
+		return "redirect:"+Global.getAdminPath()+"/xhorder/xhOrder/?repage";
+	}
+	
+	/**
+	 * 删除订单信息
+	 */
+	@RequiresPermissions("xhorder:xhOrder:del")
+	@RequestMapping(value = "delete")
+	public String delete(XhOrder xhOrder, RedirectAttributes redirectAttributes) {
+		xhOrderService.delete(xhOrder);
+		addMessage(redirectAttributes, "删除订单信息成功");
+		return "redirect:"+Global.getAdminPath()+"/xhorder/xhOrder/?repage";
+	}
+	
+	/**
+	 * 批量删除订单信息
+	 */
+	@RequiresPermissions("xhorder:xhOrder:del")
+	@RequestMapping(value = "deleteAll")
+	public String deleteAll(String ids, RedirectAttributes redirectAttributes) {
+		String idArray[] =ids.split(",");
+		for(String id : idArray){
+			xhOrderService.delete(xhOrderService.get(id));
+		}
+		addMessage(redirectAttributes, "删除订单信息成功");
+		return "redirect:"+Global.getAdminPath()+"/xhorder/xhOrder/?repage";
+	}
+	
+	/**
+	 * 导出excel文件
+	 */
+	@RequiresPermissions("xhorder:xhOrder:export")
+    @RequestMapping(value = "export", method=RequestMethod.POST)
+    public String exportFile(XhOrder xhOrder, HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes) {
+		try {
+            String fileName = "订单信息"+DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
+            Page<XhOrder> page = xhOrderService.findPage(new Page<XhOrder>(request, response, -1), xhOrder);
+    		new ExportExcel("订单信息", XhOrder.class).setDataList(page.getList()).write(response, fileName).dispose();
+    		return null;
+		} catch (Exception e) {
+			addMessage(redirectAttributes, "导出订单信息记录失败！失败信息："+e.getMessage());
+		}
+		return "redirect:"+Global.getAdminPath()+"/xhorder/xhOrder/?repage";
+    }
+
+	/**
+	 * 导入Excel数据
+
+	 */
+	@RequiresPermissions("xhorder:xhOrder:import")
+    @RequestMapping(value = "import", method=RequestMethod.POST)
+    public String importFile(MultipartFile file, RedirectAttributes redirectAttributes) {
+		try {
+			int successNum = 0;
+			int failureNum = 0;
+			StringBuilder failureMsg = new StringBuilder();
+			ImportExcel ei = new ImportExcel(file, 1, 0);
+			List<XhOrder> list = ei.getDataList(XhOrder.class);
+			for (XhOrder xhOrder : list){
+				try{
+					xhOrderService.save(xhOrder);
+					successNum++;
+				}catch(ConstraintViolationException ex){
+					failureNum++;
+				}catch (Exception ex) {
+					failureNum++;
+				}
+			}
+			if (failureNum>0){
+				failureMsg.insert(0, "，失败 "+failureNum+" 条订单信息记录。");
+			}
+			addMessage(redirectAttributes, "已成功导入 "+successNum+" 条订单信息记录"+failureMsg);
+		} catch (Exception e) {
+			addMessage(redirectAttributes, "导入订单信息失败！失败信息："+e.getMessage());
+		}
+		return "redirect:"+Global.getAdminPath()+"/xhorder/xhOrder/?repage";
+    }
+	
+	/**
+	 * 下载导入订单信息数据模板
+	 */
+	@RequiresPermissions("xhorder:xhOrder:import")
+    @RequestMapping(value = "import/template")
+    public String importFileTemplate(HttpServletResponse response, RedirectAttributes redirectAttributes) {
+		try {
+            String fileName = "订单信息数据导入模板.xlsx";
+    		List<XhOrder> list = Lists.newArrayList(); 
+    		new ExportExcel("订单信息数据", XhOrder.class, 1).setDataList(list).write(response, fileName).dispose();
+    		return null;
+		} catch (Exception e) {
+			addMessage(redirectAttributes, "导入模板下载失败！失败信息："+e.getMessage());
+		}
+		return "redirect:"+Global.getAdminPath()+"/xhorder/xhOrder/?repage";
+    }
+	
+	
+	
+
+}

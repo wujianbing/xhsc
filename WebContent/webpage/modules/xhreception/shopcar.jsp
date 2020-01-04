@@ -1,0 +1,156 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>购物车</title>
+				<link rel="stylesheet" type="text/css" href="static/xhreception/css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="static/xhreception/css/base/base.css"/>
+		<link rel="stylesheet" type="text/css" href="static/xhreception/css/shopcar.css"/>
+		
+	</head>
+	<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+	<script type="text/javascript" src="static/xhreception/js/shopcar.js"></script>
+	<script type="text/javascript" src="static/xhreception/js/jquery.js"></script>
+	
+	<body>
+		<c:choose>
+			<c:when test="${ xhShopcars  eq  null ||  empty xhShopcars || xhShopcars ==''}">
+				<div class="box">
+				<div class="iconp">
+					<img src="static/xhreception/images/shopp.png"/>
+				</div>
+					<p>购物车空空如也~~</p>
+					<p class="goindex"><a href="index">快去逛逛吧</a></p>
+				</div>
+				</c:when>
+			<c:otherwise>
+				<div class="carlist">
+			<div class="topopt">
+				<img class="img-responsive checkout" src="static/xhreception/images/checkout.png"/>
+				<div class="optleft">
+					<i class="iconfont">&#xe51b;</i><span>鲜花商城</span>
+				</div>
+				<div class="optright">
+					编辑
+				</div>
+			</div>
+			
+			<c:forEach items="${xhShopcars}" var="xhShopcars">
+			<div class="gdlist">
+				<input hidden="hidden" id="carId" value="${xhShopcars.id}">
+				<img class="img-responsive checkout" src="static/xhreception/images/checkout.png"/>
+				<div class="dbimg">
+					<img class="img-responsive" src="${xhShopcars.xhGoods.uploadFile.relaPath}" alt="" />
+				</div>
+				<div class="det">
+					<h5>${xhShopcars.xhGoods.name}</h5><span class="tj">[店长推荐]</span>
+					<div class="optnum">
+						<div class="optnumdec left">-</div>
+						<input id="num" type="text" value="${xhShopcars.num}" class="shang"/>
+						<div class="optnumadd left">+</div>
+					</div>
+					<p>${xhShopcars.xhGoods.title}</p>
+					<p>${xhShopcars.xhRule.rule}</p>
+					<p class="ppri">价格：<sm>￥</sm><span id="unitPrice" class="price">${xhShopcars.price}</span><span class="num">&times;${xhShopcars.num}</span></p>
+				</div>
+			</div>
+			</c:forEach>
+			<div class="bottom">
+				
+				<div class="btleft">
+					<img class="img-responsive checkout" src="static/xhreception/images/checkout.png"/>
+					<span>&nbsp;全选</span>
+				</div>
+				<div class="btright">
+					<button id="del" class="delete">删除</button>
+					<p>合计：￥<span id="totalPrice">0</span><br /><span>不含运费</span></p>
+					<button class="gobuy">结算(<span id="totlnum" class="totlnum">0</span>)</button>
+				</div>
+			</div>
+		</div>
+			</c:otherwise>
+			
+		</c:choose>
+		
+		
+		<%-- </c:if> --%>
+	</body>
+		
+			
+
+	<script type="text/javascript">
+		$(".gobuy").click(function(){
+		var ids = new Array();
+		$(".gdlist").each(function(){
+		if($(this).hasClass("on")){
+			var obj = {};
+			obj.num=$(this).find("#num").val();
+			obj.carId=$(this).find("#carId").val();
+			ids.push(obj);
+			}
+		})
+		
+		if(ids.length == 0){
+			return false;
+		}
+		$.ajax({
+			type:'post',
+			dataType:'json',
+			url:"shopNext",
+			data:JSON.stringify(ids),
+			contentType : 'application/json',
+			success : function(data) {
+				if(data.code == 1){
+					window.location.href="shopcarNextLoad";
+				}		
+			
+			}
+		});
+		
+	});	
+	
+	
+	/*删除事件*/
+	$(".delete").click(function(){
+		if($(".gdlist").hasClass("on")){
+		var ids = new Array();
+		$(".gdlist").each(function(){
+		if($(this).hasClass("on")){
+			var obj = {};
+			obj.carId=$(this).find("#carId").val();
+			ids.push(obj);
+			}
+		})
+		$.ajax({
+			type:'post',
+			dataType:'json',
+			url:"delShopcar",
+			data:JSON.stringify(ids),
+			contentType : 'application/json',
+			success : function(data) {
+				if(data.code == 1){
+					alert(data.message);
+					window.location.href="shopCar";
+				}		
+			
+			}
+		});
+		}
+	})
+		
+	</script>
+	<script type="text/javascript">
+		window.onload = function(){  
+		    if(window.name!="hasLoad"){      
+		        location.reload();      
+		        window.name = "hasLoad";      
+		    }else{      
+		        window.name="";      
+		    }  
+		}  
+</script>	
+</html>

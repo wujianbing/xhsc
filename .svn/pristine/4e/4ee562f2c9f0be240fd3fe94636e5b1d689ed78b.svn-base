@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.xhcolumn.dao.XhColumnDao">
+    
+	<sql id="xhColumnColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.parent_id AS "parent.id",
+		a.parent_ids AS "parentIds",
+		a.name AS "name",
+		a.sort AS "sort",
+		a.column_name AS "columnName"
+	</sql>
+	
+	<sql id="xhColumnJoins">
+	</sql>
+    
+	<select id="get" resultType="XhColumn">
+		SELECT 
+			<include refid="xhColumnColumns"/>
+		FROM xh_column a
+		<include refid="xhColumnJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="XhColumn">
+		SELECT 
+			<include refid="xhColumnColumns"/>
+		FROM xh_column a
+		<include refid="xhColumnJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="parent != null and parent.id != null and parent.id != ''">
+				AND a.parent_id = #{parent.id}
+			</if>
+			<if test="parentIds != null and parentIds != ''">
+				AND a.parent_ids LIKE 
+					<if test="dbName == 'oracle'">'%'||#{parentIds}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{parentIds}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{parentIds},'%')</if>
+			</if>
+		</where>
+		ORDER BY a.sort ASC
+	</select>
+	
+	<select id="findAllList" resultType="XhColumn">
+		SELECT 
+			<include refid="xhColumnColumns"/>
+		FROM xh_column a
+		<include refid="xhColumnJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		ORDER BY a.sort ASC
+	</select>
+	
+	<select id="findByParentIdsLike" resultType="XhColumn">
+		SELECT
+			a.id,
+			a.parent_id AS "parent.id",
+			a.parent_ids
+		FROM xh_column a
+		<include refid="xhColumnJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			AND a.parent_ids LIKE #{parentIds}
+		</where>
+		ORDER BY a.sort ASC
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO xh_column(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			parent_id,
+			parent_ids,
+			name,
+			sort,
+			column_name
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{parent.id},
+			#{parentIds},
+			#{name},
+			#{sort},
+			#{columnName}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE xh_column SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			parent_id = #{parent.id},
+			parent_ids = #{parentIds},
+			name = #{name},
+			sort = #{sort},
+			column_name = #{columnName}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateParentIds">
+		UPDATE xh_column SET 
+			parent_id = #{parent.id}, 
+			parent_ids = #{parentIds}
+		WHERE id = #{id}
+	</update>
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM xh_column
+		WHERE id = #{id} OR parent_ids LIKE 
+		<if test="dbName == 'oracle'">#{id}||'%'</if>
+		<if test="dbName == 'mssql'">#{id}+'%'</if>
+		<if test="dbName == 'mysql'">concat(#{id},'%')</if>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE xh_column SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id} OR parent_ids LIKE 
+		<if test="dbName == 'oracle'">#{id}||'%'</if>
+		<if test="dbName == 'mssql'">#{id}+'%'</if>
+		<if test="dbName == 'mysql'">concat(#{id},'%')</if>
+	</update>
+	
+</mapper>

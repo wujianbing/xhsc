@@ -1,0 +1,56 @@
+*{
+			margin: 0;
+			padding: 0;
+		}
+a{
+	text-decoration: none;
+}
+		body{
+			background: #ffffff;
+			font-size: 1rem;
+		}
+		.box{
+			padding: 2% 0;
+			background: #ffffff;
+			padding-bottom: 0;
+		}
+		.box li{
+			list-style: none;
+			position: relative;
+			border-bottom:1px solid #f4f4f4;
+			padding:3% 2%;
+			/*background:url(../images/edit.png) no-repeat 95% center;*/
+			background-size: 7%;
+		}
+		.box li a img{
+			width: 5%;
+    		float: right;
+		}
+		.box li span{
+			font-size: 1rem;
+			color: #000;
+			padding-left:2%;
+		}
+		.box input[type="button"]{
+			width: 100%;
+			position: fixed;
+			bottom: 0;
+			height: 50px;
+			background: #fe5479;
+			color: #fff;
+    		display: block;
+    		border-radius: 2%;
+    		border:0;
+    		font-size: 1rem;
+		}
+		.box li span.addres{
+			color: #999;
+			font-size: 0.8rem;
+		}
+		.box li a:nth-last-child{
+		    width: 20%;
+		    height: 30px;
+		    position: absolute;
+		    right: 0;
+		    top: 20%;
+		}

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.recaddress.dao.RecAddrDao">
+    
+	<sql id="recAddrColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.uid AS "xhUser.id",
+		(select xhUser.username from xh_user xhUser where xhUser.id = a.uid) AS "xhUser.username",
+		a.province AS "province",
+		a.city AS "city",
+		a.area AS "area",
+		a.address AS "address",
+		a.rec_user AS "recUser",
+		a.rec_phone AS "recPhone"
+	</sql>
+	
+	<sql id="recAddrJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="RecAddr" >
+		SELECT 
+			<include refid="recAddrColumns"/>
+		FROM rec_addr a
+		<include refid="recAddrJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<!--findAddrFirst -->
+	<!--默认地址 -->
+	<select id="findAddrFirst" resultType="RecAddr">
+		select
+			<include refid="recAddrColumns"/>
+		from rec_addr a
+		where a.uid = #{xhUser.id}
+		<if test="id !=null and id !=''">
+		AND	a.id = #{id}
+		</if>
+		order By a.update_date DESC
+		limit 0,1
+	</select>
+	
+	<select id="findList" resultType="RecAddr" >
+		SELECT 
+			<include refid="recAddrColumns"/>
+		FROM rec_addr a
+		<include refid="recAddrJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="xhUser != null and xhUser != ''">
+				<if test="xhUser.id !=null and xhUser != ''">
+					and a.uid = #{xhUser.id}
+				</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="RecAddr" >
+		SELECT 
+			<include refid="recAddrColumns"/>
+		FROM rec_addr a
+		<include refid="recAddrJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO rec_addr(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			uid,
+			province,
+			city,
+			area,
+			address,
+			rec_user,
+			rec_phone
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{xhUser.id},
+			#{province},
+			#{city},
+			#{area},
+			#{address},
+			#{recUser},
+			#{recPhone}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE rec_addr SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			uid = #{xhUser.id},
+			province = #{province},
+			city = #{city},
+			area = #{area},
+			address = #{address},
+			rec_user = #{recUser},
+			rec_phone = #{recPhone}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM rec_addr
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE rec_addr SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="RecAddr" statementType="STATEMENT">
+		select * FROM rec_addr  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

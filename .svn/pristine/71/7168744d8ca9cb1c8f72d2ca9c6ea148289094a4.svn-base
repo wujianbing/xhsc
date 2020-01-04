@@ -1,0 +1,75 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.xhorder.dao;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import com.jeeplus.common.persistence.CrudDao;
+import com.jeeplus.common.persistence.annotation.MyBatisDao;
+import com.jeeplus.modules.xhorder.entity.XhOrder;
+
+/**
+ * 订单信息DAO接口
+ * @author wujianbing
+ * @version 2019-04-09
+ */
+@MyBatisDao
+public interface XhOrderDao extends CrudDao<XhOrder> {
+	/**
+	 * 未处理订单 orderStatus=1
+	 * @return
+	 */
+	List<XhOrder>  findUntreated(XhOrder xhOrder);
+	/**
+	 * 已处理订单 orderStatus=0
+	 * @return
+	 */
+	List<XhOrder> findTreated(XhOrder xhOrder);
+	/**
+	 * 已支付订单  payStatus=0
+	 * @return
+	 */
+	List<XhOrder>  findPaidOrder(XhOrder xhOrder);
+	/**
+	 * 未支付订单  payStatus=1
+	 * @return
+	 */
+	List<XhOrder>  findUnpaidOrder(XhOrder xhOrder);
+	/**
+	 * 订单处理
+	 * @param xhOrder
+	 * @return
+	 */
+	int upStatusById(XhOrder xhOrder);
+	/**
+	 * 查找最新生成的一个订单
+	 * @return
+	 */
+	String findnewOrder();
+	/**
+	 *	订单号获取订单id 
+	 * @param orderNo
+	 * @return
+	 */
+	String findOidByOrderNo(String orderNo);
+	/**
+	 * 评论
+	 * @param xhOrder
+	 */
+	void updateCommentById(XhOrder xhOrder);
+	
+	int upPayStatusById(XhOrder xhOrder);
+	//订单总数
+	String getAllOrderNum();
+	//待付款总数 
+	String getDOrderNum();
+	//已支付订单总数
+	String getEOrderNum();
+	//销售总额
+	String getOrderAmount();
+	//每天的销售额
+	List<XhOrder> getEOrderAmount();
+	
+}

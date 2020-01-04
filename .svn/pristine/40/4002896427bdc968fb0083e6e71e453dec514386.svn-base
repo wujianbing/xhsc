@@ -1,0 +1,49 @@
+package com.jeeplus.modules.xhreception.xhController;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.jeeplus.modules.xhcategory.entity.XhCategory;
+import com.jeeplus.modules.xhfloor.entity.XhFloor;
+import com.jeeplus.modules.xhfloor.service.XhFloorService;
+import com.jeeplus.modules.xhgoods.entity.XhGoods;
+import com.jeeplus.modules.xhgoods.service.XhGoodsService;
+import com.jeeplus.modules.xhgroups.entity.XhGroups;
+import com.jeeplus.modules.xhgroups.service.XhGroupsService;
+
+@Controller
+public class GrounpController {
+	@Autowired
+	private XhFloorService xhFloorService;
+	@Autowired
+	private XhGroupsService xhGroupsService;
+
+	@RequestMapping("groupList")
+	public String groupList(HttpServletRequest request, HttpServletResponse response, Model model) {
+
+		// 6以后
+		List<XhFloor> xhFloors = xhFloorService.findListByNum();
+		model.addAttribute("xhFloors", xhFloors);
+		// 团购商品
+		XhGroups xhGroup = new XhGroups();
+		xhGroup.setGroupStatus("1");
+		List<XhGroups> xhGroups = xhGroupsService.findList(xhGroup);
+		model.addAttribute("xhGroups", xhGroups);
+		return "modules/xhreception/groupList";
+	}
+	
+	@RequestMapping("groupDetail")
+	public String groupDetail(HttpServletRequest request, HttpServletResponse response, Model model){
+		String id = request.getParameter("id");
+		XhGroups xhGroup = xhGroupsService.get(id);
+		model.addAttribute("xhGroup", xhGroup);
+		return "modules/xhreception/groupDetail";
+	}
+}

@@ -1,0 +1,24 @@
+
+		$(".gzhu a").click(function() {
+					layer.open({
+						type: 1,
+						title: false,
+						offset:'center',
+						closeBtn: 0,
+						shadeClose: true,
+						skin: 'yourclass',
+						content: '<img class="img-responsive imgw200" src="static/xhreception/images/ewm.png" alt="" />'
+		});
+})	
+
+	$(".kefu a").click(function() {
+					layer.open({
+						type: 1,
+						title: false,
+						offset:'center',
+						closeBtn: 0,
+						shadeClose: true,
+						skin: 'yourclass',
+						content: '<img class="img-responsive imgw200" src="static/xhreception/images/kefu.jpg" alt="" />'
+		});
+})	

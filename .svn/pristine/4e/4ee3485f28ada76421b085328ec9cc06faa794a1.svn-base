@@ -1,0 +1,65 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>积分商城</title>
+		<link rel="stylesheet" type="text/css" href="static/xhreception/css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="static/xhreception/css/base/base.css"/>
+		<link rel="stylesheet" type="text/css" href="static/xhreception/css/jfmall.css"/>
+		<script type="text/javascript" src="static/xhreception/js/jquery.js"></script>
+	</head>
+
+	<body>
+		<sys:message content="${message}"/>
+		<div class="itemlist">
+					<ul>
+						<c:forEach items="${pointGoods}" var="pointGoods">
+						<li>
+							<img src="${pointGoods.uploadFile.relaPath }" class="img-responsive" alt="" />
+							<p class="nme pull-left">${pointGoods.pName}<br /><span><m>${pointGoods.pPoint}</m>积分</span></p>
+							<p class="dh pull-right"><a href="addPGoodsOrder?id=${pointGoods.id}">兑换</a></p>
+						</li>
+						</c:forEach>
+						<!-- <li>
+							<img src="static/xhreception/images/jf2.png" class="img-responsive" alt="" />
+							<p class="nme pull-left">【精选百合】<br /><span><m>200</m>积分</span></p>
+							<p class="dh pull-right"><a href="">兑换</a></p>
+						</li>
+						<li>
+							<img src="static/xhreception/images/jf3.png" class="img-responsive" alt="" />
+							<p class="nme pull-left">【精选百合】<br /><span><m>200</m>积分</span></p>
+							<p class="dh pull-right"><a href="">兑换</a></p>
+						</li>
+						<li>
+							<img src="static/xhreception/images/jf4.png" class="img-responsive" alt="" />
+							<p class="nme pull-left">【精选百合】<br /><span><m>200</m>积分</span></p>
+							<p class="dh pull-right"><a href="">兑换</a></p>
+						</li>
+						<li>
+							<img src="static/xhreception/images/jf1.png" class="img-responsive" alt="" />
+							<p class="nme pull-left">【精选百合】<br /><span><m>200</m>积分</span></p>
+							<p class="dh pull-right"><a href="">兑换</a></p>
+						</li>
+						<li>
+							<img src="static/xhreception/images/jf2.png" class="img-responsive" alt="" />
+							<p class="nme pull-left">【精选百合】<br /><span><m>200</m>积分</span></p>
+							<p class="dh pull-right"><a href="">兑换</a></p>
+						</li> -->
+					</ul>
+		</div>
+				
+		<footer>
+			<ul>
+				<%@ include file="webBase.jsp" %>
+			</ul>
+		</footer>
+	</body>
+		<!-- <script type="text/javascript">
+		$(".dh").click(function(){
+			alert("恭喜你兑换成功！");
+		})
+	</script> -->
+</html>

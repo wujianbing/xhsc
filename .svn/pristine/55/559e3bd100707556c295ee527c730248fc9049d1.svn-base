@@ -1,0 +1,85 @@
+<%@ page contentType="text/html;charset=UTF-8"%>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<%@page import="com.jeeplus.common.web.Servlets"%>
+<%
+	response.setStatus(404);
+
+	// 如果是异步请求或是手机端，则直接返回信息
+	if (Servlets.isAjaxRequest(request)) {
+		out.print("页面不存在.");
+	}
+
+	//输出异常信息页面
+	else {
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>404 页面</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<%--   <link href="${ctxStatic}/common/css/style.css?v=3.2.0" type="text/css" rel="stylesheet" /> --%>
+<style type="text/css">
+body {
+	font-family: Arial, Helvetica, sans-serif;
+	background: #f8f8f8;
+}
+
+.wrap {
+	width: 100%;
+	margin: 0 auto;
+}
+
+.logo {
+	margin: 60px auto 50px auto;
+}
+
+.logo img {
+	max-width: 100%;
+}
+
+p {
+	width: 50%;
+	float: left;
+	text-align: center;
+}
+
+p a {
+	width: 60%;
+	display: inline-block;
+	height: 30px;
+	line-height: 20px;
+	color: #fff;
+	font-size: 0.9rem;
+	margin-left: 15px;
+	padding: 5px;
+	background: #f8bfbf;
+	text-decoration: none;
+}
+
+p a:hover {
+	color: #fff;
+}
+</style>
+</head>
+
+<body>
+
+	<div class="wrap">
+		<div class="logo">
+			<img src="/static/xhreception/images/404.png" alt="" />
+			<p>
+				<a href="index">返回首页</a>
+			</p>
+			<p>
+				<a href="index">返回上一页</a>
+			</p>
+		</div>
+	</div>
+
+</body>
+
+</html>
+
+<%
+	}
+%>

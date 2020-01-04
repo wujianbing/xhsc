@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.xhmbuyer.dao.XhMbuyerDao">
+    
+	<sql id="xhMbuyerColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.uid AS "xhUser.id",
+		(select xhUser.username from xh_user xhUser where xhUser.id = a.uid) AS "xhUser.username",
+		a.gid AS "xhGoods.id",
+		(select xhGoods.name from xh_goods xhGoods where xhGoods.id = a.gid) AS "xhGoods.name",
+		a.oid AS "xhOrder.id",
+		a.m_time AS "mTime",
+		a.begin_time AS "beginTime",
+		a.end_time AS "endTime",
+		a.m_status AS "mStatus"
+	</sql>
+	
+	<sql id="xhMbuyerJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="XhMbuyer" >
+		SELECT 
+			<include refid="xhMbuyerColumns"/>
+		FROM xh_mbuyer a
+		<include refid="xhMbuyerJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="XhMbuyer" >
+		SELECT 
+			<include refid="xhMbuyerColumns"/>
+		FROM xh_mbuyer a
+		<include refid="xhMbuyerJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="XhMbuyer" >
+		SELECT 
+			<include refid="xhMbuyerColumns"/>
+		FROM xh_mbuyer a
+		<include refid="xhMbuyerJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO xh_mbuyer(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			uid,
+			gid,
+			oid,
+			m_time,
+			begin_time,
+			end_time,
+			m_status
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{xhUser.id},
+			#{xhGoods.id},
+			#{xhOrder.id},
+			#{mTime},
+			#{beginTime},
+			#{endTime},
+			#{mStatus}
+		)
+	</insert>
+	<!--updateStatusById  -->
+	<update id="updateStatusById">
+		update xh_mbuyer SET
+			m_status = #{mStatus}
+			where id = #{id} 	
+	</update>
+	<update id="update">
+		UPDATE xh_mbuyer SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			uid = #{xhUser.id},
+			gid = #{xhGoods.id},
+			oid = #{xhOrder.id},
+			m_time = #{mTime},
+			begin_time = #{beginTime},
+			end_time = #{endTime},
+			m_status = #{mStatus}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM xh_mbuyer
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE xh_mbuyer SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="XhMbuyer" statementType="STATEMENT">
+		select * FROM xh_mbuyer  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

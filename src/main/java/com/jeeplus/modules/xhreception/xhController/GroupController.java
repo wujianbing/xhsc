@@ -1,0 +1,255 @@
+package com.jeeplus.modules.xhreception.xhController;
+
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.jeeplus.modules.recaddress.entity.RecAddr;
+import com.jeeplus.modules.recaddress.service.RecAddrService;
+import com.jeeplus.modules.xhbuyer.entity.XhBuyer;
+import com.jeeplus.modules.xhbuyer.service.XhBuyerService;
+import com.jeeplus.modules.xhcolor.entity.XhColor;
+import com.jeeplus.modules.xhcolor.service.XhColorService;
+import com.jeeplus.modules.xhfloor.entity.XhFloor;
+import com.jeeplus.modules.xhfloor.service.XhFloorService;
+import com.jeeplus.modules.xhgoods.entity.XhGoods;
+import com.jeeplus.modules.xhgoods.service.XhGoodsService;
+import com.jeeplus.modules.xhgroups.entity.XhGroups;
+import com.jeeplus.modules.xhgroups.service.XhGroupsService;
+import com.jeeplus.modules.xhorder.entity.XhOrder;
+import com.jeeplus.modules.xhorder.service.XhOrderService;
+import com.jeeplus.modules.xhreception.domain.NextLoad;
+import com.jeeplus.modules.xhreception.xhUtils.DateUtils;
+import com.jeeplus.modules.xhrim.entity.XhRim;
+import com.jeeplus.modules.xhrim.service.XhRimService;
+import com.jeeplus.modules.xhrule.entity.XhRule;
+import com.jeeplus.modules.xhrule.service.XhRuleService;
+import com.jeeplus.modules.xhtime.entity.XhTime;
+import com.jeeplus.modules.xhtime.service.XhTimeService;
+import com.jeeplus.modules.xhuser.entity.XhUser;
+import com.jeeplus.modules.xhuser.service.XhUserService;
+
+@Controller
+public class GroupController {
+	@Autowired
+	private XhFloorService xhFloorService;
+	@Autowired
+	private XhGroupsService xhGroupsService;
+	@Autowired
+	private XhBuyerService xhBuyerService;
+	@Autowired
+	private XhGoodsService xhGoodsService;
+	@Autowired
+	private XhRuleService xhRuleService;
+	@Autowired
+	private XhRimService xhRimService;
+	@Autowired
+	private XhTimeService xhTimeService;
+	@Autowired
+	private XhColorService xhColorService;
+	@Autowired
+	private RecAddrService recAddrService;
+	@Autowired
+	private XhUserService xhUserService;
+	@Autowired
+	private XhOrderService orderService;
+	@RequestMapping("groupList")
+	public String groupList(HttpServletRequest request, HttpServletResponse response, Model model) {
+
+		// 6以后
+		List<XhFloor> xhFloors = xhFloorService.findListByNum();
+		model.addAttribute("xhFloors", xhFloors);
+		// 团购商品
+		XhGroups xhGroup = new XhGroups();
+		xhGroup.setGroupStatus("1");
+		List<XhGroups> xhGroups = xhGroupsService.findList(xhGroup);
+		model.addAttribute("xhGroups", xhGroups);
+		return "modules/xhreception/groupList";
+	}
+	
+	@RequestMapping("groupDetail")
+	public String groupDetail(HttpServletRequest request, HttpServletResponse response, Model model,HttpSession session){
+		session.removeAttribute("nextLoad");
+		String id = request.getParameter("id");
+		XhGroups xhGroup = xhGroupsService.get(id);
+		XhBuyer xhBuyer = new XhBuyer();
+		xhBuyer.setXhGroups(xhGroup);
+		List<XhBuyer> xhBuyers=xhBuyerService.findListByGroupId(id);
+ 		for(XhBuyer xhBuyer1:xhBuyers){
+			Date endTime=xhBuyer1.getEndTime();
+			try {
+				Date date1=new Date();
+				long second=DateUtils.dateBetween(date1, endTime);
+				String endTime1 = String.valueOf(second);
+				if(second <= 0){
+					xhBuyerService.updateStatusByGroupNo(xhBuyer1.getGroupNo(), "3");
+					XhOrder xhOrder = xhBuyer1.getXhOrder();
+					xhOrder.setOrderStatus("6");
+					orderService.upStatusById(xhOrder);
+				}
+				xhBuyer1.setsTime(endTime1);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		model.addAttribute("xhBuyers", xhBuyers);
+		Date date2 = xhGroup.getEndTime();
+		try {
+			Date date1=new Date();
+			long second =DateUtils.dateBetween(date1, date2);
+			String endTime = String.valueOf(second);
+			if(second<=0){
+				xhGroup.setGroupStatus("0");
+				xhGroupsService.updateStatus(xhGroup);
+			}
+			model.addAttribute("endTime", endTime);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		model.addAttribute("xhGroup", xhGroup);
+		
+		String gid = xhGroup.getXhGoods().getId();
+		XhGoods xhGoods = xhGoodsService.get(gid);
+		model.addAttribute("xhGoods", xhGoods);
+		
+		List<XhRule> xhRules = xhRuleService.findRuleBygid(gid);
+		model.addAttribute("xhRules", xhRules);
+		
+		List<XhTime> xhTimes = xhTimeService.findListBygid(gid);
+		model.addAttribute("xhTimes", xhTimes);
+		
+		List<XhColor> xhColors = xhColorService.findListBygid(gid);
+		model.addAttribute("xhColors", xhColors);
+		
+		List<XhRim> xhRims = xhRimService.findListBygid(gid);
+		model.addAttribute("xhRims", xhRims);
+		return "modules/xhreception/groupDetail";
+	}
+	
+	@RequestMapping("groupRule")
+	public String groupRule(){
+		return "modules/xhreception/groupRule";
+	}
+	
+	@RequestMapping("groupNextLoad")
+	public String groupNextLoad(HttpServletRequest request, HttpServletResponse response, Model model,HttpSession session){
+		NextLoad nextLoad = new NextLoad();
+		NextLoad nextLoad1 =(NextLoad)session.getAttribute("nextLoad");
+		String openId = (String)session.getAttribute("openId");
+		if(nextLoad1 != null){
+			nextLoad = nextLoad1;
+			model.addAttribute("nextLoad", nextLoad);
+			String gid = nextLoad.getGid();
+			XhGoods xhGoods = xhGoodsService.get(gid);
+			model.addAttribute("xhGoods", xhGoods);
+			
+			String uid =xhUserService.findIdByOpenId(openId);
+			String recid = request.getParameter("recid");
+			RecAddr recAddress = new RecAddr();
+			XhUser xhUser = new XhUser();
+			xhUser.setId(uid);
+			recAddress.setXhUser(xhUser);
+			recAddress.setId(recid);
+			RecAddr recAddr = recAddrService.findAddrFirst(recAddress);
+			model.addAttribute("recAddr", recAddr);
+		}else{
+			String uid =xhUserService.findIdByOpenId(openId);
+			String gid = request.getParameter("gid");
+			String rid = request.getParameter("rid");
+			String sid = request.getParameter("sid");
+			String tid = request.getParameter("tid");
+			String num =request.getParameter("num");
+			String groupNo = request.getParameter("groupNo");
+			
+			XhRule xhRule = xhRuleService.get(rid);
+			BigDecimal num1 = new BigDecimal(num);
+			BigDecimal price1 = xhRule.getUnitPrice();
+			BigDecimal amount1=price1.multiply(num1);
+			String price = price1.toString();
+			String amount = amount1.toString();
+			
+			nextLoad.setGroupNo(groupNo);
+			nextLoad.setNum(num);
+			nextLoad.setPrice(price);
+			nextLoad.setAmount(amount);
+			nextLoad.setGid(gid);
+			nextLoad.setRid(rid);
+			nextLoad.setSid(sid);
+			nextLoad.setTid(tid);
+			nextLoad.setStatus("3");
+			model.addAttribute("nextLoad", nextLoad);
+			XhGoods xhGoods = xhGoodsService.get(gid);
+			model.addAttribute("xhGoods", xhGoods);
+			
+			RecAddr recAddress = new RecAddr();
+			XhUser xhUser = new XhUser();
+			xhUser.setId(uid);
+			recAddress.setXhUser(xhUser);
+			RecAddr recAddr = recAddrService.findAddrFirst(recAddress);
+			model.addAttribute("recAddr", recAddr);
+			
+			session.setAttribute("nextLoad", nextLoad);
+		}
+		return "modules/xhreception/groupNextLoad";
+	}
+	
+	/**
+	 * 凑团
+	 * @return
+	 */
+	@RequestMapping("groupUp")
+	public String groupUp(HttpServletRequest request, HttpServletResponse response, Model model,HttpSession session){
+		String id = request.getParameter("id");
+		XhBuyer xhBuyer=xhBuyerService.get(id);
+		XhGroups xhGroups = xhGroupsService.get(xhBuyer.getXhGroups().getId());
+		XhBuyer xhBuyer1 = new XhBuyer();
+		xhBuyer1.setGroupNo(xhBuyer.getGroupNo());
+		List<XhBuyer> xhBuyers = xhBuyerService.findList(xhBuyer1);
+		List<XhUser> xhUsers = new ArrayList<XhUser>();
+		for(XhBuyer xhBuyer2 : xhBuyers){
+			XhUser xhUser = xhUserService.get(xhBuyer2.getXhUser());
+			xhUsers.add(xhUser);
+		}
+		model.addAttribute("xhUsers", xhUsers);
+		Date endTime=xhBuyer.getEndTime();
+		try {
+			Date date1=new Date();
+			long second=DateUtils.dateBetween(date1, endTime);
+			/*long second = day*24*60*60;*/
+			String endTime1 = String.valueOf(second);
+			xhBuyer.setsTime(endTime1);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		String gid = xhGroups.getXhGoods().getId();
+		XhGoods xhGoods = xhGoodsService.get(gid);
+		model.addAttribute("xhGoods", xhGoods);
+		
+		List<XhRule> xhRules = xhRuleService.findRuleBygid(gid);
+		model.addAttribute("xhRules", xhRules);
+		
+		List<XhTime> xhTimes = xhTimeService.findListBygid(gid);
+		model.addAttribute("xhTimes", xhTimes);
+		
+		List<XhColor> xhColors = xhColorService.findListBygid(gid);
+		model.addAttribute("xhColors", xhColors);
+		
+		List<XhRim> xhRims = xhRimService.findListBygid(gid);
+		model.addAttribute("xhRims", xhRims);
+		
+		model.addAttribute("xhGroups", xhGroups);
+		model.addAttribute("xhBuyer", xhBuyer);
+		return "modules/xhreception/groupUp";
+	}
+}

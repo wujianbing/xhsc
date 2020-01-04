@@ -1,0 +1,83 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.pointinfo.entity;
+
+import com.jeeplus.modules.xhuser.entity.XhUser;
+import org.hibernate.validator.constraints.Length;
+
+import com.jeeplus.common.persistence.DataEntity;
+import com.jeeplus.common.utils.excel.annotation.ExcelField;
+
+/**
+ * 积分信息Entity
+ * @author wujianbing
+ * @version 2019-05-14
+ */
+public class PointInfo extends DataEntity<PointInfo> {
+	
+	private static final long serialVersionUID = 1L;
+	private XhUser xhUser;		// 用户信息
+	private String uName;		// 用户名称
+	private String uPhone;		// 用户电话
+	private String pName;		// 兑换商品
+	private String pPoint;		// 所需积分
+	
+	public PointInfo() {
+		super();
+	}
+
+	public PointInfo(String id){
+		super(id);
+	}
+
+	@ExcelField(title="用户信息", align=2, sort=7)
+	public XhUser getXhUser() {
+		return xhUser;
+	}
+
+	public void setXhUser(XhUser xhUser) {
+		this.xhUser = xhUser;
+	}
+	
+	@Length(min=0, max=64, message="用户名称长度必须介于 0 和 64 之间")
+	@ExcelField(title="用户名称", align=2, sort=8)
+	public String getUName() {
+		return uName;
+	}
+
+	public void setUName(String uName) {
+		this.uName = uName;
+	}
+	
+	@Length(min=0, max=64, message="用户电话长度必须介于 0 和 64 之间")
+	@ExcelField(title="用户电话", align=2, sort=9)
+	public String getUPhone() {
+		return uPhone;
+	}
+
+	public void setUPhone(String uPhone) {
+		this.uPhone = uPhone;
+	}
+	
+	@Length(min=0, max=64, message="兑换商品长度必须介于 0 和 64 之间")
+	@ExcelField(title="兑换商品", align=2, sort=10)
+	public String getPName() {
+		return pName;
+	}
+
+	public void setPName(String pName) {
+		this.pName = pName;
+	}
+	
+	@Length(min=0, max=64, message="所需积分长度必须介于 0 和 64 之间")
+	@ExcelField(title="所需积分", align=2, sort=11)
+	public String getPPoint() {
+		return pPoint;
+	}
+
+	public void setPPoint(String pPoint) {
+		this.pPoint = pPoint;
+	}
+	
+}

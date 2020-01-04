@@ -1,0 +1,110 @@
+*,h1{
+	margin: 0;
+	padding: 0;
+}
+section .ptitlist{
+	width: 100%;
+	padding: 0 4%;
+	overflow: hidden;
+	margin:20px 0 60px 0;
+}
+.advtion{
+	position: relative;
+	height: 190px;
+	overflow: hidden;
+}
+.advtion img{
+	position: absolute;
+	right: 0;
+	top: 0;
+	z-index: 1;
+	width: 80%;
+}
+.advtion .advinfo{
+	width: 35%;
+	height: 150px;
+	position: absolute;
+	left: 0;
+	top: 20px;
+	background:#ff557b ;
+	z-index: 2;
+	color: #FFFFFF;
+	padding: 5% 2%;
+}
+.advtion .advinfo h1{
+	font-size: 1.8rem;
+}
+.advtion .advinfo p{
+	margin: 3% 0;
+	font-size: 1.2rem;
+}
+.advtion .advinfo p.kh{
+	margin-bottom: 0;
+}
+.advtion .advinfo p.snum{
+	margin-top:0;
+	font-size: 1rem;
+}
+.advtion .advinfo p.price{
+	font-size: 1.5rem;
+	margin-top: 8%;
+}
+.advtion .advinfo p.price s{
+	font-size: 1rem;
+	padding-left: 3%;
+	color: #f3f3f3;
+}
+.advtion .advinfo p.tosee a{
+	width: 60%;
+	background:url(../images/ptitco1.png) no-repeat;
+	background-size:100% ;
+	color: #ff557b;
+	text-align: center;
+	padding: 3%;
+	display: block;
+}
+.itemlist{
+	margin: 5% 0 0 0;
+	width: 100%;
+	overflow: hidden;
+}
+.itemlist li{
+	width: 48%;
+	list-style: none;
+	float: left;
+	margin-right:2%;
+	font-size: 1.3rem;
+	margin-bottom: 5%;
+}
+.itemlist li:nth-child(even){
+	margin-right: 0;
+	margin-left: 2%;
+}
+.itemlist li a p{
+	margin: 5% 0;
+}
+.itemlist li a span.tuan{
+	background: url(../images/ptitco2.png) no-repeat;
+	background-size:100% ;
+	color:#ff557b;
+	padding: 2% 3%;
+	display: inline-block;
+	width: 40%;
+	text-align: center;	
+}
+.itemlist li a span.pname{
+	color:#ff557b;
+}
+.itemlist li a p.ppang{
+	color: #666666;
+	font-size: 1.3rem;
+}
+.itemlist li a p.pprice{
+	color:#ff557b;
+	font-size: 1.5rem;
+}
+.itemlist li a p.pprice s{
+	font-size: 1.3rem;
+	color: #999999;
+	margin-left: 3%;
+}

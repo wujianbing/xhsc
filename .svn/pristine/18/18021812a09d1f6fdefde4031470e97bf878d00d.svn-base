@@ -1,0 +1,149 @@
+package com.jeeplus.modules.xhreception.pay;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.jeeplus.modules.xhorder.entity.XhOrder;
+import com.jeeplus.modules.xhorder.service.XhOrderService;
+import com.jeeplus.modules.xhreception.iService.PaymentInfoService;
+
+import net.sf.json.JSONObject;
+
+
+@RequestMapping("/pay/wx")
+public class WxPayController {
+	
+	public static final Logger logger = LoggerFactory.getLogger(WxPayController.class);
+	public static final String SUCCESS = "SUCCESS";
+	
+	@Autowired
+	private PaymentInfoService paymentInfoService;
+	
+	@Autowired
+	private XhOrderService xhOrderService;
+	
+	/**
+	 * 获取oppenid
+	 * @param code
+	 * @param state
+	 * @param session
+	 * @return
+	 */
+	@RequestMapping("/oppid")
+	public String redirectFromWeixin(String code,String state,HttpSession session){
+		logger.debug("code={}",code);
+		JSONObject authResult = WeixinUtil.getAccessToken(PayUtils.appid, PayUtils.secret, code);
+		String openid = authResult.getString("openid");
+		session.setAttribute("openid", openid);
+		return "redirect:index";
+	}
+	
+	
+	/**
+	 * 统一下单api
+	 * @param oid
+	 * @param session
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping("prepay")
+	@ResponseBody
+	public ReturnData prepay(String oid,String type,HttpSession session,HttpServletRequest request){
+		ReturnData rd = new ReturnData();
+		rd.setSuccess(true);
+		rd.setMsg("下单成功");
+		Map<String,Object> map = new HashMap<String,Object>();
+	//	Order_info info = order_infoService.findByPK(oid);
+		XhOrder info = xhOrderService.get(oid);
+		String spbillCreateIp = request.getRemoteAddr();
+//		String spbillCreateIp = "8.8.8.8";
+		String openId = (String) session.getAttribute("openid");
+		int amount = 1;
+		System.out.println("info="+info);
+		if(info != null){
+			amount = info.getAmount().multiply(new BigDecimal(100)).intValue();
+			logger.info("amount:{}",amount);
+		}
+		//已经存在微信下单信息
+		if(paymentInfoService.isExist(oid)){
+			Map<String,String> data = new HashMap<String,String>();
+			PaymentInfo paymentInfo = paymentInfoService.get(oid);
+			// 判断prepay_id 是否过期
+			if(paymentInfo.valid()){
+				data.put("prepay_id", paymentInfo.getTrade_no());
+			}else{
+				WxReturnData wxReturnData = PayUtils.createOrder(oid,amount, spbillCreateIp, null,  type, null, openId);
+				if(wxReturnData.getReturn_code().equals(SUCCESS)){
+					try {
+						rd.setSuccess(true);
+						//保存微信下单信息，避免外部单据号码重复问题
+						paymentInfo.setTrade_no(wxReturnData.getPrepay_id());
+						Date now = new Date();
+						paymentInfo.setCreateDate(now);
+						Date expire = new DateTime(now).plusHours(2).toDate();
+						paymentInfo.setExpireDate(expire);
+						paymentInfoService.update(paymentInfo);
+						data.put("prepay_id", paymentInfo.getTrade_no());
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}else{
+					rd.setSuccess(false);
+				}
+			}
+			rd.setData(data);
+			return rd;
+		}
+		// 不存在微信下单信息
+		//调用统一下单接口
+		WxReturnData data = PayUtils.createOrder(oid,amount , spbillCreateIp, null,  type, null, openId);
+		//成功时，且支付是扫描支付，生产二维码
+		if(data.getReturn_code().equals(SUCCESS)){
+			try {
+				rd.setSuccess(true);
+				//保存微信下单信息，避免外部单据号码重复问题
+				PaymentInfo paymentInfo = new PaymentInfo();
+				paymentInfo.setClient(info.getXhUser().getId());
+				paymentInfo.setComplete_time(new Date());
+				paymentInfo.setId(UUID.randomUUID().toString());
+				paymentInfo.setOid(oid);
+				paymentInfo.setPayment_channel("微信");
+				paymentInfo.setPayment_status("0");
+				paymentInfo.setTrade_no(data.getPrepay_id());
+				paymentInfo.setTrade_type("JSAPI");
+				Date now = new Date();
+				paymentInfo.setCreateDate(now);
+				Date expire = new DateTime(now).plusHours(2).toDate();
+				paymentInfo.setExpireDate(expire);
+				paymentInfoService.save(paymentInfo);
+//				if( type == PayUtil.TRADE_TYPE_NATIVE){
+//					ZXingPic.gen(data.getCode_url(), PayUtil.filePath, oid);
+//				}else if( type == PayUtil.TRADE_TYPE_JSAPI){
+//					
+//				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}else{
+			rd.setSuccess(false);
+		}
+		rd.setMsg(data.getReturn_msg());
+		map.put("oid", oid);
+		map.put("prepay_id", data.getPrepay_id());
+		rd.setData(map);
+		return rd;
+	}
+}

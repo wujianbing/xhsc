@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.xhfloor.dao.XhFloorDao">
+    
+	<sql id="xhFloorColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.name AS "name",
+		(select f.name from sys_upload_file f where f.id = a.upload_file_id ) AS "uploadFile.name",
+		(select f.abso_path from sys_upload_file f where f.id = a.upload_file_id ) AS "uploadFile.absoPath",
+		(select f.rela_path from sys_upload_file f where f.id = a.upload_file_id ) AS "uploadFile.relaPath",
+		(select f.id from sys_upload_file f where f.id = a.upload_file_id ) AS "uploadFile.id",
+		a.url AS "url",
+		a.floor_num AS "floorNum"
+	</sql>
+	
+	<sql id="xhFloorJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="XhFloor" >
+		SELECT 
+			<include refid="xhFloorColumns"/>
+		FROM xh_floor  a
+		<include refid="xhFloorJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	<!--findFloorByNum -->
+	<select id="findFloorByNum" resultType="XhFloor" >
+		SELECT 
+			<include refid="xhFloorColumns"/>
+		FROM xh_floor  a
+		<include refid="xhFloorJoins"/>
+		WHERE
+		<if test="floorNum != null and floorNum != ''">
+			a.floor_num = #{floorNum}
+		</if>
+	</select>
+	<!--findListByNum -->
+	<select id="findListByNum" resultType="XhFloor" >
+		SELECT 
+			<include refid="xhFloorColumns"/>
+		FROM xh_floor  a
+		<include refid="xhFloorJoins"/>
+		WHERE  cast(a.floor_num as UNSIGNED INTEGER) between 7 and 11
+		ORDER BY cast(a.floor_num as UNSIGNED INTEGER) 
+	</select>
+	<select id="findList" resultType="XhFloor" >
+		SELECT 
+			<include refid="xhFloorColumns"/>
+		FROM xh_floor  a
+		<include refid="xhFloorJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="floorNum != null and floorNum != ''">
+				AND a.floor_num = #{floorNum}
+			</if>
+		</where>
+				ORDER BY cast(a.floor_num as UNSIGNED INTEGER)
+	</select>
+	
+	<select id="findAllList" resultType="XhFloor" >
+		SELECT 
+			<include refid="xhFloorColumns"/>
+		FROM xh_floor  a
+		<include refid="xhFloorJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO xh_floor (
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			name,
+			upload_file_id,
+			url,
+			floor_num
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{name},
+			#{uploadFile.id},
+			#{url},
+			#{floorNum}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE xh_floor  SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			name = #{name},
+			upload_file_id = #{uploadFile.id},
+			url = #{url},
+			floor_num = #{floorNum}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM xh_floor 
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE xh_floor  SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="XhFloor" statementType="STATEMENT">
+		select * FROM xh_floor   where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

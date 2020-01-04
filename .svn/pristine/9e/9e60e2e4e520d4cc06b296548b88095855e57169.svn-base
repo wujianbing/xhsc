@@ -1,0 +1,56 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.xhgoods.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.jeeplus.modules.xhcategory.entity.XhCategory;
+import com.jeeplus.common.persistence.Page;
+import com.jeeplus.common.service.CrudService;
+import com.jeeplus.modules.xhgoods.entity.XhGoods;
+import com.jeeplus.modules.xhgoods.dao.XhGoodsDao;
+
+/**
+ * 商品管理Service
+ * @author wujianbing
+ * @version 2019-04-04
+ */
+@Service
+@Transactional(readOnly = true)
+public class XhGoodsService extends CrudService<XhGoodsDao, XhGoods> {
+
+	public XhGoods get(String id) {
+		return super.get(id);
+	}
+	
+	public List<XhGoods> findList(XhGoods xhGoods) {
+		return super.findList(xhGoods);
+	}
+	
+	public Page<XhGoods> findPage(Page<XhGoods> page, XhGoods xhGoods) {
+		return super.findPage(page, xhGoods);
+	}
+	
+	@Transactional(readOnly = false)
+	public void save(XhGoods xhGoods) {
+		super.save(xhGoods);
+	}
+	
+	@Transactional(readOnly = false)
+	public void delete(XhGoods xhGoods) {
+		super.delete(xhGoods);
+	}
+	
+	public Page<XhCategory> findPageByxhCategory(Page<XhCategory> page, XhCategory xhCategory) {
+		xhCategory.setPage(page);
+		page.setList(dao.findListByxhCategory(xhCategory));
+		return page;
+	}
+	
+	
+	
+}

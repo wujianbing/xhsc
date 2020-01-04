@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.sys.dao.UploadFileDao">
+    
+	<sql id="uploadFileColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.rela_path AS "relaPath",
+		a.abso_path AS "absoPath",
+		a.swf_rela_path AS "swfRelaPath",
+		a.swf_abso_path AS "swfAbsoPath",
+		a.upload_date AS "uploadDate",
+		a.uploader AS "uploader",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="uploadFileJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="UploadFile" >
+		SELECT 
+			<include refid="uploadFileColumns"/>
+		FROM sys_upload_file a
+		<include refid="uploadFileJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="UploadFile" >
+		SELECT 
+			<include refid="uploadFileColumns"/>
+		FROM party_course a
+		<include refid="uploadFileJoins"/>
+	</select>
+	
+	
+	<insert id="insertAndReturnId" useGeneratedKeys="true" keyProperty="id" parameterType="UploadFile">
+		INSERT INTO sys_upload_file(
+			id,
+			name,
+			rela_path,
+			abso_path,
+			swf_rela_path,
+			swf_abso_path,
+			upload_date,
+			uploader
+		) VALUES (
+			#{id},
+			#{name},
+			#{relaPath},
+			#{absoPath},
+			#{swfRelaPath},
+			#{swfAbsoPath},
+			#{uploadDate},
+			#{uploader}
+		)
+	</insert>
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sys_upload_file
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sys_upload_file SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

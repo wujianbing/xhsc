@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.orderdetail.dao.OrderDetailDao">
+    
+	<sql id="orderDetailColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.oid AS "xhOrder.id",
+		a.gid AS "xhGoods.id",
+		(select uploadFile.rela_path from sys_upload_file uploadFile where uploadFile.id=(select xhGoods.upload_file_id from xh_goods xhGoods where xhGoods.id =a.gid)) AS "xhGoods.uploadFile.relaPath",
+		a.num AS "num",
+		a.price AS "price",
+		a.info AS "info",
+		a.g_name AS "gName",
+		a.m_time AS "mTime",
+		a.status AS "status",
+		a.end_date AS "endDate",
+		a.group_no AS "groupNo",
+		a.times AS "times"
+	</sql>
+	
+	<sql id="orderDetailJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="OrderDetail" >
+		SELECT 
+			<include refid="orderDetailColumns"/>
+		FROM order_detail a
+		<include refid="orderDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<!--getCountByOrderNo  -->
+	<select id="getCountByOrderNo">
+		select 
+			count(*) 
+		from order_detail a
+		where
+			a.group_no = #{groupNo}
+	</select>
+	
+	<select id="findList" resultType="OrderDetail" >
+		SELECT 
+			<include refid="orderDetailColumns"/>
+		FROM order_detail a
+		<include refid="orderDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="xhOrder != null and xhOrder != ''">
+				<if test="xhOrder.id != null and xhOrder.id !=''">
+				AND a.oid = #{xhOrder.id}
+				</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="OrderDetail" >
+		SELECT 
+			<include refid="orderDetailColumns"/>
+		FROM order_detail a
+		<include refid="orderDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	<!--findNewGroupNo  -->
+	<select id="findNewGroupNo" resultType="String">
+		select
+		 a.group_no AS groupNo
+		from order_detail a
+		 order By a.update_date DESC 
+		limit 0,1
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO order_detail(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			oid,
+			gid,
+			num,
+			price,
+			info,
+			g_name,
+			m_time,
+			status,
+			end_date,
+			group_no,
+			times
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{xhOrder.id},
+			#{xhGoods.id},
+			#{num},
+			#{price},
+			#{info},
+			#{gName},
+			#{mTime},
+			#{status},
+			#{endDate},
+			#{groupNo},
+			#{times}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE order_detail SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			oid = #{xhOrder.id},
+			gid = #{xhGoods.id},
+			num = #{num},
+			price = #{price},
+			info = #{info},
+			g_name = #{gName},
+			m_time = #{mTime},
+			status = #{status},
+			end_date = #{endDate},
+			group_no = #{groupNo}
+		WHERE id = #{id}
+	</update>
+	<!--changeTimesByOid  -->
+	<update id="changeTimesByOid">
+		UPDATE order_detail SET 
+			times = #{times}
+			where oid = #{oid}
+	</update>
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM order_detail
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE order_detail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="OrderDetail" statementType="STATEMENT">
+		select * FROM order_detail  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

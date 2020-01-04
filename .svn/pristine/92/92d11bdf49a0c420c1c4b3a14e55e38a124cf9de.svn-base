@@ -1,0 +1,162 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>所有订单</title>
+		
+		<link rel="stylesheet" type="text/css" href="static/xhreception/css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="static/xhreception/css/orderlist.css"/>
+		<script type="text/javascript" src="static/xhreception/js/jquery.js"></script>
+		<script type="text/javascript">
+			$(function(){
+				$(".tbbox li").click(function(){
+					var index= $(this).index();
+					$(this).addClass("selected").siblings("li").removeClass("selected");
+					$(".tbcont").children(".box").eq(index).show().siblings(".box").hide();
+				})
+			})
+		</script>
+	</head>
+	<body>
+		<div class="tbbox">
+			<ul>
+				<li class="selected">全部</li>
+				<li>待付款</li>
+				<li>待发货</li>
+				<li>待收货</li>
+				<li>待评价</li>
+			</ul>
+		</div>
+		<div class="tbcont">
+			<!--全部订单-->
+			<div class="box">
+				<c:forEach items="${nXhOrders}" var="xhOrders">
+				<div class="ordlst">
+					<div class="tpline">
+						<p class="pull-left">订单编号:<span>${xhOrders.id}</span></p>
+						<c:if test="${xhOrders.payStatus == 1}"><p class="pull-right">等待买家付款</p></c:if>
+						<c:if test="${xhOrders.orderStatus == 1}"><p class="pull-right">待发货</p></c:if>
+						<c:if test="${xhOrders.orderStatus == 3}"><p class="pull-right">待收货</p></c:if>
+						<c:if test="${xhOrders.orderStatus == 4}"><p class="pull-right">待评价</p></c:if>
+					</div>
+					<c:forEach items="${xhOrders.orderDetailList}" var="orderDetails">
+					<div class="ordinfo">
+						<img class="img-responsive pull-left" src="${orderDetails.xhGoods.uploadFile.relaPath}"/>
+						<div class="gdinfo pull-right">
+							<p></p>
+							<p>${orderDetails.info}</p>
+							<p><b class="pull-left">￥<span>${orderDetails.price}</span></b><m class="pull-right">&times;${orderDetails.num}</m></p>
+						</div>
+					</div>
+					</c:forEach>
+					<div class="hj">合计：<b>￥<span>${xhOrders.amount}</span></b></div>
+					<c:if test="${xhOrders.payStatus == 1}">
+					<div class="opt"><a href="">取消</a><a href="goBuy?oid=${xhOrders.id}">付款</a></div>
+					</c:if>
+					<c:if test="${xhOrders.orderStatus == 4}">
+					<div class="pjopt"><a href="index">继续购买</a><a href="appra?id=${xhOrders.id}">评价</a></div>
+					</c:if>
+				</div>
+				</c:forEach>
+			</div>
+			
+			<!--待付款-->
+			<div class="box dishide">
+			<c:forEach items="${nXhOrders1}" var="xhOrders">
+				<div class="ordlst">
+					<div class="tpline">
+						<p class="pull-left">订单编号:<span>${xhOrders.id}</span></p>
+						<p class="pull-right">等待买家付款</p>
+					</div>
+					<c:forEach items="${xhOrders.orderDetailList}" var="orderDetails">
+					<div class="ordinfo">
+						<img class="img-responsive pull-left" src="${orderDetails.xhGoods.uploadFile.relaPath}"/>
+						<div class="gdinfo pull-right">
+							<p></p>
+							<p>${orderDetails.info}</p>
+							<p><b class="pull-left">￥<span>${orderDetails.price}</span></b><m class="pull-right">&times;${orderDetails.num}</m></p>
+						</div>
+					</div>
+					</c:forEach>
+					<div class="hj">合计：<b>￥<span>${xhOrders.amount}</span></b></div>
+					<div class="opt"><a href="">取消</a><a href="goBuy?oid=${xhOrders.id}">付款</a></div>
+				</div>
+				</c:forEach>
+			</div>
+			
+			
+			<!--待发货-->
+			<div class="box dishide">
+				<c:forEach items="${nXhOrders2}" var="xhOrders">
+				<div class="ordlst">
+					<div class="tpline">
+						<p class="pull-left">订单编号:<span>${xhOrders.id}</span></p>
+						<p class="pull-right">待发货</p>
+					</div>
+					<c:forEach items="${xhOrders.orderDetailList}" var="orderDetails">
+					<div class="ordinfo">
+						<img class="img-responsive pull-left" src="${orderDetails.xhGoods.uploadFile.relaPath}"/>
+						<div class="gdinfo pull-right">
+							<p></p>
+							<p>${orderDetails.info}</p>
+							<p><b class="pull-left">￥<span>${orderDetails.price}</span></b><m class="pull-right">&times;${orderDetails.num}</m></p>
+						</div>
+					</div>
+					</c:forEach>
+					<div class="hj">合计：<b>￥<span>${xhOrders.amount}</span></b></div>
+				</div>
+				</c:forEach>
+			</div>
+			
+			<!--待收货-->
+			<div class="box dishide">
+					<c:forEach items="${nXhOrders3}" var="xhOrders">
+				<div class="ordlst">
+					<div class="tpline">
+						<p class="pull-left">订单编号:<span>${xhOrders.id}</span></p>
+						<p class="pull-right">待收货</p>
+					</div>
+					<c:forEach items="${xhOrders.orderDetailList}" var="orderDetails">
+					<div class="ordinfo">
+						<img class="img-responsive pull-left" src="${orderDetails.xhGoods.uploadFile.relaPath}"/>
+						<div class="gdinfo pull-right">
+							<p></p>
+							<p>${orderDetails.info}</p>
+							<p><b class="pull-left">￥<span>${orderDetails.price}</span></b><m class="pull-right">&times;${orderDetails.num}</m></p>
+						</div>
+					</div>
+					</c:forEach>
+					<div class="hj">合计：<b>￥<span>${xhOrders.amount}</span></b></div>
+				</div>
+				</c:forEach>
+			</div>
+			
+			
+			<!--待评价-->
+			<div class="box dishide">
+					<c:forEach items="${nXhOrders4}" var="xhOrders">
+				<div class="ordlst">
+					<div class="tpline">
+						<p class="pull-left">订单编号:<span>${xhOrders.id}</span></p>
+						<p class="pull-right">待评价</p>
+					</div>
+					<c:forEach items="${xhOrders.orderDetailList}" var="orderDetails">
+					<div class="ordinfo">
+						<img class="img-responsive pull-left" src="${orderDetails.xhGoods.uploadFile.relaPath}"/>
+						<div class="gdinfo pull-right">
+							<p></p>
+							<p>${orderDetails.info}</p>
+							<p><b class="pull-left">￥<span>${orderDetails.price}</span></b><m class="pull-right">&times;${orderDetails.num}</m></p>
+						</div>
+					</div>
+					</c:forEach>
+					<div class="hj">合计：<b>￥<span>${xhOrders.amount}</span></b></div>
+					<div class="pjopt"><a href="index">继续购买</a><a href="appra?id=${xhOrders.id}">评价</a></div>
+				</div>
+				</c:forEach>
+		</div>
+	</body>
+</html>

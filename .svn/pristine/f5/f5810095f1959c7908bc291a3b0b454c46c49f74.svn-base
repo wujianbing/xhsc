@@ -1,0 +1,334 @@
+package com.jeeplus.modules.xhreception.pay;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
+
+
+/**
+ * @author 亢伟楠
+ * @description 
+ *	时间:2015年11月11日下午7:41:40
+ */
+public class WxPayRequestBody {
+	private String appid;
+	private String attach;
+	private String body;
+	private String detail;
+	private String device_info;
+	private String fee_type;
+	private String goods_tag;
+	private String limit_pay;
+	private String mch_id;
+	private String nonce_str;
+	private String notify_url;
+	private String openid;
+	private String out_trade_no;
+	private String product_id;
+	private String sign;
+	private String spbill_create_ip;
+	private String time_expire;
+	private String time_start;
+	private int total_fee;
+	private String trade_type;
+	public String paySign;
+	
+	public String getAppid() {
+		return appid;
+	}
+	public void setAppid(String appid) {
+		this.appid = appid;
+	}
+	public String getMch_id() {
+		return mch_id;
+	}
+	public void setMch_id(String mch_id) {
+		this.mch_id = mch_id;
+	}
+	public String getDevice_info() {
+		return device_info;
+	}
+	public void setDevice_info(String device_info) {
+		this.device_info = device_info;
+	}
+	public String getNonce_str() {
+		return nonce_str;
+	}
+	public void setNonce_str(String nonce_str) {
+		this.nonce_str = nonce_str;
+	}
+	public String getSign() {
+		return sign;
+	}
+	public void setSign(String sign) {
+		this.sign = sign;
+	}
+	public String getBody() {
+		return body;
+	}
+	public void setBody(String body) {
+		this.body = body;
+	}
+	public String getDetail() {
+		return detail;
+	}
+	public void setDetail(String detail) {
+		this.detail = detail;
+	}
+	public String getAttach() {
+		return attach;
+	}
+	public void setAttach(String attach) {
+		this.attach = attach;
+	}
+	public String getOut_trade_no() {
+		return out_trade_no;
+	}
+	public void setOut_trade_no(String out_trade_no) {
+		this.out_trade_no = out_trade_no;
+	}
+	public String getFee_type() {
+		return fee_type;
+	}
+	public void setFee_type(String fee_type) {
+		this.fee_type = fee_type;
+	}
+	public int getTotal_fee() {
+		return total_fee;
+	}
+	public void setTotal_fee(int total_fee) {
+		this.total_fee = total_fee;
+	}
+	public String getSpbill_create_ip() {
+		return spbill_create_ip;
+	}
+	public void setSpbill_create_ip(String spbill_create_ip) {
+		this.spbill_create_ip = spbill_create_ip;
+	}
+	public String getTime_start() {
+		return time_start;
+	}
+	public void setTime_start(String time_start) {
+		this.time_start = time_start;
+	}
+	public String getTime_expire() {
+		return time_expire;
+	}
+	public void setTime_expire(String time_expire) {
+		this.time_expire = time_expire;
+	}
+	public String getGoods_tag() {
+		return goods_tag;
+	}
+	public void setGoods_tag(String goods_tag) {
+		this.goods_tag = goods_tag;
+	}
+	public String getNotify_url() {
+		return notify_url;
+	}
+	public void setNotify_url(String notify_url) {
+		this.notify_url = notify_url;
+	}
+	public String getTrade_type() {
+		return trade_type;
+	}
+	public void setTrade_type(String trade_type) {
+		this.trade_type = trade_type;
+	}
+	public String getProduct_id() {
+		return product_id;
+	}
+	public void setProduct_id(String product_id) {
+		this.product_id = product_id;
+	}
+	public String getLimit_pay() {
+		return limit_pay;
+	}
+	public void setLimit_pay(String limit_pay) {
+		this.limit_pay = limit_pay;
+	}
+	public String getOpenid() {
+		return openid;
+	}
+	public void setOpenid(String openid) {
+		this.openid = openid;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("<xml><appid><![CDATA[");
+		builder.append(appid);
+		builder.append("]]></appid><mch_id><![CDATA[");
+		builder.append(mch_id);
+		builder.append("]]></mch_id><device_info><![CDATA[");
+		builder.append(device_info);
+		builder.append("]]></device_info><nonce_str><![CDATA[");
+		builder.append(nonce_str);
+		builder.append("]]></nonce_str><sign><![CDATA[");
+		builder.append(sign);
+		builder.append("]]></sign><body><![CDATA[");
+		builder.append(body);
+		builder.append("]]></body><detail><![CDATA[");
+		builder.append(detail);
+		builder.append("]]></detail><attach><![CDATA[");
+		builder.append(attach);
+		builder.append("]]></attach><out_trade_no><![CDATA[");
+		builder.append(out_trade_no);
+		builder.append("]]></out_trade_no>");
+		if(null != fee_type){
+			builder.append("<fee_type><![CDATA[");
+			builder.append(fee_type);
+			builder.append("]]></fee_type>");
+		}
+		builder.append("<total_fee><![CDATA[");
+		builder.append(total_fee);
+		builder.append("]]></total_fee><spbill_create_ip><![CDATA[");
+		builder.append(spbill_create_ip);
+		builder.append("]]></spbill_create_ip><time_start><![CDATA[");
+		builder.append(time_start);
+		builder.append("]]></time_start><time_expire><![CDATA[");
+		builder.append(time_expire);
+		builder.append("]]></time_expire>");
+		if(null != goods_tag){
+			builder.append("<goods_tag><![CDATA[");
+			builder.append(goods_tag);
+			builder.append("]]></goods_tag>");
+		}
+		builder.append("<notify_url><![CDATA[");
+		builder.append(notify_url);
+		builder.append("]]></notify_url><trade_type><![CDATA[");
+		builder.append(trade_type);
+		builder.append("]]></trade_type>");
+		if(null != product_id){
+			builder.append( "<product_id><![CDATA[");
+			builder.append(product_id);
+			builder.append("]]></product_id>");
+		}
+		if(null != limit_pay){
+			builder.append("<limit_pay><![CDATA[");
+			builder.append(limit_pay);
+			builder.append("]]></limit_pay>");
+		}
+		if(openid != null ){
+			builder.append("<openid><![CDATA[");
+			builder.append(openid);
+			builder.append("]]></openid>");
+		}
+		builder.append("</xml>");
+		return builder.toString();
+	}
+
+	public String  makeStringa() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("appid=");
+		builder.append(appid);
+		if(null != attach){
+			builder.append("&attach=");
+			builder.append(attach);
+		}
+		builder.append("&body=");
+		builder.append(body);
+		if(null != detail){
+			builder.append("&detail=");
+			builder.append(detail);
+		}
+		if(null != device_info){
+			builder.append("&device_info=");
+			builder.append(device_info);
+		}
+		if(null != fee_type){
+			builder.append("&fee_type=");
+			builder.append(fee_type);
+		}
+		if(null != goods_tag){
+			builder.append("&goods_tag=");
+			builder.append(goods_tag);
+		}
+		if(null !=limit_pay ){
+			builder.append("&limit_pay=");
+			builder.append(limit_pay);
+		}
+		builder.append("&mch_id=");
+		builder.append(mch_id);
+		builder.append("&nonce_str=");
+		builder.append(nonce_str);
+		builder.append("&notify_url=");
+		builder.append(notify_url);
+		if(null != openid){
+			builder.append("&openid=");
+			builder.append(openid);
+		}
+		builder.append("&out_trade_no=");
+		builder.append(out_trade_no);
+		if(product_id != null){
+			builder.append("&product_id=");
+			builder.append(product_id);
+		}
+		builder.append("&spbill_create_ip=");
+		builder.append(spbill_create_ip);
+		if(null != time_expire){
+			builder.append("&time_expire=");
+			builder.append(time_expire);
+		}
+		if(null != time_start){
+			builder.append("&time_start=");
+			builder.append(time_start);
+		}
+		builder.append("&total_fee=");
+		builder.append(total_fee);
+		builder.append("&trade_type=");
+		builder.append(trade_type);
+		return builder.toString();
+	}
+	
+	public void sign(){
+		nonce_str(10);
+		String a = makeStringa();
+		String stringSignTemp = a+"&key="+PayUtils.KEY;
+		System.out.println("stringSignTemp="+stringSignTemp);
+		File file = new File("c:\\test.log");
+		OutputStream out = null;
+		try {
+			out = new FileOutputStream(file);
+			out.write(("stringSignTemp="+stringSignTemp).getBytes());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+//		String sign =  DigestUtils.md5Hex(stringSignTemp).toUpperCase();
+		try {
+			out.write(("md5 1 = "+sign).getBytes());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		String sign = BaseUtil.md5(stringSignTemp).toUpperCase();
+		try {
+			out.write(("md5 2 = "+sign).getBytes());
+			out.write(("md5 admin="+BaseUtil.md5("admin")).getBytes());
+			out.write(("md5 中文="+BaseUtil.md5("中文")).getBytes());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		this.sign = sign;
+	}
+	public void paySign(){
+		nonce_str(32);
+		String stringSignTemp = toString()+"&key="+PayUtils.KEY;
+		String signValue = BaseUtil.md5(stringSignTemp).toUpperCase();;
+		paySign = signValue;
+	}
+	
+	private void nonce_str(int length){
+//		StringBuilder builder = new StringBuilder(length);  
+//		for (int i = 0; i < length; i++) {
+//			builder.append(RandomStringUtils.randomNumeric(1));
+//		}
+//		nonce_str = builder.toString();
+		nonce_str = "123456";
+	}
+	
+	
+}

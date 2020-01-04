@@ -1,0 +1,69 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.xhuser.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.jeeplus.common.persistence.Page;
+import com.jeeplus.common.service.CrudService;
+import com.jeeplus.modules.xhuser.entity.XhUser;
+import com.jeeplus.modules.xhuser.dao.XhUserDao;
+
+/**
+ * 用户信息Service
+ * @author wujianbing
+ * @version 2019-04-09
+ */
+@Service
+@Transactional(readOnly = true)
+public class XhUserService extends CrudService<XhUserDao, XhUser> {
+	
+	@Autowired
+	private XhUserDao xhUserDao;
+	
+	public XhUser get(String id) {
+		return super.get(id);
+	}
+	
+	public List<XhUser> findList(XhUser xhUser) {
+		return super.findList(xhUser);
+	}
+	
+	public Page<XhUser> findPage(Page<XhUser> page, XhUser xhUser) {
+		return super.findPage(page, xhUser);
+	}
+	
+	@Transactional(readOnly = false)
+	public void save(XhUser xhUser) {
+		super.save(xhUser);
+	}
+	
+	@Transactional(readOnly = false)
+	public void delete(XhUser xhUser) {
+		super.delete(xhUser);
+	}
+
+	public XhUser getUserByname(String name) {
+		// TODO Auto-generated method stub
+		return xhUserDao.getUserByname(name);
+	}
+
+	public String findIdByOpenId(String openId) {
+		return xhUserDao.findIdByOpenId(openId);
+		
+	}
+
+	public XhUser findInfoByOpenId(String openId) {
+		// TODO Auto-generated method stub
+		return xhUserDao.findInfoByOpenId(openId);
+	}
+	
+	
+	
+	
+}

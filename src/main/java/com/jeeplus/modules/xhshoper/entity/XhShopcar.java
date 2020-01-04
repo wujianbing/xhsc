@@ -1,0 +1,136 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.xhshoper.entity;
+
+import com.jeeplus.modules.xhuser.entity.XhUser;
+import com.jeeplus.modules.xhgoods.entity.XhGoods;
+
+import java.math.BigDecimal;
+
+import org.hibernate.validator.constraints.Length;
+import com.jeeplus.modules.xhrule.entity.XhRule;
+import com.jeeplus.modules.monthtime.entity.MonthTime;
+import com.jeeplus.modules.xhcolor.entity.XhColor;
+import com.jeeplus.modules.xhtime.entity.XhTime;
+
+import com.jeeplus.common.persistence.DataEntity;
+import com.jeeplus.common.utils.excel.annotation.ExcelField;
+
+/**
+ * 购物车Entity
+ * @author wujianbing
+ * @version 2019-04-28
+ */
+public class XhShopcar extends DataEntity<XhShopcar> {
+	
+	private static final long serialVersionUID = 1L;
+	private XhUser xhUser;		// 用户信息
+	private XhGoods xhGoods;		// 商品信息
+	private String message;		// 相关信息
+	private BigDecimal price;		// 单品价格
+	private XhRule xhRule;		// 商品规格
+	private XhColor xhColor;		// 商品颜色
+	private XhTime xhTime;		// 收货时间
+	private String num;		// 商品数量
+	private MonthTime monthTime;		// 包月时间
+	private String gStatus;
+	public XhShopcar() {
+		super();
+	}
+
+	public XhShopcar(String id){
+		super(id);
+	}
+
+	@ExcelField(title="用户信息", align=2, sort=7)
+	public XhUser getXhUser() {
+		return xhUser;
+	}
+
+	public void setXhUser(XhUser xhUser) {
+		this.xhUser = xhUser;
+	}
+	
+	@ExcelField(title="商品信息", align=2, sort=8)
+	public XhGoods getXhGoods() {
+		return xhGoods;
+	}
+
+	public void setXhGoods(XhGoods xhGoods) {
+		this.xhGoods = xhGoods;
+	}
+	
+	@Length(min=0, max=64, message="相关信息长度必须介于 0 和 64 之间")
+	@ExcelField(title="相关信息", align=2, sort=9)
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	
+	@ExcelField(title="单品价格", align=2, sort=10)
+	public BigDecimal getPrice() {
+		return price;
+	}
+
+	public void setPrice(BigDecimal price) {
+		this.price = price;
+	}
+	
+	@ExcelField(title="商品规格", align=2, sort=11)
+	public XhRule getXhRule() {
+		return xhRule;
+	}
+
+	public void setXhRule(XhRule xhRule) {
+		this.xhRule = xhRule;
+	}
+	
+	@ExcelField(title="商品颜色", align=2, sort=12)
+	public XhColor getXhColor() {
+		return xhColor;
+	}
+
+	public void setXhColor(XhColor xhColor) {
+		this.xhColor = xhColor;
+	}
+	
+	@ExcelField(title="收货时间", align=2, sort=13)
+	public XhTime getXhTime() {
+		return xhTime;
+	}
+
+	public void setXhTime(XhTime xhTime) {
+		this.xhTime = xhTime;
+	}
+	
+	@Length(min=0, max=64, message="商品数量长度必须介于 0 和 64 之间")
+	@ExcelField(title="商品数量", align=2, sort=14)
+	public String getNum() {
+		return num;
+	}
+
+	public void setNum(String num) {
+		this.num = num;
+	}
+	
+	public MonthTime getMonthTime() {
+		return monthTime;
+	}
+
+	public void setMonthTime(MonthTime monthTime) {
+		this.monthTime = monthTime;
+	}
+
+	public String getgStatus() {
+		return gStatus;
+	}
+
+	public void setgStatus(String gStatus) {
+		this.gStatus = gStatus;
+	}
+	
+}

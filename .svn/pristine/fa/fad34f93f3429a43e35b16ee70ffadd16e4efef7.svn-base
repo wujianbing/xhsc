@@ -1,0 +1,18 @@
+package com.jeeplus.modules.xhreception.xhUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class BaseUtils {
+	
+	public static List removeNull(String[] arrayString){
+		List<String> list1 = new ArrayList<String>();
+		for(int i=0;i<arrayString.length;i++){
+			if(arrayString[i]!=null && arrayString[i].length()!=0){
+				list1.add(arrayString[i]);
+			}
+		}
+		return list1;
+	}
+
+}

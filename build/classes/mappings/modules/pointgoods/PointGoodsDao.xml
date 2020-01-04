@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.pointgoods.dao.PointGoodsDao">
+    
+	<sql id="pointGoodsColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.p_name AS "pname",
+		a.p_point AS "ppoint",
+		(select f.name from sys_upload_file f where f.id = a.upload_file_id ) AS "uploadFile.name",
+		(select f.abso_path from sys_upload_file f where f.id = a.upload_file_id ) AS "uploadFile.absoPath",
+		(select f.rela_path from sys_upload_file f where f.id = a.upload_file_id ) AS "uploadFile.relaPath",
+		(select f.id from sys_upload_file f where f.id = a.upload_file_id ) AS "uploadFile.id"
+	</sql>
+	
+	<sql id="pointGoodsJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="PointGoods" >
+		SELECT 
+			<include refid="pointGoodsColumns"/>
+		FROM point_goods a
+		<include refid="pointGoodsJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="PointGoods" >
+		SELECT 
+			<include refid="pointGoodsColumns"/>
+		FROM point_goods a
+		<include refid="pointGoodsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="PointGoods" >
+		SELECT 
+			<include refid="pointGoodsColumns"/>
+		FROM point_goods a
+		<include refid="pointGoodsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO point_goods(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			p_name,
+			p_point,
+			upload_file_id
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{pname},
+			#{ppoint},
+			#{uploadFile.id}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE point_goods SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			p_name = #{pname},
+			p_point = #{ppoint},
+			upload_file_id = #{uploadFile.id}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM point_goods
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE point_goods SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PointGoods" statementType="STATEMENT">
+		select * FROM point_goods  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,102 @@
+<%@ page contentType="text/html;charset=UTF-8"%>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+<title>积分商城</title>
+<link rel="stylesheet" type="text/css"
+	href="static/xhreception/css/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css"
+	href="static/xhreception/css/base/base.css" />
+<link rel="stylesheet" type="text/css"
+	href="static/xhreception/css/jfmall.css" />
+<script type="text/javascript" src="static/xhreception/js/jquery.js"></script>
+<script type="text/javascript"
+	src="static/xhreception/js/layer/layer.js"></script>
+
+</head>
+
+<body>
+	<%-- <c:if test="${message != null && message != ''}">
+		<div><input id ="message" value="${message}">X</div>
+		</c:if>	 --%>
+
+	<%-- <c:if test="${message != null && message != ''}">
+		<div class="tip"><input id ="message" value="${message}">X</div>
+		</c:if>	 --%>
+	<div class="tip">
+		<div class="notice"></div>
+	</div>
+
+
+	<div class="itemlist">
+		<ul>
+			<c:forEach items="${pointGoods}" var="pointGoods">
+				<li><img src="${pointGoods.uploadFile.relaPath }"
+					class="img-responsive" alt="" />
+					<p class="nme pull-left">${pointGoods.pname}<br />
+						<span><m>${pointGoods.ppoint}</m>积分</span>
+					</p>
+					<p class="dh pull-right">
+						<button id="duihuan" pid="${pointGoods.id}">兑换</button>
+					</p></li>
+			</c:forEach>
+			<!-- <li>
+							<img src="static/xhreception/images/jf2.png" class="img-responsive" alt="" />
+							<p class="nme pull-left">【精选百合】<br /><span><m>200</m>积分</span></p>
+							<p class="dh pull-right"><a href="">兑换</a></p>
+						</li>
+						<li>
+							<img src="static/xhreception/images/jf3.png" class="img-responsive" alt="" />
+							<p class="nme pull-left">【精选百合】<br /><span><m>200</m>积分</span></p>
+							<p class="dh pull-right"><a href="">兑换</a></p>
+						</li>
+						<li>
+							<img src="static/xhreception/images/jf4.png" class="img-responsive" alt="" />
+							<p class="nme pull-left">【精选百合】<br /><span><m>200</m>积分</span></p>
+							<p class="dh pull-right"><a href="">兑换</a></p>
+						</li>
+						<li>
+							<img src="static/xhreception/images/jf1.png" class="img-responsive" alt="" />
+							<p class="nme pull-left">【精选百合】<br /><span><m>200</m>积分</span></p>
+							<p class="dh pull-right"><a href="">兑换</a></p>
+						</li>
+						<li>
+							<img src="static/xhreception/images/jf2.png" class="img-responsive" alt="" />
+							<p class="nme pull-left">【精选百合】<br /><span><m>200</m>积分</span></p>
+							<p class="dh pull-right"><a href="">兑换</a></p>
+						</li> -->
+		</ul>
+	</div>
+
+	<footer>
+		<ul>
+			<%@ include file="webBase.jsp"%>
+		</ul>
+	</footer>
+</body>
+<script type="text/javascript">
+	$(".dh button").click(function() {
+		var id = $(this).attr("pid");
+
+		$.post("addPGoodsOrder", {
+			"id" : id
+		},
+			function(res) {
+				if (res.code === '0') {
+					$(".notice").text(res.message);
+					$(".tip").fadeIn("fast");
+					$(".tip").delay(1000).fadeOut("fast");
+				} else if (res.code === '1') {
+					$(".notice").text(res.message);
+					$(".tip").fadeIn("fast");
+					$(".tip").delay(1000).fadeOut("fast");
+				}
+
+			})
+	})
+</script>
+</html>

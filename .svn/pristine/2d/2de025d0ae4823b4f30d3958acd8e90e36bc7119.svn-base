@@ -1,0 +1,143 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.xhorder.entity;
+
+import java.math.BigDecimal;
+
+import org.hibernate.validator.constraints.Length;
+
+import com.jeeplus.common.persistence.DataEntity;
+import com.jeeplus.common.utils.excel.annotation.ExcelField;
+import com.jeeplus.modules.recaddress.entity.RecAddr;
+import com.jeeplus.modules.xhgoods.entity.XhGoods;
+import com.jeeplus.modules.xhuser.entity.XhUser;
+
+/**
+ * 订单信息Entity
+ * @author wujianbing
+ * @version 2019-04-09
+ */
+public class XhOrder extends DataEntity<XhOrder> {
+	
+	private static final long serialVersionUID = 1L;
+	private XhGoods xhGoods;		// 商品信息
+	private XhUser xhUser;		// 用户信息
+	private RecAddr recAddrs;  //地址信息
+	private String recAddr;		// 下单地址
+	private BigDecimal amount;		// 订单金额
+	private String payMethod;		// 支付方式
+	private String payStatus;		// 支付状态
+	private String orderStatus;		// 订单状态
+	private String recDate;		// 接收日期
+	private String recTime;		// 接收时间
+	private String orderDetail; //订单类型
+	public XhOrder() {
+		super();
+	}
+
+	public XhOrder(String id){
+		super(id);
+	}
+
+
+	
+	public XhGoods getXhGoods() {
+		return xhGoods;
+	}
+
+	public void setXhGoods(XhGoods xhGoods) {
+		this.xhGoods = xhGoods;
+	}
+
+	public XhUser getXhUser() {
+		return xhUser;
+	}
+
+	public void setXhUser(XhUser xhUser) {
+		this.xhUser = xhUser;
+	}
+	
+	public String getRecAddr() {
+		return recAddr;
+	}
+
+	public void setRecAddr(String recAddr) {
+		this.recAddr = recAddr;
+	}
+
+	public BigDecimal getAmount() {
+		return amount;
+	}
+
+	public void setAmount(BigDecimal amount) {
+		this.amount = amount;
+	}
+
+	public String getOrderDetail() {
+		return orderDetail;
+	}
+
+	public void setOrderDetail(String orderDetail) {
+		this.orderDetail = orderDetail;
+	}
+
+	@Length(min=0, max=64, message="支付方式长度必须介于 0 和 64 之间")
+	@ExcelField(title="支付方式", align=2, sort=11)
+	public String getPayMethod() {
+		return payMethod;
+	}
+
+	public void setPayMethod(String payMethod) {
+		this.payMethod = payMethod;
+	}
+	
+	@Length(min=0, max=64, message="支付状态长度必须介于 0 和 64 之间")
+	@ExcelField(title="支付状态", align=2, sort=12)
+	public String getPayStatus() {
+		return payStatus;
+	}
+
+	public void setPayStatus(String payStatus) {
+		this.payStatus = payStatus;
+	}
+	
+	@Length(min=0, max=64, message="订单状态长度必须介于 0 和 64 之间")
+	@ExcelField(title="订单状态", align=2, sort=13)
+	public String getOrderStatus() {
+		return orderStatus;
+	}
+
+	public void setOrderStatus(String orderStatus) {
+		this.orderStatus = orderStatus;
+	}
+	
+	@Length(min=0, max=64, message="接收日期长度必须介于 0 和 64 之间")
+	@ExcelField(title="接收日期", align=2, sort=14)
+	public String getRecDate() {
+		return recDate;
+	}
+
+	public void setRecDate(String recDate) {
+		this.recDate = recDate;
+	}
+	
+	@Length(min=0, max=64, message="接收时间长度必须介于 0 和 64 之间")
+	@ExcelField(title="接收时间", align=2, sort=15)
+	public String getRecTime() {
+		return recTime;
+	}
+
+	public void setRecTime(String recTime) {
+		this.recTime = recTime;
+	}
+
+	public RecAddr getRecAddrs() {
+		return recAddrs;
+	}
+
+	public void setRecAddrs(RecAddr recAddrs) {
+		this.recAddrs = recAddrs;
+	}
+	
+}

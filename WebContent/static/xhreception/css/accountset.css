@@ -1,0 +1,47 @@
+*{
+	margin: 0;
+	padding: 0;
+}
+body{
+	background: #F4F4F4;
+	font-size: 1.5rem;
+}
+.box1,.box2{
+	width: 100%;
+	background: #FFFFFF;
+}
+h5.hed{
+	color: #999999;
+	padding: 4% 3%;
+	border-bottom:1px solid #eaeaea;
+	margin-bottom: 0;
+}
+li{
+	list-style: none;
+	height: 50px;
+	border-bottom:1px solid #F1F1F1;
+	line-height: 50px;
+	padding-right: 3%;
+	margin-left: 3%;
+	width: 97%;
+}
+li span{
+	width: 20%;
+	float: left;
+}
+li img.tx{
+	float: right;
+	width: 30px;
+	margin: 10px 0;
+}
+li input{
+	background: url(../images/zhankai.png) no-repeat right center;
+	height: 40px;
+	line-height: 40px;
+	border:0 ;
+	float: right;
+	width: 60%;
+	padding-right: 5%;
+	text-align: right;
+	color: #666666;
+}

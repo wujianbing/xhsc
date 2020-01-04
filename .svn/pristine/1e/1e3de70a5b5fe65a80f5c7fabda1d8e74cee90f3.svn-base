@@ -1,0 +1,19 @@
+package com.jeeplus.modules.xhreception.quarts;
+
+import javax.servlet.http.HttpSession;
+
+import com.jeeplus.modules.xhreception.pay.WeixinConfig;
+
+public class GetToken {
+	
+	public void getactJob(){
+		/*if(session.getAttribute("openId")!=null){
+			WeixinConfig.getJsapiTicket();
+			String jsapiTicket= WeixinConfig.jsapi_ticket;
+			String access_token= WeixinConfig.access_token;
+			session.setAttribute("jsapiTicket", jsapiTicket);
+			session.setAttribute("access_token", access_token);
+			System.out.println("123456");
+		}*/
+	}
+}

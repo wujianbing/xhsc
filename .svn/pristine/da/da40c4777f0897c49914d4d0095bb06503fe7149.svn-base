@@ -1,0 +1,142 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.xhuser.entity;
+
+import org.hibernate.validator.constraints.Length;
+
+import com.jeeplus.common.persistence.DataEntity;
+import com.jeeplus.common.utils.excel.annotation.ExcelField;
+
+/**
+ * 用户信息Entity
+ * @author wujianbing
+ * @version 2019-04-09
+ */
+public class XhUser extends DataEntity<XhUser> {
+	
+	private static final long serialVersionUID = 1L;
+	private String id;
+	private String username;		// 用户姓名
+	private String password;		// 用户密码
+	private String sex;		// 用户性别
+	private String pic;		// 用户头像
+	private String nickname;		// 用户昵称
+	private String level;		// 用户等级
+	private String integral;		// 会员积分
+	private String phone;		// 用户电话
+	private String openId;
+	private String birthday;
+	
+	public XhUser() {
+		super();
+	}
+
+	public XhUser(String id){
+		super(id);
+	}
+
+	@Length(min=0, max=64, message="用户姓名长度必须介于 0 和 64 之间")
+	@ExcelField(title="用户姓名", align=2, sort=6)
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	
+	@Length(min=0, max=64, message="用户密码长度必须介于 0 和 64 之间")
+	@ExcelField(title="用户密码", align=2, sort=7)
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	
+	@Length(min=0, max=64, message="用户性别长度必须介于 0 和 64 之间")
+	@ExcelField(title="用户性别", dictType="", align=2, sort=8)
+	public String getSex() {
+		return sex;
+	}
+
+	public void setSex(String sex) {
+		this.sex = sex;
+	}
+	
+	@Length(min=0, max=64, message="用户头像长度必须介于 0 和 64 之间")
+	@ExcelField(title="用户头像", align=2, sort=9)
+	public String getPic() {
+		return pic;
+	}
+
+	public void setPic(String pic) {
+		this.pic = pic;
+	}
+	
+	@Length(min=0, max=64, message="用户昵称长度必须介于 0 和 64 之间")
+	@ExcelField(title="用户昵称", align=2, sort=10)
+	public String getNickname() {
+		return nickname;
+	}
+
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
+	}
+	
+	@Length(min=0, max=64, message="用户等级长度必须介于 0 和 64 之间")
+	@ExcelField(title="用户等级", align=2, sort=11)
+	public String getLevel() {
+		return level;
+	}
+
+	public void setLevel(String level) {
+		this.level = level;
+	}
+	
+	@Length(min=0, max=64, message="会员积分长度必须介于 0 和 64 之间")
+	@ExcelField(title="会员积分", align=2, sort=12)
+	public String getIntegral() {
+		return integral;
+	}
+
+	public void setIntegral(String integral) {
+		this.integral = integral;
+	}
+	
+	@Length(min=0, max=64, message="用户电话长度必须介于 0 和 64 之间")
+	@ExcelField(title="用户电话", align=2, sort=13)
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getOpenId() {
+		return openId;
+	}
+
+	public void setOpenId(String openId) {
+		this.openId = openId;
+	}
+
+	public String getBirthday() {
+		return birthday;
+	}
+
+	public void setBirthday(String birthday) {
+		this.birthday = birthday;
+	}
+
+}

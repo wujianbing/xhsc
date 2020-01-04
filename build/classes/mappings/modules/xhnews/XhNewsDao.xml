@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.xhnews.dao.XhNewsDao">
+    
+	<sql id="xhNewsColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.xid AS "xhColumn.id",
+		xhColumn.column_name AS "xhColumn.columnName",
+		a.title AS "title",
+		a.content AS "content",
+		(select f.name from sys_upload_file f where f.id = a.upload_file_id ) AS "uploadFile.name",
+		(select f.abso_path from sys_upload_file f where f.id = a.upload_file_id ) AS "uploadFile.absoPath",
+		(select f.rela_path from sys_upload_file f where f.id = a.upload_file_id ) AS "uploadFile.relaPath",
+		(select f.id from sys_upload_file f where f.id = a.upload_file_id ) AS "uploadFile.id"
+	</sql>
+	
+	<sql id="xhNewsJoins">
+		LEFT JOIN xh_column xhColumn ON xhColumn.id = a.xid
+	</sql>
+	
+    
+	<select id="get" resultType="XhNews" >
+		SELECT 
+			<include refid="xhNewsColumns"/>
+		FROM xh_news a
+		<include refid="xhNewsJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="XhNews" >
+		SELECT 
+			<include refid="xhNewsColumns"/>
+		FROM xh_news a
+		<include refid="xhNewsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="title != null and title != ''">
+				AND a.title = #{title}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="XhNews" >
+		SELECT 
+			<include refid="xhNewsColumns"/>
+		FROM xh_news a
+		<include refid="xhNewsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO xh_news(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			xid,
+			title,
+			content,
+			upload_file_id
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{xhColumn.id},
+			#{title},
+			#{content},
+			#{uploadFile.id}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE xh_news SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			xid = #{xhColumn.id},
+			title = #{title},
+			content = #{content},
+			upload_file_id = #{uploadFile.id}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM xh_news
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE xh_news SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="XhNews" statementType="STATEMENT">
+		select * FROM xh_news  where ${propertyName} = '${value}'
+	</select>
+	
+	<select id="findListByxhColumn" resultType="XhColumn">
+		SELECT 
+			*
+		FROM xh_column a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="columnName != null and columnName != ''">
+				AND a.column_name LIKE 
+				<if test="dbName == 'oracle'">#{}||'%'</if>
+				<if test="dbName == 'mssql'">#{}+'%'</if>
+				<if test="dbName == 'mysql'">concat(#{},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+</mapper>

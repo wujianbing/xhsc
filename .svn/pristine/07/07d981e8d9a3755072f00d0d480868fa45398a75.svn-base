@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>单品花束</title>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="css/base/base.css"/>
+		<link rel="stylesheet" href="css/item.css" />
+	</head>
+	<body>
+		<header>
+			<div class="logo"><img src="images/logo.jpg"/></div>
+			<div class="gzhu"><a href="#"><span>+</span>关注</a></div>
+		</header>
+		<nav>
+			<ul>
+				<li><a href="#">推荐</a></li>
+				<li><a href="#">单品花束</a></li>
+				<li><a href="#">混合花束</a></li>
+				<li><a href="#">MINI花束</a></li>
+				<li><a href="#">礼品花</a></li>
+			</ul>
+		</nav>
+		<section>
+			<div class="itemcont">
+				<div class="adtitle">
+					<h3>单品</h3>
+					<hr />
+					<p>从简单中发现美好</p>
+				</div>
+				<div class="itemlist">
+					<ul>
+						<li>
+							<a href="">
+								<img class="img-responsive" src="images/gd1.jpg" alt="" />
+								<p>简花</p>
+								<p>￥<span>99</span>元起/月</p>
+							</a>
+						</li>
+						<li>
+							<a href="">
+								<img class="img-responsive" src="images/gd2.jpg" alt="" />
+								<p>洋花园——进口鲜花全球购</p>
+								<p>￥<span>169</span>元起/月</p>
+							</a>
+						</li>
+						<li>
+							<a href="">
+								<img class="img-responsive" src="images/gd3.png" alt="" />
+								<p>简花</p>
+								<p>￥<span>99</span>元起/月</p>
+							</a>
+						</li>
+						<li>
+							<a href="">
+								<img class="img-responsive" src="images/gd4.png" alt="" />
+								<p>简花</p>
+								<p>￥<span>99</span>元起/月</p>
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</section>
+		<footer>
+			<ul>
+				<li><a href=""><i class="iconfont">&#xe51b;</i>商城首页</a></li>
+				<li><a href=""><i class="iconfont">&#xe602;</i>花卉知识</a></li>
+				<li><a href=""><i class="iconfont">&#xe506;</i>购物车</a></li>
+				<li><a href=""><i class="iconfont">&#xe507;</i>个人中心</a></li>
+			</ul>
+		</footer>
+	</body>
+</html>

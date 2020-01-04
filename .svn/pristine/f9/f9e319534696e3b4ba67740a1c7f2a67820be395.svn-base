@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.xhcolor.dao.XhColorDao">
+    
+	<sql id="xhColorColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.gid AS "xhGoods.id",
+		(select xhGoods.name from xh_goods xhGoods where xhGoods.id = a.gid) AS "xhGoods.name",
+		a.color AS "color"
+	</sql>
+	
+	<sql id="xhColorJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="XhColor" >
+		SELECT 
+			<include refid="xhColorColumns"/>
+		FROM xh_color a
+		<include refid="xhColorJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<!-- findListBygid -->
+	<select id="findListBygid" resultType="XhColor" parameterType="java.lang.String">
+		select 
+			<include refid="xhColorColumns"/>
+		from xh_color a
+		where a.gid = #{gid}
+	</select>
+	
+	<select id="findList" resultType="XhColor" >
+		SELECT 
+			<include refid="xhColorColumns"/>
+		FROM xh_color a
+		<include refid="xhColorJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="XhColor" >
+		SELECT 
+			<include refid="xhColorColumns"/>
+		FROM xh_color a
+		<include refid="xhColorJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO xh_color(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			gid,
+			color
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{xhGoods.id},
+			#{color}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE xh_color SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			gid = #{xhGoods.id},
+			color = #{color}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM xh_color
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE xh_color SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="XhColor" statementType="STATEMENT">
+		select * FROM xh_color  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

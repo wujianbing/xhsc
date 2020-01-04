@@ -1,0 +1,189 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>鲜花商城首页</title>
+		<link rel="stylesheet" type="text/css" href="static/xhreception/css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="static/xhreception/css/base/base.css"/>
+		<link rel="stylesheet" type="text/css" href="static/xhreception/css/index.css"/>
+		
+	</head>
+	<script type="text/javascript" src="static/xhreception/js/TouchSlide.1.1.js"></script>
+	<script type="text/javascript" src="static/xhreception/js/jquery.js"></script>
+	<script type="text/javascript" src="static/xhreception/js/layer/layer.js"></script>
+	
+	<body>
+		<header>
+			<%@ include file="fansbase.jsp" %>
+		</header>
+		<nav>
+			<ul>
+				<c:forEach items="${xhFloors}" var="xhFloors">
+					<li><a href="${xhFloors.url}">${xhFloors.name}</a></li>
+				</c:forEach>
+				<!-- <li><a href="#">推荐</a></li>
+				<li><a href="#">单品花束</a></li>
+				<li><a href="#">混合花束</a></li>
+				<li><a href="#">MINI花束</a></li>
+				<li><a href="#">礼品花</a></li> -->
+			</ul>
+		</nav>
+		<div id="slideBox" class="slideBox">
+			<div class="bd">
+				<ul>
+					<c:forEach items="${bannerList}" var="bannerList">
+					<li>
+						<a class="pic" href="${bannerList.xhGoods.id}"><img src="${bannerList.uploadFile.relaPath}" /></a>
+						<!--<a class="tit" href="#">鲜花物语</a>-->
+					</li>
+					</c:forEach>
+				</ul>
+			</div>
+			<div class="hd">
+				<ul></ul>
+			</div>
+		</div>
+			<!--引导块-->
+		<section>
+			<div class="advtion">
+				<div class="adv-left">
+					<div class="adv-left-top">
+						<a href="${xhFloor1.url}">
+						<p>Monthly flowers<br>${xhFloor1.name}</p>
+						<img class="img-responsive" src="${xhFloor1.uploadFile.relaPath}" alt="" />
+						</a>
+					</div>
+					<div class="adv-left-botm">
+						<a href="${xhFloor2.url}">
+						<p>Group rush to buy<br>${xhFloor2.name}</p>
+						<img class="img-responsive" src="${xhFloor2.uploadFile.relaPath}" alt="" />
+						</a>
+					</div>
+				</div>
+				<div class="right">
+					<div class="right1">
+						<a href="${xhFloor3.url}">
+						<p>${xhFloor3.name}</p>
+						<img class="img-responsive" src="${xhFloor3.uploadFile.relaPath}" alt="" />
+						</a>
+					</div>
+					<div class="right2">
+						<a href="${xhFloor4.url}">
+						<p>${xhFloor4.name}</p>
+						<img class="img-responsive" src="${xhFloor4.uploadFile.relaPath}" alt="" />
+						</a>
+					</div>
+					<div class="right3">
+						<a href="${xhFloor5.url}">
+						<p>${xhFloor5.name}</p>
+						<img class="img-responsive" src="${xhFloor5.uploadFile.relaPath}" alt="" />
+						</a>
+					</div>
+					<div class="right4">
+						<a href="${xhFloor6.url}">
+						<p>${xhFloor6.name}</p>
+						<img class="img-responsive" src="${xhFloor6.uploadFile.relaPath}" alt="" />
+						</a>
+					</div>
+				</div>
+					
+				</div>
+			</div>
+		</section>
+			<!--包月鲜花-->
+		<section>
+			<div class="bmonth">
+				<div class="adtitle">
+					<h3>${xhFloor1.name}</h3>
+					<p>${xhFloor1.remarks}</p>
+				</div>
+				<div class="flwgd">
+					<ul>
+						<c:forEach items="${xhMonthbuy}" var="xhMonthbuy">
+						<li>
+							<a href="monthDetail?id=${xhMonthbuy.id}&gid=${xhMonthbuy.xhGoods.id}">
+							<img class="img-responsive" src="${xhMonthbuy.xhGoods.uploadFile.relaPath}" alt="" />
+							<p class="flwname">${xhMonthbuy.mTitle}</p>
+							<p class="flwdetil">${xhMonthbuy.lTitle}</p>
+							<div class="flwprice">￥${xhMonthbuy.mPrice}/${fns:getDictLabel(xhMonthbuy.xhGoods.bigUnit, 'bigunit', '')}<sub>起</sub></div>
+							<div class="flwbuy"><img src="static/xhreception/images/adbuy.png"/></div>
+							</a>
+						</li>
+						</c:forEach>
+						<!-- <li>
+							<img class="img-responsive" src="images/flw1.jpg" alt="" />
+							<p class="flwname">爱不缺席<strong> | </strong>向日葵花束</p>
+							<p class="flwdetil">主花可选，蔷薇/洋桔梗/绣球</p>
+							<div class="flwprice">￥89/束<sub>起</sub></div>
+							<div class="flwbuy"><a href=""><span>立即</span><span>购买</span></a></div>
+						</li> -->
+					</ul>
+				</div>
+				<!--<div class="moregd">
+					<a href="">更多……</a>
+				</div>-->
+			</div>
+		</section>
+			<!--拼团精选-->
+		<section>
+			<div class="bmonth ptjs">
+				<div class="adtitle">
+					<h3>${xhFloor2.name}</h3>
+					<p>${xhFloor2.remarks}</p>
+				</div>
+				<div class="flwgd">
+					<ul>
+						<c:forEach items="${xhGroups}" var="xhGroups">
+						<li>
+							<a href="groupDetail?id=${xhGroups.id}">
+							<img class="img-responsive" src="${xhGroups.xhGoods.uploadFile.relaPath}" alt="" />
+							<p class="flwname">${xhGroups.groupTitle}</p>
+							<p class="flwdetil">${xhGroups.lTitle}</p>
+							<div class="flwprice">￥${xhGroups.buyerAmt}/${fns:getDictLabel(xhGroups.xhGoods.bigUnit, 'bigunit', '')}<sub>起</sub></div>
+							<div class="flwbuy"><img src="static/xhreception/images/adbuy.png"/></div>
+							</a>
+						</li>
+						</c:forEach>
+						<!-- <li>
+							<img class="img-responsive" src="images/flw3.png" alt="" />
+							<p class="flwname">混合<strong> | </strong>向日葵 相思梅</p>
+							<p class="flwdetil">真诚不变的爱，纯洁对远方的思念</p>
+							<div class="flwprice">￥89/束<sub>起</sub></div>
+							<div class="flwbuy"><a href=""><span>抢购</span><span>三人团</span></a></div>
+						</li> -->
+					</ul>
+				</div>
+				<!--<div class="moregd">
+					<a href="">更多……</a>
+				</div>-->
+			</div>
+		</section>
+		<footer>
+			<ul>
+				<!--<li><a href="index"><i class="iconfont">&#xe51b;</i>商城首页</a></li>
+				<li><a href="news"><i class="iconfont">&#xe602;</i>花卉知识</a></li>
+				<li><a href="shopCar"><i class="iconfont">&#xe506;</i>购物车</a></li>
+				<li><a href="personContre"><i class="iconfont">&#xe507;</i>个人中心</a></li> -->
+				<%@ include file="webBase.jsp" %>
+			</ul>
+		</footer>
+			<script type="text/javascript">
+				TouchSlide({ 
+					slideCell:"#slideBox",
+					titCell:".hd ul", //开启自动分页 autoPage:true ，此时设置 titCell 为导航元素包裹层
+					mainCell:".bd ul", 
+					effect:"leftLoop", 
+					autoPage:true,//自动分页
+					autoPlay:true, //自动播放
+					delayTime:1000,
+					interTime:3000
+				});
+				/*关注*/
+			
+			</script>
+			<script type="text/javascript" src="static/xhreception/js/base.js"></script>
+	</body>
+</html>

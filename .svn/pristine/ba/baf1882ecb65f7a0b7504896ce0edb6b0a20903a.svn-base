@@ -1,0 +1,125 @@
+package com.jeeplus.modules.xhreception.xhController;
+
+import java.text.ParseException;
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.jeeplus.modules.recaddress.service.RecAddrService;
+import com.jeeplus.modules.xhbuyer.entity.XhBuyer;
+import com.jeeplus.modules.xhbuyer.service.XhBuyerService;
+import com.jeeplus.modules.xhcolor.entity.XhColor;
+import com.jeeplus.modules.xhcolor.service.XhColorService;
+import com.jeeplus.modules.xhfloor.entity.XhFloor;
+import com.jeeplus.modules.xhfloor.service.XhFloorService;
+import com.jeeplus.modules.xhgoods.entity.XhGoods;
+import com.jeeplus.modules.xhgoods.service.XhGoodsService;
+import com.jeeplus.modules.xhgroups.entity.XhGroups;
+import com.jeeplus.modules.xhgroups.service.XhGroupsService;
+import com.jeeplus.modules.xhreception.xhUtils.DateUtils;
+import com.jeeplus.modules.xhrim.entity.XhRim;
+import com.jeeplus.modules.xhrim.service.XhRimService;
+import com.jeeplus.modules.xhrule.entity.XhRule;
+import com.jeeplus.modules.xhrule.service.XhRuleService;
+import com.jeeplus.modules.xhtime.entity.XhTime;
+import com.jeeplus.modules.xhtime.service.XhTimeService;
+
+@Controller
+public class GrounpController {
+	@Autowired
+	private XhFloorService xhFloorService;
+	@Autowired
+	private XhGroupsService xhGroupsService;
+	@Autowired
+	private XhBuyerService xhBuyerService;
+	@Autowired
+	private XhGoodsService xhGoodsService;
+	@Autowired
+	private XhRuleService xhRuleService;
+	@Autowired
+	private XhRimService xhRimService;
+	@Autowired
+	private XhTimeService xhTimeService;
+	@Autowired
+	private XhColorService xhColorService;
+	@Autowired
+	private RecAddrService recAddrService;
+	@RequestMapping("groupList")
+	public String groupList(HttpServletRequest request, HttpServletResponse response, Model model) {
+
+		// 6以后
+		List<XhFloor> xhFloors = xhFloorService.findListByNum();
+		model.addAttribute("xhFloors", xhFloors);
+		// 团购商品
+		XhGroups xhGroup = new XhGroups();
+		xhGroup.setGroupStatus("1");
+		List<XhGroups> xhGroups = xhGroupsService.findList(xhGroup);
+		model.addAttribute("xhGroups", xhGroups);
+		return "modules/xhreception/groupList";
+	}
+	
+	@RequestMapping("groupDetail")
+	public String groupDetail(HttpServletRequest request, HttpServletResponse response, Model model){
+		String id = request.getParameter("id");
+		XhGroups xhGroup = xhGroupsService.get(id);
+		XhBuyer xhBuyer = new XhBuyer();
+		List<XhBuyer> xhBuyers=xhBuyerService.findList(xhBuyer);
+ 		for(XhBuyer xhBuyer1:xhBuyers){
+			Date endTime=xhBuyer1.getEndTime();
+			try {
+				Date date1=new Date();
+				int day=DateUtils.dateBetween(date1, endTime);
+				long second = day*24*60*60;
+				String endTime1 = String.valueOf(second);
+				xhBuyer1.setsTime(endTime1);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		model.addAttribute("xhBuyers", xhBuyers);
+		Date date2 = xhGroup.getEndTime();
+		try {
+			Date date1=new Date();
+			int day=DateUtils.dateBetween(date1, date2);
+			long second = day*24*60*60;
+			String endTime = String.valueOf(second);
+			if(second<=0){
+				xhGroup.setGroupStatus("0");
+				xhGroupsService.updateStatus(xhGroup);
+			}
+			model.addAttribute("endTime", endTime);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		model.addAttribute("xhGroup", xhGroup);
+		
+		String gid = xhGroup.getXhGoods().getId();
+		XhGoods xhGoods = xhGoodsService.get(gid);
+		model.addAttribute("xhGoods", xhGoods);
+		
+		List<XhRule> xhRules = xhRuleService.findRuleBygid(gid);
+		model.addAttribute("xhRules", xhRules);
+		
+		List<XhTime> xhTimes = xhTimeService.findListBygid(gid);
+		model.addAttribute("xhTimes", xhTimes);
+		
+		List<XhColor> xhColors = xhColorService.findListBygid(gid);
+		model.addAttribute("xhColors", xhColors);
+		
+		List<XhRim> xhRims = xhRimService.findListBygid(gid);
+		model.addAttribute("xhRims", xhRims);
+		return "modules/xhreception/groupDetail";
+	}
+	
+	@RequestMapping("groupRule")
+	public String groupRule(){
+		return "modules/xhreception/groupRule";
+	}
+}

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.xhbanner.dao.XhBannerDao">
+    
+	<sql id="xhBannerColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.concat_id AS "xhGoods.id",
+		(select f.name from sys_upload_file f where f.id = a.upload_file_id ) AS "uploadFile.name",
+		(select f.abso_path from sys_upload_file f where f.id = a.upload_file_id ) AS "uploadFile.absoPath",
+		(select f.rela_path from sys_upload_file f where f.id = a.upload_file_id ) AS "uploadFile.relaPath",
+		(select f.id from sys_upload_file f where f.id = a.upload_file_id ) AS "uploadFile.id",
+		(select x.name from xh_goods x where x.id = a.concat_id) AS "xhGoods.name"
+	</sql>
+	
+	<sql id="xhBannerJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="XhBanner" >
+		SELECT 
+			<include refid="xhBannerColumns"/>
+		FROM xh_banner a
+		<include refid="xhBannerJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="XhBanner" >
+		SELECT 
+			<include refid="xhBannerColumns"/>
+		FROM xh_banner a
+		<include refid="xhBannerJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="XhBanner" >
+		SELECT 
+			<include refid="xhBannerColumns"/>
+		FROM xh_banner a
+		<include refid="xhBannerJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO xh_banner(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			upload_file_id,
+			concat_id
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{uploadFile.id},
+			#{xhGoods.id}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE xh_banner SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			upload_file_id = #{uploadFile.id},
+			concat_id = #{xhGoods.id}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM xh_banner
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE xh_banner SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="XhBanner" statementType="STATEMENT">
+		select * FROM xh_banner  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

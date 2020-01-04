@@ -1,0 +1,701 @@
+package com.jeeplus.modules.xhreception.xhController;
+
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.jeeplus.common.config.Global;
+import com.jeeplus.modules.monthtime.entity.MonthTime;
+import com.jeeplus.modules.monthtime.service.MonthTimeService;
+import com.jeeplus.modules.orderdetail.entity.OrderDetail;
+import com.jeeplus.modules.orderdetail.service.OrderDetailService;
+import com.jeeplus.modules.recaddress.entity.RecAddr;
+import com.jeeplus.modules.recaddress.service.RecAddrService;
+import com.jeeplus.modules.xhbuyer.entity.XhBuyer;
+import com.jeeplus.modules.xhbuyer.service.XhBuyerService;
+import com.jeeplus.modules.xhcolor.entity.XhColor;
+import com.jeeplus.modules.xhcolor.service.XhColorService;
+import com.jeeplus.modules.xhgoods.entity.XhGoods;
+import com.jeeplus.modules.xhgoods.service.XhGoodsService;
+import com.jeeplus.modules.xhgroups.entity.XhGroups;
+import com.jeeplus.modules.xhgroups.service.XhGroupsService;
+import com.jeeplus.modules.xhmbuyer.entity.XhMbuyer;
+import com.jeeplus.modules.xhmbuyer.service.XhMbuyerService;
+import com.jeeplus.modules.xhorder.entity.XhOrder;
+import com.jeeplus.modules.xhorder.service.XhOrderService;
+import com.jeeplus.modules.xhreception.domain.Message;
+import com.jeeplus.modules.xhreception.domain.NextLoad;
+import com.jeeplus.modules.xhreception.xhUtils.DateUtils;
+import com.jeeplus.modules.xhrule.entity.XhRule;
+import com.jeeplus.modules.xhrule.service.XhRuleService;
+import com.jeeplus.modules.xhshoper.entity.XhShopcar;
+import com.jeeplus.modules.xhtime.entity.XhTime;
+import com.jeeplus.modules.xhtime.service.XhTimeService;
+import com.jeeplus.modules.xhuser.entity.XhUser;
+import com.jeeplus.modules.xhuser.service.XhUserService;
+
+@Controller
+public class OrderController {
+
+	@Autowired
+	private XhOrderService orderService;
+	@Autowired
+	private OrderDetailService orderDetailService;
+	@Autowired
+	private XhRuleService xhRuleService;
+	@Autowired
+	private XhTimeService xhTimeService;
+	@Autowired
+	private XhColorService xhColorService;
+	@Autowired
+	private RecAddrService recAddrService;
+	@Autowired
+	private MonthTimeService monthTimeService;
+	@Autowired
+	private XhGoodsService xhGoodsService;
+	@Autowired
+	private XhUserService xhUserService;
+	@Autowired
+	private XhGroupsService xhGroupsService;
+	@Autowired
+	private XhBuyerService xhBuyerService;
+	@Autowired
+	private XhMbuyerService xhMbuyerService;
+	/**
+	 * 订单詳情
+	 * 
+	 * @return
+	 */
+	@RequestMapping("personOrder")
+	public String personOrder(HttpServletRequest request, HttpServletResponse response, Model model,
+			HttpSession session) {
+		String openId = (String)session.getAttribute("openId");
+		String uid =xhUserService.findIdByOpenId(openId);
+		XhOrder xhOrder = new XhOrder();
+		XhUser xhUser = new XhUser();
+		xhUser.setId(uid);
+		xhOrder.setXhUser(xhUser);
+		// 全部订单
+		List<XhOrder> xhOrders = orderService.findList(xhOrder);
+		List<XhOrder> nXhOrders = new ArrayList<XhOrder>();
+		for (XhOrder order : xhOrders) {
+			String oid = order.getId();
+			XhOrder xhOrder1 = new XhOrder();
+			xhOrder1.setId(oid);
+			OrderDetail orderDetail = new OrderDetail();
+			orderDetail.setXhOrder(xhOrder1);
+			List<OrderDetail> orderDetailList = orderDetailService.findList(orderDetail);
+			order.setOrderDetailList(orderDetailList);
+			nXhOrders.add(order);
+		}
+		model.addAttribute("nXhOrders", nXhOrders);
+		// 待支付订单
+		xhOrder.setPayStatus("1");
+		List<XhOrder> xhOrders1 = orderService.findList(xhOrder);
+		List<XhOrder> nXhOrders1 = new ArrayList<XhOrder>();
+		for (XhOrder order : xhOrders1) {
+			String oid = order.getId();
+			XhOrder xhOrder1 = new XhOrder();
+			xhOrder1.setId(oid);
+			OrderDetail orderDetail = new OrderDetail();
+			orderDetail.setXhOrder(xhOrder1);
+			List<OrderDetail> orderDetailList = orderDetailService.findList(orderDetail);
+			order.setOrderDetailList(orderDetailList);
+			nXhOrders1.add(order);
+		}
+		model.addAttribute("nXhOrders1", nXhOrders1);
+		// 待发货订单
+		xhOrder.setPayStatus("2");
+		xhOrder.setOrderStatus("1");
+		List<XhOrder> xhOrders2 = orderService.findList(xhOrder);
+		List<XhOrder> nXhOrders2 = new ArrayList<XhOrder>();
+		for (XhOrder order : xhOrders2) {
+			String oid = order.getId();
+			XhOrder xhOrder1 = new XhOrder();
+			xhOrder1.setId(oid);
+			OrderDetail orderDetail = new OrderDetail();
+			orderDetail.setXhOrder(xhOrder1);
+			List<OrderDetail> orderDetailList = orderDetailService.findList(orderDetail);
+			order.setOrderDetailList(orderDetailList);
+			nXhOrders2.add(order);
+		}
+		model.addAttribute("nXhOrders2", nXhOrders2);
+		// 待收货订单
+		xhOrder.setPayStatus("2");
+		xhOrder.setOrderStatus("3");
+		List<XhOrder> xhOrders3 = orderService.findList(xhOrder);
+		List<XhOrder> nXhOrders3 = new ArrayList<XhOrder>();
+		for (XhOrder order : xhOrders3) {
+			String oid = order.getId();
+			XhOrder xhOrder1 = new XhOrder();
+			xhOrder1.setId(oid);
+			OrderDetail orderDetail = new OrderDetail();
+			orderDetail.setXhOrder(xhOrder1);
+			List<OrderDetail> orderDetailList = orderDetailService.findList(orderDetail);
+			order.setOrderDetailList(orderDetailList);
+			nXhOrders3.add(order);
+		}
+		model.addAttribute("nXhOrders3", nXhOrders3);
+		// 待评价订单
+		xhOrder.setPayStatus("2");
+		xhOrder.setOrderStatus("4");
+		List<XhOrder> xhOrders4 = orderService.findList(xhOrder);
+		List<XhOrder> nXhOrders4 = new ArrayList<XhOrder>();
+		for (XhOrder order : xhOrders4) {
+			String oid = order.getId();
+			XhOrder xhOrder1 = new XhOrder();
+			xhOrder1.setId(oid);
+			OrderDetail orderDetail = new OrderDetail();
+			orderDetail.setXhOrder(xhOrder1);
+			List<OrderDetail> orderDetailList = orderDetailService.findList(orderDetail);
+			order.setOrderDetailList(orderDetailList);
+			nXhOrders4.add(order);
+		}
+		model.addAttribute("nXhOrders4", nXhOrders4);
+		return "modules/xhreception/personorder";
+	}
+	/**
+	 * 确认收货
+	 * @return
+	 */
+	@RequestMapping("confirmRecives")
+	public String confirmRecives(HttpServletRequest request, HttpServletResponse response, Model model){
+		XhOrder xhOrder = new XhOrder();
+		String oid = request.getParameter("oid");
+		String orderStatus = "4";
+		xhOrder.setId(oid);
+		xhOrder.setOrderStatus(orderStatus);
+		int line = orderService.upStatusById(xhOrder);
+		return "redirect:personOrder";
+	}
+	
+	
+	
+	@RequestMapping("delOrder")
+	public String delOrder(HttpServletRequest request, HttpServletResponse response, Model model){
+		String oid = request.getParameter("oid");
+		XhOrder xhOrder = orderService.get(oid);
+		OrderDetail orderDetail = new OrderDetail();
+		orderDetail.setXhOrder(xhOrder);
+		List<OrderDetail> orderDetails = orderDetailService.findList(orderDetail);
+		for(int i = 0;i<orderDetails.size();i++){
+			orderDetailService.delete(orderDetails.get(i));
+		}
+		orderService.delete(xhOrder);
+		return "redirect:personOrder";
+	}
+	
+	
+	/**
+	 * 添加订单
+	 * 
+	 * @return
+	 */
+	@RequestMapping("addOrder")
+	@ResponseBody
+	public Message addOrder(HttpServletRequest request, HttpServletResponse response, Model model,
+			HttpSession session) {
+		Message message = new Message();
+		XhOrder xhOrder = new XhOrder();
+		OrderDetail orderDetail = new OrderDetail();
+		NextLoad nextLoad = (NextLoad) session.getAttribute("nextLoad");
+		String openId = (String)session.getAttribute("openId");
+		String uid =xhUserService.findIdByOpenId(openId);
+		if (nextLoad == null) {
+			message.setCode("-1");
+			message.setMessage("参数错误");
+			return message;
+		}
+		// 参数列表 xhOrder
+		String orderNo = null;
+		String address = null;
+		String amount = null;
+		String payStatus = "1";
+		String payMethod = "1";
+		// 详情表参数 orderDetail
+		String gName = null;
+		String info1 = null;
+		String groupNo = null;
+		String recId = request.getParameter("recId");
+		String amount1 = request.getParameter("amount");
+		String remarks = request.getParameter("remarks");
+		if(remarks != null){
+			xhOrder.setRemarks(remarks);
+		}
+		/**
+		 * 用户下单地址
+		 */
+		RecAddr recAddr = recAddrService.get(recId);
+		String recUser = recAddr.getRecUser();
+		String recPhone = recAddr.getRecPhone();
+		if(recUser != null && recPhone != null){
+			xhOrder.setRecUser(recUser);
+			xhOrder.setRecPhone(recPhone);
+		}else{
+			message.setCode("-1");
+			message.setMessage("下单地址有误,请重新下单");
+			return message;
+		}
+		String area = recAddr.getArea();
+		if (area != null) {
+			address = recAddr.getProvince() + recAddr.getCity() + area + recAddr.getAddress();
+			amount = amount1;
+			xhOrder.setRecAddr(address);
+			xhOrder.setAmount(new BigDecimal(amount));
+		}else{
+			address = recAddr.getProvince() + recAddr.getCity() + recAddr.getAddress();
+			amount = amount1;
+			xhOrder.setRecAddr(address);
+			xhOrder.setAmount(new BigDecimal(amount));
+		}
+		
+			// 订单号orderNo
+			String orderNo1 = orderService.findnewOrder();
+			Date date = new Date();
+			String count = "1";
+			if (orderNo1 != null) {
+				String last = orderNo1.substring(orderNo1.length() - 4, orderNo1.length());
+				String first = orderNo1.substring(0, 8);
+				try {
+					String date1 = DateUtils.dateFormat(date, DateUtils.DATE_TIME_PATTERNS);
+					String subDate1 = date1.substring(0,8);
+					if (!subDate1.equals(first)) {
+						orderNo = date1 +"000"+count;
+					} else {
+						int last1 = (Integer.parseInt(last) + 1);
+						last = String.valueOf(last1);
+						orderNo = date1 +"000"+ last;
+					}
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+			} else {
+				try {
+					orderNo = DateUtils.dateFormat(date, DateUtils.DATE_TIME_PATTERNS) +"000"+count;
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+			}
+			if("3".equals(nextLoad.getStatus())){
+				String groupNo1 = nextLoad.getGroupNo();
+				if(groupNo1 != null){
+					groupNo = groupNo1;
+				}else{
+					String groupNo2 = orderDetailService.findNewGroupNo();
+					if(groupNo2 != null){
+						String last = groupNo2.substring(groupNo2.length() - 4, groupNo2.length());
+						String first = groupNo2.substring(0, 8);
+						try {
+							String date1 = DateUtils.dateFormat(date, DateUtils.DATE_TIME_PATTE);
+							String subDate1 = date1.substring(0,8);
+							if (!subDate1.equals(first)) {
+								groupNo = date1 +"000"+count;
+							} else {
+								int last1 = (Integer.parseInt(last) + 1);
+								last = String.valueOf(last1);
+								groupNo = date1 +"000"+ last;
+							}
+						} catch (ParseException e) {
+							e.printStackTrace();
+						}
+					}else {
+						try {
+							groupNo = DateUtils.dateFormat(date, DateUtils.DATE_TIME_PATTE) +"000"+count;
+						} catch (ParseException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		orderDetail.setGroupNo(groupNo);
+		XhUser xhUser = new XhUser();
+		xhUser.setId(uid);
+		xhOrder.setXhUser(xhUser);
+		xhOrder.setOrderNo(orderNo);
+		xhOrder.setPayStatus(payStatus);
+		xhOrder.setPayMethod(payMethod);
+		if ("2".equals(nextLoad.getStatus())) {
+			MonthTime monthTime = monthTimeService.get(nextLoad.getMid());
+			String mTime = monthTime.getmTime();
+			int day = Integer.parseInt(mTime)*30;
+			try {
+				Date endDate =DateUtils.dateAdd(null, day, false);
+				orderDetail.setEndDate(endDate);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			orderDetail.setmTime(mTime);
+			orderDetail.setStatus("2");
+			orderDetail.setTimes(0);
+		} else {
+			String status = nextLoad.getStatus();
+			orderDetail.setStatus(status);
+		}
+		orderService.save(xhOrder);
+
+		// 获取oid
+		String oid = orderService.findOidByOrderNo(orderNo);
+		XhOrder xhOrder1 = new XhOrder();
+		xhOrder1.setId(oid);
+		orderDetail.setXhOrder(xhOrder);
+		// 参数值info
+		StringBuffer info = new StringBuffer();
+		if (nextLoad != null && nextLoad.getRid() != null) {
+			XhRule xhRule = xhRuleService.get(nextLoad.getRid());
+			String rule = xhRule.getRule()+" ";
+			info.append(rule);
+		}
+		if (nextLoad != null && nextLoad.getSid() != null) {
+			XhColor xhColor = xhColorService.get(nextLoad.getSid());
+			info.append(xhColor.getColor() + " ");
+		}
+		if (nextLoad != null && nextLoad.getTid() != null) {
+			XhTime xhTime = xhTimeService.get(nextLoad.getTid());
+			info.append(xhTime.getXhTime() + " ");
+		}
+		info1 = info.toString();
+		orderDetail.setInfo(info1);
+		
+		// 获取gid
+		if (nextLoad != null && nextLoad.getGid() != null) {
+			XhGoods xhGoods = new XhGoods();
+			xhGoods.setId(nextLoad.getGid());
+			XhGoods xhgoods1 = xhGoodsService.get(nextLoad.getGid());
+			gName = xhgoods1.getName();
+			orderDetail.setgName(gName);
+			orderDetail.setXhGoods(xhGoods);
+		}
+		//获取商品单价
+		if(nextLoad != null && nextLoad.getPrice() != null){
+			orderDetail.setPrice(nextLoad.getPrice());
+		}
+		if(nextLoad != null && nextLoad.getNum() != null){
+			orderDetail.setNum(nextLoad.getNum());
+		}
+		orderDetailService.save(orderDetail);
+
+		message.setCode("1");
+		message.setMessage("请支付");
+		message.setOid(oid);
+		return message;
+	}
+	
+
+	/**
+	 * 添加购物车订单
+	 * 
+	 * @return
+	 */
+	@RequestMapping("shopcarAddOrder")
+	@ResponseBody
+	public Message shopcarAddOrder(HttpServletRequest request, HttpServletResponse response, Model model,
+			HttpSession session) {
+		Message message = new Message();
+		XhOrder xhOrder = new XhOrder();
+		OrderDetail orderDetail = new OrderDetail();
+		String openId = (String)session.getAttribute("openId");
+		String uid =xhUserService.findIdByOpenId(openId);
+		@SuppressWarnings("unchecked")
+		List<XhShopcar> xhShopcars = (List<XhShopcar>) session.getAttribute("xhShopcars");
+		if (xhShopcars == null) {
+			message.setCode("-1");
+			message.setMessage("参数错误");
+			return message;
+		}
+		// 参数列表 xhOrder
+		String orderNo = null;
+		String address = null;
+		String amount = null;
+		String payStatus = "1";
+		String payMethod = "1";
+		String oid = null;
+		// 详情表参数 orderDetail
+		String gName = null;
+		String info1 = null;
+
+		String recId = request.getParameter("recId");
+		String amount1 = request.getParameter("amount");
+		String remarks = request.getParameter("remarks");
+		if(remarks != null){
+			xhOrder.setRemarks(remarks);
+		}
+		/**
+		 * 用户下单地址
+		 */
+		RecAddr recAddr = recAddrService.get(recId);
+		String recUser = recAddr.getRecUser();
+		String recPhone = recAddr.getRecPhone();
+		if(recUser != null && recPhone != null){
+			xhOrder.setRecUser(recUser);
+			xhOrder.setRecPhone(recPhone);
+		}else{
+			message.setCode("-1");
+			message.setMessage("下单地址有误,请重新下单");
+			return message;
+		}
+		String area = recAddr.getArea();
+		if (area != null) {
+			address = recAddr.getProvince() + recAddr.getCity() + area + recAddr.getAddress();
+			amount = amount1;
+			xhOrder.setRecAddr(address);
+			xhOrder.setAmount(new BigDecimal(amount));
+		}else{
+			address = recAddr.getProvince() + recAddr.getCity() + recAddr.getAddress();
+			amount = amount1;
+			xhOrder.setRecAddr(address);
+			xhOrder.setAmount(new BigDecimal(amount));
+		}
+
+		// 订单号orderNo
+		String orderNo1 = orderService.findnewOrder();
+		Date date = new Date();
+		String count = "1";
+		if (orderNo1 != null) {
+			String last = orderNo1.substring(orderNo1.length() - 4, orderNo1.length());
+			String first = orderNo1.substring(0, 8);
+			try {
+				String date1 = DateUtils.dateFormat(date, DateUtils.DATE_TIME_PATTERNS);
+				String subDate1 = date1.substring(0,8);
+				if (!subDate1.equals(first)) {
+					orderNo = date1 +"000"+count;
+				} else {
+					int last1 = (Integer.parseInt(last) + 1);
+					last = String.valueOf(last1);
+					orderNo = date1 +"000"+ last;
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		} else {
+			try {
+				orderNo = DateUtils.dateFormat(date, DateUtils.DATE_TIME_PATTERNS) +"000"+count;
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		XhUser xhUser = new XhUser();
+		xhUser.setId(uid);
+		xhOrder.setXhUser(xhUser);
+		xhOrder.setOrderNo(orderNo);
+		xhOrder.setPayStatus(payStatus);
+		xhOrder.setPayMethod(payMethod);
+		orderService.save(xhOrder);
+		for(XhShopcar xhShopcar : xhShopcars){
+			System.out.println(xhShopcar.getgStatus()+"....................");
+			if ("2".equals(xhShopcar.getgStatus())) {
+				MonthTime monthTime = monthTimeService.get(xhShopcar.getMonthTime().getId());
+				String mTime = monthTime.getmTime();
+				orderDetail.setmTime(mTime);
+				orderDetail.setStatus("2");
+				orderDetail.setTimes(0);
+			} else {
+				String status = xhShopcar.getgStatus();
+				orderDetail.setStatus(status);
+			}
+			// 获取oid
+			 oid = orderService.findOidByOrderNo(orderNo);
+			 session.setAttribute("oid", oid);
+			XhOrder xhOrder1 = new XhOrder();
+			xhOrder1.setId(oid);
+			orderDetail.setXhOrder(xhOrder);
+			// 参数值info
+			StringBuffer info = new StringBuffer();
+			if (xhShopcar !=null && xhShopcar.getXhRule() != null &&  xhShopcar.getXhRule().getId() != null) {
+				XhRule xhRule = xhRuleService.get(xhShopcar.getXhRule().getId());
+				String rule = xhRule.getRule()+" ";
+				info.append(rule);
+			}
+			if (xhShopcar !=null && xhShopcar.getXhColor()!=null && xhShopcar.getXhColor().getId() != null) {
+				XhColor xhColor = xhColorService.get(xhShopcar.getXhColor().getId());
+				info.append(xhColor.getColor() + " ");
+			}
+			if (xhShopcar !=null && xhShopcar.getXhTime() !=null && xhShopcar.getXhTime().getId() != null) {
+				XhTime xhTime = xhTimeService.get(xhShopcar.getXhTime().getId());
+				info.append(xhTime.getXhTime() + " ");
+			}
+			info1 = info.toString();
+			orderDetail.setInfo(info1);
+			
+			// 获取gid
+			if (xhShopcar !=null && xhShopcar.getXhGoods()!=null && xhShopcar.getXhGoods().getId() != null) {
+				XhGoods xhGoods = new XhGoods();
+				xhGoods.setId(xhShopcar.getXhGoods().getId());
+				XhGoods xhgoods1 = xhGoodsService.get(xhShopcar.getXhGoods().getId());
+				gName = xhgoods1.getName();
+				orderDetail.setgName(gName);
+				orderDetail.setXhGoods(xhGoods);
+			}
+			//获取商品单价
+			if(xhShopcar !=null && xhShopcar.getPrice() != null){
+				orderDetail.setPrice(String.valueOf(xhShopcar.getPrice()));
+			}
+			if(xhShopcar !=null && xhShopcar.getNum() != null){
+				orderDetail.setNum(xhShopcar.getNum());
+			}
+			orderDetailService.save(orderDetail);
+		}
+		
+
+		message.setCode("1");
+		message.setMessage("请支付");
+		message.setOid(oid);
+		return message;
+	}
+	
+	@RequestMapping("appra")
+	public String appra(HttpServletRequest request, HttpServletResponse response, Model model,
+			HttpSession session){
+		String oid = request.getParameter("oid");
+		XhOrder xhOrder = orderService.get(oid);
+		model.addAttribute("xhOrder", xhOrder);
+		OrderDetail detail = new OrderDetail();
+		detail.setXhOrder(xhOrder);
+		List<OrderDetail> orderDetails = orderDetailService.findList(detail);
+		model.addAttribute("details", orderDetails);
+		return "modules/xhreception/appra";
+	}
+	/**
+	 * 评论提交
+	 * @return
+	 */
+	@RequestMapping("appraDetail")
+	public String appraDetail(HttpServletRequest request, HttpServletResponse response, Model model){
+		String oid = request.getParameter("oid");
+		String comment = request.getParameter("comment");
+			XhOrder xhOrder = new XhOrder();
+			xhOrder.setId(oid);
+			xhOrder.setComment(comment);
+			orderService.updateCommentById(xhOrder);
+			String orderStatus = "0";
+			xhOrder.setOrderStatus(orderStatus);
+			int line = orderService.upStatusById(xhOrder);
+		return "redirect:personOrder";
+	}
+	
+	/**
+	 * 支付成功之后回调,状态值改变
+	 * @return
+	 */
+	@RequestMapping("payNext")
+	public String payNext(HttpServletRequest request, HttpServletResponse response, Model model,
+			HttpSession session){
+		String oid = request.getParameter("oid");
+		XhOrder xhOrder = orderService.get(oid);
+		OrderDetail orderDetail = new OrderDetail();
+		orderDetail.setXhOrder(xhOrder);
+		List<OrderDetail> orderDetails = orderDetailService.findList(orderDetail);
+		for(OrderDetail detail : orderDetails){
+			if(detail !=null && detail.getXhGoods() !=null && detail.getXhGoods().getId() != null ){
+				String gid = detail.getXhGoods().getId();
+				XhGoods xhGoods = xhGoodsService.get(gid);
+				if(xhGoods != null && xhGoods.getIntegral() != null){
+					String integral = xhGoods.getIntegral();
+					String uid = xhOrder.getXhUser().getId();
+					XhUser xhUser = xhUserService.get(uid);
+					String uIntegral = xhUser.getIntegral();
+					String uSerIntegeral = String.valueOf(Integer.parseInt(integral)+Integer.parseInt(uIntegral));
+					XhUser xhUser1 = new XhUser();
+					xhUser1.setId(uid);
+					xhUser1.setIntegral(uSerIntegeral);
+					xhUserService.updateIntegralById(xhUser1);
+				}
+			}
+			if("3".equals(detail.getStatus())){
+				XhBuyer xhBuyer = new XhBuyer();
+				//团购订单，信息存入团购详情中
+				String groupNo = detail.getGroupNo();
+				xhBuyer.setGroupNo(groupNo);
+				String gid = detail.getXhGoods().getId();
+				xhBuyer.setXhGoods(detail.getXhGoods());
+				XhGroups xhGroup = xhGroupsService.getInfoByGid(gid);
+				xhBuyer.setXhGroups(xhGroup);
+				//改变订单状态
+				XhOrder xhOrder1 = new XhOrder();
+				xhOrder1.setId(oid);			
+				xhBuyer.setXhOrder(xhOrder1);
+				xhBuyer.setXhUser(xhOrder.getXhUser());
+				xhBuyer.setGbNum(detail.getNum());
+				xhBuyer.setGbPrice(detail.getPrice());
+				xhBuyer.setGbStatus("1");
+				XhBuyer xhBuyer1 = new XhBuyer();
+				xhBuyer1.setGroupNo(groupNo);
+				List<XhBuyer> xhBuyers = xhBuyerService.findList(xhBuyer1);
+				if(xhBuyers.size() !=0){
+					XhBuyer xhBuyer2 = xhBuyerService.findInfoByGroupNo(groupNo);
+					xhBuyer.setEndTime(xhBuyer2.getEndTime());
+				}else{
+					Date beginDate = new Date();
+					xhBuyer.setBeginTime(beginDate);
+					String cycle=xhGroup.getGroupCycle();
+					try {
+						Date endTime = DateUtils.dateAdd(beginDate, Integer.parseInt(cycle), true);
+						xhBuyer.setEndTime(endTime);
+					} catch (NumberFormatException | ParseException e) {
+						e.printStackTrace();
+					}
+				}
+				xhBuyerService.save(xhBuyer);
+				xhOrder1.setOrderStatus("1");
+				orderService.upStatusById(xhOrder1);
+				xhOrder1.setPayStatus("2");
+				orderService.upPayStatusById(xhOrder1);
+				int maxNum =Integer.parseInt(xhGroup.getMaxNum());
+				int num = xhBuyers.size();
+				if(maxNum <= num){
+					for(XhBuyer xhBuyer3:xhBuyers){
+						String groupNo1 = xhBuyer3.getGroupNo();
+						String status = "2";
+						xhBuyerService.updateStatusByGroupNo(groupNo1,status);
+					}
+				}
+			}else if("2".equals(detail.getStatus())){
+				XhMbuyer xhMbuyer = new XhMbuyer();
+				String mTime = detail.getmTime();
+				int day = Integer.parseInt(mTime)*30;
+				try {
+					Date beginDate = new Date();
+					xhMbuyer.setBeginTime(beginDate);
+					Date endDate =DateUtils.dateAdd(null, day, false);
+					xhMbuyer.setEndTime(endDate);
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+				xhMbuyer.setMtime(mTime);
+				xhMbuyer.setXhOrder(detail.getXhOrder());
+				xhMbuyer.setXhGoods(detail.getXhGoods());
+				xhMbuyer.setXhUser(xhOrder.getXhUser());
+				xhMbuyer.setMstatus("1");
+				xhMbuyer.setTimes(0);
+				xhMbuyerService.save(xhMbuyer);
+				//包月订单，信息存入包月详情中
+				XhOrder xhOrder1 = new XhOrder();
+				xhOrder1.setId(oid);
+				xhOrder1.setOrderStatus("1");
+				orderService.upStatusById(xhOrder1);
+				xhOrder1.setPayStatus("2");
+				orderService.upPayStatusById(xhOrder1);
+			}else{
+				XhOrder xhOrder1 = new XhOrder();
+				xhOrder1.setId(oid);
+				xhOrder1.setOrderStatus("1");
+				orderService.upStatusById(xhOrder1);
+				xhOrder1.setPayStatus("2");
+				orderService.upPayStatusById(xhOrder1);
+			}
+		}
+		
+		return "redirect:index";
+	}
+}

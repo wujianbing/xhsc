@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.xhwxmsg.dao.XhWechatmsgDao">
+    
+	<sql id="xhWechatmsgColumns">
+		a.id AS "id",
+		a.appid AS "appid",
+		a.secret AS "secret",
+		a.mch_id AS "mchId",
+		a.ket_id AS "ketId",
+		a.create_by AS "createBy.id",
+		(select s.name from sys_user s where s.id = a.create_by ) AS "createBy.name",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		(select s.name from sys_user s where s.id = a.update_by ) AS "updateBy.name",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="xhWechatmsgJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="XhWechatmsg" >
+		SELECT 
+			<include refid="xhWechatmsgColumns"/>
+		FROM xh_wechatmsg a
+		<include refid="xhWechatmsgJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="XhWechatmsg" >
+		SELECT 
+			<include refid="xhWechatmsgColumns"/>
+		FROM xh_wechatmsg a
+		<include refid="xhWechatmsgJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="XhWechatmsg" >
+		SELECT 
+			<include refid="xhWechatmsgColumns"/>
+		FROM xh_wechatmsg a
+		<include refid="xhWechatmsgJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO xh_wechatmsg(
+			id,
+			appid,
+			secret,
+			mch_id,
+			ket_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		) VALUES (
+			#{id},
+			#{appid},
+			#{secret},
+			#{mchId},
+			#{ketId},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE xh_wechatmsg SET 	
+			appid = #{appid},
+			secret = #{secret},
+			mch_id = #{mchId},
+			ket_id = #{ketId},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM xh_wechatmsg
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE xh_wechatmsg SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="XhWechatmsg" statementType="STATEMENT">
+		select * FROM xh_wechatmsg  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

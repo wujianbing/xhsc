@@ -1,0 +1,212 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.xhgroups.web;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolationException;
+
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.collect.Lists;
+import com.jeeplus.common.utils.DateUtils;
+import com.jeeplus.common.utils.MyBeanUtils;
+import com.jeeplus.common.config.Global;
+import com.jeeplus.common.persistence.Page;
+import com.jeeplus.common.web.BaseController;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.common.utils.excel.ExportExcel;
+import com.jeeplus.common.utils.excel.ImportExcel;
+import com.jeeplus.modules.xhcategory.entity.XhCategory;
+import com.jeeplus.modules.xhgoods.entity.XhGoods;
+import com.jeeplus.modules.xhgoods.service.XhGoodsService;
+import com.jeeplus.modules.xhgroups.entity.XhGroups;
+import com.jeeplus.modules.xhgroups.service.XhGroupsService;
+
+/**
+ * 团购模块Controller
+ * @author wujianbing
+ * @version 2019-04-15
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/xhgroups/xhGroups")
+public class XhGroupsController extends BaseController {
+
+	@Autowired
+	private XhGroupsService xhGroupsService;
+	@Autowired
+	private XhGoodsService xhGoodsService;
+	@ModelAttribute
+	public XhGroups get(@RequestParam(required=false) String id) {
+		XhGroups entity = null;
+		if (StringUtils.isNotBlank(id)){
+			entity = xhGroupsService.get(id);
+		}
+		if (entity == null){
+			entity = new XhGroups();
+		}
+		return entity;
+	}
+	
+	/**
+	 * 团购模块列表页面
+	 */
+	@RequiresPermissions("xhgroups:xhGroups:list")
+	@RequestMapping(value = {"list", ""})
+	public String list(XhGroups xhGroups, HttpServletRequest request, HttpServletResponse response, Model model) {
+		XhCategory xhCategory = new XhCategory();
+		xhCategory.setId("8584f30ee88d43eb8ac231237cd509ef");
+		XhGoods xhGoods = new XhGoods();
+		xhGoods.setXhCategory(xhCategory);
+		List<XhGoods> xlist=xhGoodsService.findList(xhGoods);
+		model.addAttribute("xlist",xlist);
+		Page<XhGroups> page = xhGroupsService.findPage(new Page<XhGroups>(request, response), xhGroups); 
+		model.addAttribute("page", page);
+		return "modules/xhgroups/xhGroupsList";
+	}
+
+	/**
+	 * 查看，增加，编辑团购模块表单页面
+	 */
+	@RequiresPermissions(value={"xhgroups:xhGroups:view","xhgroups:xhGroups:add","xhgroups:xhGroups:edit"},logical=Logical.OR)
+	@RequestMapping(value = "form")
+	public String form(XhGroups xhGroups, Model model) {
+		XhCategory xhCategory = new XhCategory();
+		xhCategory.setId("8584f30ee88d43eb8ac231237cd509ef");
+		XhGoods xhGoods = new XhGoods();
+		xhGoods.setXhCategory(xhCategory);
+		List<XhGoods> xlist=xhGoodsService.findList(xhGoods);
+		model.addAttribute("xlist",xlist);
+		model.addAttribute("xhGroups", xhGroups);
+		return "modules/xhgroups/xhGroupsForm";
+	}
+
+	/**
+	 * 保存团购模块
+	 */
+	@RequiresPermissions(value={"xhgroups:xhGroups:add","xhgroups:xhGroups:edit"},logical=Logical.OR)
+	@RequestMapping(value = "save")
+	public String save(XhGroups xhGroups, Model model, RedirectAttributes redirectAttributes) throws Exception{
+		if (!beanValidator(model, xhGroups)){
+			return form(xhGroups, model);
+		}
+		if(!xhGroups.getIsNewRecord()){//编辑表单保存
+			XhGroups t = xhGroupsService.get(xhGroups.getId());//从数据库取出记录的值
+			MyBeanUtils.copyBeanNotNull2Bean(xhGroups, t);//将编辑表单中的非NULL值覆盖数据库记录中的值
+			xhGroupsService.save(t);//保存
+		}else{//新增表单保存
+			xhGroupsService.save(xhGroups);//保存
+		}
+		addMessage(redirectAttributes, "保存团购模块成功");
+		return "redirect:"+Global.getAdminPath()+"/xhgroups/xhGroups/?repage";
+	}
+	
+	/**
+	 * 删除团购模块
+	 */
+	@RequiresPermissions("xhgroups:xhGroups:del")
+	@RequestMapping(value = "delete")
+	public String delete(XhGroups xhGroups, RedirectAttributes redirectAttributes) {
+		xhGroupsService.delete(xhGroups);
+		addMessage(redirectAttributes, "删除团购模块成功");
+		return "redirect:"+Global.getAdminPath()+"/xhgroups/xhGroups/?repage";
+	}
+	
+	/**
+	 * 批量删除团购模块
+	 */
+	@RequiresPermissions("xhgroups:xhGroups:del")
+	@RequestMapping(value = "deleteAll")
+	public String deleteAll(String ids, RedirectAttributes redirectAttributes) {
+		String idArray[] =ids.split(",");
+		for(String id : idArray){
+			xhGroupsService.delete(xhGroupsService.get(id));
+		}
+		addMessage(redirectAttributes, "删除团购模块成功");
+		return "redirect:"+Global.getAdminPath()+"/xhgroups/xhGroups/?repage";
+	}
+	
+	/**
+	 * 导出excel文件
+	 */
+	@RequiresPermissions("xhgroups:xhGroups:export")
+    @RequestMapping(value = "export", method=RequestMethod.POST)
+    public String exportFile(XhGroups xhGroups, HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes) {
+		try {
+            String fileName = "团购模块"+DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
+            Page<XhGroups> page = xhGroupsService.findPage(new Page<XhGroups>(request, response, -1), xhGroups);
+    		new ExportExcel("团购模块", XhGroups.class).setDataList(page.getList()).write(response, fileName).dispose();
+    		return null;
+		} catch (Exception e) {
+			addMessage(redirectAttributes, "导出团购模块记录失败！失败信息："+e.getMessage());
+		}
+		return "redirect:"+Global.getAdminPath()+"/xhgroups/xhGroups/?repage";
+    }
+
+	/**
+	 * 导入Excel数据
+
+	 */
+	@RequiresPermissions("xhgroups:xhGroups:import")
+    @RequestMapping(value = "import", method=RequestMethod.POST)
+    public String importFile(MultipartFile file, RedirectAttributes redirectAttributes) {
+		try {
+			int successNum = 0;
+			int failureNum = 0;
+			StringBuilder failureMsg = new StringBuilder();
+			ImportExcel ei = new ImportExcel(file, 1, 0);
+			List<XhGroups> list = ei.getDataList(XhGroups.class);
+			for (XhGroups xhGroups : list){
+				try{
+					xhGroupsService.save(xhGroups);
+					successNum++;
+				}catch(ConstraintViolationException ex){
+					failureNum++;
+				}catch (Exception ex) {
+					failureNum++;
+				}
+			}
+			if (failureNum>0){
+				failureMsg.insert(0, "，失败 "+failureNum+" 条团购模块记录。");
+			}
+			addMessage(redirectAttributes, "已成功导入 "+successNum+" 条团购模块记录"+failureMsg);
+		} catch (Exception e) {
+			addMessage(redirectAttributes, "导入团购模块失败！失败信息："+e.getMessage());
+		}
+		return "redirect:"+Global.getAdminPath()+"/xhgroups/xhGroups/?repage";
+    }
+	
+	/**
+	 * 下载导入团购模块数据模板
+	 */
+	@RequiresPermissions("xhgroups:xhGroups:import")
+    @RequestMapping(value = "import/template")
+    public String importFileTemplate(HttpServletResponse response, RedirectAttributes redirectAttributes) {
+		try {
+            String fileName = "团购模块数据导入模板.xlsx";
+    		List<XhGroups> list = Lists.newArrayList(); 
+    		new ExportExcel("团购模块数据", XhGroups.class, 1).setDataList(list).write(response, fileName).dispose();
+    		return null;
+		} catch (Exception e) {
+			addMessage(redirectAttributes, "导入模板下载失败！失败信息："+e.getMessage());
+		}
+		return "redirect:"+Global.getAdminPath()+"/xhgroups/xhGroups/?repage";
+    }
+	
+	
+	
+
+}

@@ -1,0 +1,326 @@
+package com.jeeplus.modules.xhreception.xhController;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.jeeplus.modules.monthtime.entity.MonthTime;
+import com.jeeplus.modules.monthtime.service.MonthTimeService;
+import com.jeeplus.modules.recaddress.entity.RecAddr;
+import com.jeeplus.modules.recaddress.service.RecAddrService;
+import com.jeeplus.modules.xhcategory.entity.XhCategory;
+import com.jeeplus.modules.xhcolor.entity.XhColor;
+import com.jeeplus.modules.xhcolor.service.XhColorService;
+import com.jeeplus.modules.xhfloor.entity.XhFloor;
+import com.jeeplus.modules.xhfloor.service.XhFloorService;
+import com.jeeplus.modules.xhgoods.entity.XhGoods;
+import com.jeeplus.modules.xhgoods.service.XhGoodsService;
+import com.jeeplus.modules.xhreception.domain.NextLoad;
+import com.jeeplus.modules.xhrim.entity.XhRim;
+import com.jeeplus.modules.xhrim.service.XhRimService;
+import com.jeeplus.modules.xhrule.entity.XhRule;
+import com.jeeplus.modules.xhrule.service.XhRuleService;
+import com.jeeplus.modules.xhtime.entity.XhTime;
+import com.jeeplus.modules.xhtime.service.XhTimeService;
+import com.jeeplus.modules.xhuser.entity.XhUser;
+import com.jeeplus.modules.xhuser.service.XhUserService;
+
+/**
+ * 商品controller
+ * @author Administrator
+ *
+ */
+@Controller
+public class ProductController {
+	
+	@Autowired
+	private XhGoodsService xhGoodsService;
+	@Autowired
+	private XhFloorService xhFloorService;
+	@Autowired
+	private XhRuleService xhRuleService;
+	@Autowired
+	private XhRimService xhRimService;
+	@Autowired
+	private XhTimeService xhTimeService;
+	@Autowired
+	private XhColorService xhColorService;
+	@Autowired
+	private RecAddrService recAddrService;
+	@Autowired
+	private XhUserService xhUserService;
+	/**
+	 * 单品
+	 * @return
+	 */
+	@RequestMapping("item")
+	public String item(HttpServletRequest request, HttpServletResponse response, Model model){
+		List<XhFloor> xhFloors = xhFloorService.findListByNum();
+		model.addAttribute("xhFloors", xhFloors);
+		XhGoods xhGoods = new XhGoods();
+		String cid ="368d426edf6a42308e724d6065fdaf5f";
+		XhCategory xhCategory = new XhCategory();
+		xhCategory.setId(cid);
+		xhGoods.setXhCategory(xhCategory);
+		xhGoods.setStatus("0");
+		List<XhGoods> item = xhGoodsService.findList(xhGoods);
+		model.addAttribute("item", item);
+		//楼层选择
+		XhFloor xhFloor = new XhFloor();
+		//1楼
+		xhFloor.setFloorNum("8");
+		XhFloor xhFloor1 = xhFloorService.findFloorByNum(xhFloor);
+		model.addAttribute("xhFloor8", xhFloor1);
+		return "modules/xhreception/item";
+	}
+	
+	/**
+	 * 周边
+	 * @return
+	 */
+	@RequestMapping("item1")
+	public String item1(HttpServletRequest request, HttpServletResponse response, Model model){
+		List<XhFloor> xhFloors = xhFloorService.findListByNum();
+		model.addAttribute("xhFloors", xhFloors);
+		XhGoods xhGoods = new XhGoods();
+		String cid ="1a940104477c4c8e9a1ff5603aa4269a";
+		XhCategory xhCategory = new XhCategory();
+		xhCategory.setId(cid);
+		xhGoods.setXhCategory(xhCategory);
+		xhGoods.setStatus("0");
+		List<XhGoods> item = xhGoodsService.findList(xhGoods);
+		model.addAttribute("item", item);
+		//楼层选择
+		XhFloor xhFloor = new XhFloor();
+		//1楼
+		xhFloor.setFloorNum("3");
+		XhFloor xhFloor1 = xhFloorService.findFloorByNum(xhFloor);
+		model.addAttribute("xhFloor8", xhFloor1);
+		return "modules/xhreception/item";
+	}
+	/**
+	 * 绿植
+	 * @return
+	 */
+	@RequestMapping("item2")
+	public String item2(HttpServletRequest request, HttpServletResponse response, Model model){
+		List<XhFloor> xhFloors = xhFloorService.findListByNum();
+		model.addAttribute("xhFloors", xhFloors);
+		XhGoods xhGoods = new XhGoods();
+		String cid ="f19760db6d3e485f861b36fe410ff620";
+		XhCategory xhCategory = new XhCategory();
+		xhCategory.setId(cid);
+		xhGoods.setXhCategory(xhCategory);
+		xhGoods.setStatus("0");
+		List<XhGoods> item = xhGoodsService.findList(xhGoods);
+		model.addAttribute("item", item);
+		//楼层选择
+		XhFloor xhFloor = new XhFloor();
+		//1楼
+		xhFloor.setFloorNum("4");
+		XhFloor xhFloor1 = xhFloorService.findFloorByNum(xhFloor);
+		model.addAttribute("xhFloor8", xhFloor1);
+		return "modules/xhreception/item";
+	}
+	/**
+	 * 礼品鲜花
+	 * @return
+	 */
+	@RequestMapping("item3")
+	public String item3(HttpServletRequest request, HttpServletResponse response, Model model){
+		List<XhFloor> xhFloors = xhFloorService.findListByNum();
+		model.addAttribute("xhFloors", xhFloors);
+		XhGoods xhGoods = new XhGoods();
+		String cid ="d2da10756a1d4e14b198fe172d9c4216";
+		XhCategory xhCategory = new XhCategory();
+		xhCategory.setId(cid);
+		xhGoods.setXhCategory(xhCategory);
+		xhGoods.setStatus("0");
+		List<XhGoods> item = xhGoodsService.findList(xhGoods);
+		model.addAttribute("item", item);
+		//楼层选择
+		XhFloor xhFloor = new XhFloor();
+		//1楼
+		xhFloor.setFloorNum("5");
+		XhFloor xhFloor1 = xhFloorService.findFloorByNum(xhFloor);
+		model.addAttribute("xhFloor8", xhFloor1);
+		return "modules/xhreception/item";
+	}
+	/**
+	 * 企业采购
+	 * @return
+	 */
+	@RequestMapping("item4")
+	public String item4(HttpServletRequest request, HttpServletResponse response, Model model){
+		List<XhFloor> xhFloors = xhFloorService.findListByNum();
+		model.addAttribute("xhFloors", xhFloors);
+		XhGoods xhGoods = new XhGoods();
+		String cid ="c3af71e2ccbb4743b0c403ce9c8e3ea2";
+		XhCategory xhCategory = new XhCategory();
+		xhCategory.setId(cid);
+		xhGoods.setXhCategory(xhCategory);
+		xhGoods.setStatus("0");
+		List<XhGoods> item = xhGoodsService.findList(xhGoods);
+		model.addAttribute("item", item);
+		//楼层选择
+		XhFloor xhFloor = new XhFloor();
+		//1楼
+		xhFloor.setFloorNum("6");
+		XhFloor xhFloor1 = xhFloorService.findFloorByNum(xhFloor);
+		model.addAttribute("xhFloor8", xhFloor1);
+		return "modules/xhreception/item";
+	}
+	/**
+	 * 混合花束
+	 * @return
+	 */
+	@RequestMapping("item5")
+	public String item5(HttpServletRequest request, HttpServletResponse response, Model model){
+		List<XhFloor> xhFloors = xhFloorService.findListByNum();
+		model.addAttribute("xhFloors", xhFloors);
+		XhGoods xhGoods = new XhGoods();
+		String cid ="a0193e4976274407bc57f00e74b8f6c7";
+		XhCategory xhCategory = new XhCategory();
+		xhCategory.setId(cid);
+		xhGoods.setXhCategory(xhCategory);
+		xhGoods.setStatus("0");
+		List<XhGoods> item = xhGoodsService.findList(xhGoods);
+		model.addAttribute("item", item);
+		//楼层选择
+		XhFloor xhFloor = new XhFloor();
+		//1楼
+		xhFloor.setFloorNum("9");
+		XhFloor xhFloor1 = xhFloorService.findFloorByNum(xhFloor);
+		model.addAttribute("xhFloor8", xhFloor1);
+		return "modules/xhreception/item";
+	}
+	/**
+	 * mini花束
+	 * @return
+	 */
+	@RequestMapping("item6")
+	public String item6(HttpServletRequest request, HttpServletResponse response, Model model){
+		List<XhFloor> xhFloors = xhFloorService.findListByNum();
+		model.addAttribute("xhFloors", xhFloors);
+		XhGoods xhGoods = new XhGoods();
+		String cid ="97f9839b01664ab6bf213272d335aafd";
+		XhCategory xhCategory = new XhCategory();
+		xhCategory.setId(cid);
+		xhGoods.setXhCategory(xhCategory);
+		xhGoods.setStatus("0");
+		List<XhGoods> item = xhGoodsService.findList(xhGoods);
+		model.addAttribute("item", item);
+		//楼层选择
+		XhFloor xhFloor = new XhFloor();
+		//1楼
+		xhFloor.setFloorNum("10");
+		XhFloor xhFloor1 = xhFloorService.findFloorByNum(xhFloor);
+		model.addAttribute("xhFloor8", xhFloor1);
+		return "modules/xhreception/item";
+	}
+	
+	/**
+	 * 单品详情
+	 */
+	@RequestMapping("itemDetail")
+	public String itemDetail(HttpServletRequest request, HttpServletResponse response, Model model,HttpSession session){
+		session.removeAttribute("nextLoad");
+		String id = request.getParameter("id");
+		session.setAttribute("gid", id);
+		XhGoods xhGoods = xhGoodsService.get(id);
+		model.addAttribute("xhGoods", xhGoods);
+		
+		List<XhRule> xhRules = xhRuleService.findRuleBygid(id);
+		model.addAttribute("xhRules", xhRules);
+		
+		List<XhTime> xhTimes = xhTimeService.findListBygid(id);
+		model.addAttribute("xhTimes", xhTimes);
+		
+		List<XhColor> xhColors = xhColorService.findListBygid(id);
+		model.addAttribute("xhColors", xhColors);
+		
+		List<XhRim> xhRims = xhRimService.findListBygid(id);
+		model.addAttribute("xhRims", xhRims);
+		
+		String name = request.getParameter("name");
+		model.addAttribute("name", name);
+		return "modules/xhreception/itemDetail";
+	}
+
+	/**
+	 * 单品购买下一步
+	 * @param request
+	 * @param response
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping("nextLoad")
+	public String nextLoad(HttpServletRequest request, HttpServletResponse response, Model model,HttpSession session) {
+		NextLoad nextLoad = new NextLoad();
+		NextLoad nextLoad1 =(NextLoad)session.getAttribute("nextLoad");
+		String openId = (String)session.getAttribute("openId");
+		System.out.println("ceshi"+openId);
+		System.out.println("ceshi"+nextLoad1);
+		if(nextLoad1 != null){
+			nextLoad = nextLoad1;
+			model.addAttribute("nextLoad", nextLoad);
+			String gid = nextLoad.getGid();
+			XhGoods xhGoods = xhGoodsService.get(gid);
+			model.addAttribute("xhGoods", xhGoods);
+			String uid =xhUserService.findIdByOpenId(openId);
+			String recid = request.getParameter("recid");
+			RecAddr recAddress = new RecAddr();
+			XhUser xhUser = new XhUser();
+			xhUser.setId(uid);
+			recAddress.setXhUser(xhUser);
+			recAddress.setId(recid);
+			RecAddr recAddr = recAddrService.findAddrFirst(recAddress);
+			model.addAttribute("recAddr", recAddr);
+		}else{
+			String uid =xhUserService.findIdByOpenId(openId);
+			String gid = request.getParameter("gid");
+			String rid = request.getParameter("rid");
+			String sid = request.getParameter("sid");
+			String tid = request.getParameter("tid");
+			String num =request.getParameter("num");
+			
+			XhRule xhRule = xhRuleService.get(rid);
+			BigDecimal num1 = new BigDecimal(num);
+			BigDecimal price1 = xhRule.getUnitPrice();
+			BigDecimal amount1=price1.multiply(num1);
+			String price = price1.toString();
+			String amount = amount1.toString();
+			
+			nextLoad.setNum(num);
+			nextLoad.setPrice(price);
+			nextLoad.setAmount(amount);
+			nextLoad.setGid(gid);
+			nextLoad.setRid(rid);
+			nextLoad.setSid(sid);
+			nextLoad.setTid(tid);
+			nextLoad.setStatus("1");
+			model.addAttribute("nextLoad", nextLoad);
+			XhGoods xhGoods = xhGoodsService.get(gid);
+			model.addAttribute("xhGoods", xhGoods);
+			
+			RecAddr recAddress = new RecAddr();
+			XhUser xhUser = new XhUser();
+			xhUser.setId(uid);
+			recAddress.setXhUser(xhUser);
+			RecAddr recAddr = recAddrService.findAddrFirst(recAddress);
+			model.addAttribute("recAddr", recAddr);
+			
+			session.setAttribute("nextLoad", nextLoad);
+		}
+		
+		return "modules/xhreception/nextLoad";
+	}
+}

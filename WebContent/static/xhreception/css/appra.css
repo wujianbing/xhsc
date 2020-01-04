@@ -1,0 +1,96 @@
+*,p{
+	margin:0;
+	padding:0;
+}
+.ordlst{
+	width: 100%;
+	padding: 4%;
+	background: #FFFFFF;
+	border-radius: 10px;
+	font-size: 1.3rem;
+	overflow: hidden;
+}
+.tpline{
+	clear: both;
+	overflow: hidden;
+}
+.tpline p:nth-child(2){
+	font-size: 1.5rem;
+	color:#FE5479 ;
+}
+.ordinfo{
+	clear: both;
+	margin-top: 4%;
+	overflow: hidden;
+}
+.ordinfo img{
+	width: 30%;
+}
+.gdinfo{
+	width: 67%;
+	margin-left: 3%;
+}
+.gdinfo p{
+	margin: 2% 0;
+}
+.gdinfo p:nth-child(1){
+	font-size: 1.5rem;
+}
+.gdinfo p:nth-child(2),.gdinfo p:nth-child(3) m{
+	font-size: 1.3rem;
+	color: #999999;
+}
+.gdinfo p:nth-child(3) b{
+	color:#FE5479 ;
+}
+/*评价*/
+.pjopt{
+	border-top: 1px solid #F4F4F4 ;
+	clear: both;
+	margin: 5% 0;
+	font-size: 1.3rem;
+}
+.star{
+	overflow: hidden;
+	margin: 5% 0;
+	
+}
+.star p{
+	margin-right: 3%;
+	padding: 2% 0;
+	
+}
+.star ul {
+   list-style:none;
+   width: 80%;
+  }
+.star  li {
+   float:left;
+   cursor: pointer;
+   color: #FFFFFF;
+    font-size: 2.5rem;
+    background: #d0d0d0;
+    margin: 0 2%;
+    height: 27px;
+    line-height: 27px;
+    width: 27px;
+    text-align: center;
+   
+   
+  }
+.pjcontent textarea{
+	width: 100%;
+	height: 80px;
+	padding: 2%;
+}
+.pjopt input[type="submit"]{
+	width: 80%;
+	height: 40px;
+	line-height: 40px;
+	background: #dfdfdf;
+    color: #000000;
+    margin: 5% 10%;
+	border:0 ;
+	border-radius: 10px;
+	font-size: 1.5rem;
+}

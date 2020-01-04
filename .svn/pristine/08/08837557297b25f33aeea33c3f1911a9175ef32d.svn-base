@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.xhgoods.dao.XhGoodsDao">
+    
+	<sql id="xhGoodsColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.cid AS "xhCategory.id",
+		xhCategory.name AS "xhCategory.name",
+		a.name AS "name",
+		a.initial AS "initial",
+		a.title AS "title",
+		a.unit AS "unit",
+		a.big_unit AS "bigUnit",
+		a.price AS "price",
+		a.max_price AS "maxPrice",
+		a.status AS "status",
+		a.description AS "description",
+		(select f.rela_path from sys_upload_file f where f.id = a.upload_file_id ) AS "uploadFile.relaPath",
+		(select f.id from sys_upload_file f where f.id = a.upload_file_id ) AS "uploadFile.id",
+		(select f.rela_path from sys_upload_file f where f.id = a.upload_file_id1 ) AS "uploadFile1.relaPath",
+		(select f.id from sys_upload_file f where f.id = a.upload_file_id1 ) AS "uploadFile1.id",
+		(select f.rela_path from sys_upload_file f where f.id = a.upload_file_id2 ) AS "uploadFile2.relaPath",
+		(select f.id from sys_upload_file f where f.id = a.upload_file_id2 ) AS "uploadFile2.id",
+		(select f.rela_path from sys_upload_file f where f.id = a.upload_file_id3 ) AS "uploadFile3.relaPath",
+		(select f.id from sys_upload_file f where f.id = a.upload_file_id3 ) AS "uploadFile3.id",
+		(select f.rela_path from sys_upload_file f where f.id = a.upload_file_id4 ) AS "uploadFile4.relaPath",
+		(select f.id from sys_upload_file f where f.id = a.upload_file_id4 ) AS "uploadFile4.id",
+		(select f.rela_path from sys_upload_file f where f.id = a.upload_file_id5 ) AS "uploadFile5.relaPath",
+		(select f.id from sys_upload_file f where f.id = a.upload_file_id5 ) AS "uploadFile5.id",
+		a.special AS "special",
+		a.xh_inventory AS "xhInventory",
+		a.integral AS "integral"
+	</sql>
+	
+	<sql id="xhGoodsJoins">
+		LEFT JOIN xh_category xhCategory ON xhCategory.id = a.cid
+	</sql>
+	
+    
+	<select id="get" resultType="XhGoods" >
+		SELECT 
+			<include refid="xhGoodsColumns"/>
+		FROM xh_goods a
+		<include refid="xhGoodsJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="XhGoods" >
+		SELECT 
+			<include refid="xhGoodsColumns"/>
+		FROM xh_goods a
+		<include refid="xhGoodsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="initial != null and initial != ''">
+				AND a.initial LIKE 
+					<if test="dbName == 'oracle'">'%'||#{initial}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{initial}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{initial},'%')</if>
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status = #{status}
+			</if>
+			<if test="xhCategory != null and xhCategory !=''">
+				<if test="xhCategory.id != null and xhCategory.id != ''">
+					AND a.cid = #{xhCategory.id}
+				</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="XhGoods" >
+		SELECT 
+			<include refid="xhGoodsColumns"/>
+		FROM xh_goods a
+		<include refid="xhGoodsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO xh_goods(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			cid,
+			name,
+			initial,
+			title,
+			unit,
+			big_unit,
+			price,
+			max_price,
+			status,
+			description,
+			upload_file_id,
+			upload_file_id1,
+			upload_file_id2,
+			upload_file_id3,
+			upload_file_id4,
+			upload_file_id5,
+			special,
+			xh_inventory,
+			integral
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{xhCategory.id},
+			#{name},
+			#{initial},
+			#{title},
+			#{unit},
+			#{bigUnit},
+			#{price},
+			#{maxPrice},
+			#{status},
+			#{description},
+			#{uploadFile.id},
+			#{uploadFile1.id},
+			#{uploadFile2.id},
+			#{uploadFile3.id},
+			#{uploadFile4.id},
+			#{uploadFile5.id},
+			#{special},
+			#{xhInventory},
+			#{integral}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE xh_goods SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			cid = #{xhCategory.id},
+			name = #{name},
+			initial = #{initial},
+			title = #{title},
+			unit = #{unit},
+			big_unit = #{bigUnit},
+			price = #{price},
+			max_price=#{maxPrice},
+			status = #{status},
+			description = #{description},
+			upload_file_id = #{uploadFile.id},
+			upload_file_id1 = #{uploadFile1.id},
+			upload_file_id2 = #{uploadFile2.id},
+			upload_file_id3 = #{uploadFile3.id},
+			upload_file_id4 = #{uploadFile4.id},
+			upload_file_id5 = #{uploadFile5.id},
+			special = #{special},
+			xh_inventory = #{xhInventory},
+			integral=#{integral}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM xh_goods
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE xh_goods SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="XhGoods" statementType="STATEMENT">
+		select * FROM xh_goods  where ${propertyName} = '${value}'
+	</select>
+	
+	<select id="findListByxhCategory" resultType="XhCategory">
+		SELECT 
+			*
+		FROM xh_category a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+				<if test="dbName == 'oracle'">#{}||'%'</if>
+				<if test="dbName == 'mssql'">#{}+'%'</if>
+				<if test="dbName == 'mysql'">concat(#{name},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+</mapper>

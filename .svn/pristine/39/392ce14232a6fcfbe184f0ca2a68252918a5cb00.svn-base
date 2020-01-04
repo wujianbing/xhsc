@@ -1,0 +1,233 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.xhmbuyer.web;
+
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolationException;
+
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.collect.Lists;
+import com.jeeplus.common.config.Global;
+import com.jeeplus.common.persistence.Page;
+import com.jeeplus.common.utils.DateUtils;
+import com.jeeplus.common.utils.MyBeanUtils;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.common.utils.excel.ExportExcel;
+import com.jeeplus.common.utils.excel.ImportExcel;
+import com.jeeplus.common.web.BaseController;
+import com.jeeplus.modules.orderdetail.service.OrderDetailService;
+import com.jeeplus.modules.xhgoods.entity.XhGoods;
+import com.jeeplus.modules.xhgoods.service.XhGoodsService;
+import com.jeeplus.modules.xhmbuyer.entity.XhMbuyer;
+import com.jeeplus.modules.xhmbuyer.service.XhMbuyerService;
+import com.jeeplus.modules.xhorder.entity.XhOrder;
+import com.jeeplus.modules.xhorder.service.XhOrderService;
+
+/**
+ * 包月信息Controller
+ * @author wujianbing
+ * @version 2019-04-17
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/xhmbuyer/xhMbuyer")
+public class XhMbuyerController extends BaseController {
+
+	@Autowired
+	private XhMbuyerService xhMbuyerService;
+	@Autowired
+	private XhGoodsService xhGoodsService;
+	@Autowired
+	private OrderDetailService orderDetailService;
+	@ModelAttribute
+	public XhMbuyer get(@RequestParam(required=false) String id) {
+		XhMbuyer entity = null;
+		if (StringUtils.isNotBlank(id)){
+			entity = xhMbuyerService.get(id);
+		}
+		if (entity == null){
+			entity = new XhMbuyer();
+		}
+		return entity;
+	}
+	
+	/**
+	 * 包月信息列表页面
+	 */
+	@RequiresPermissions("xhmbuyer:xhMbuyer:list")
+	@RequestMapping(value = {"list", ""})
+	public String list(XhMbuyer xhMbuyer, HttpServletRequest request, HttpServletResponse response, Model model) {
+		List<XhMbuyer> XhMbuyers = xhMbuyerService.findList(xhMbuyer);
+		if(XhMbuyers != null){
+			for(XhMbuyer xhMbuyer1:XhMbuyers){
+				Date endTime = xhMbuyer1.getEndTime();
+				Date date = new Date();
+				int num = com.jeeplus.modules.xhreception.xhUtils.DateUtils.dateCompare(endTime, date);
+				if(num == 0 || num == -1){
+					xhMbuyerService.updateStatusById(xhMbuyer1.getId(),"0");
+				}
+			}
+		}
+		
+		Page<XhMbuyer> page = xhMbuyerService.findPage(new Page<XhMbuyer>(request, response), xhMbuyer);
+		model.addAttribute("page", page);
+		return "modules/xhmbuyer/xhMbuyerList";
+	}
+	
+	@RequestMapping("changeTimes")
+	public String changeTimes(HttpServletRequest request,RedirectAttributes redirectAttributes){
+		String id = request.getParameter("id");
+		XhMbuyer xhMbuyer = xhMbuyerService.get(id);
+		int times = xhMbuyer.getTimes();
+		times +=1; 
+		xhMbuyerService.changeTimesById(times,id);
+		String oid = xhMbuyer.getXhOrder().getId();
+		orderDetailService.changeTimesByOid(times,oid);
+		addMessage(redirectAttributes, "修改次数成功");
+		return "redirect:"+Global.getAdminPath()+"/xhmbuyer/xhMbuyer/?repage";
+	}
+	
+	/**
+	 * 查看，增加，编辑包月信息表单页面
+	 */
+	@RequiresPermissions(value={"xhmbuyer:xhMbuyer:view","xhmbuyer:xhMbuyer:add","xhmbuyer:xhMbuyer:edit"},logical=Logical.OR)
+	@RequestMapping(value = "form")
+	public String form(XhMbuyer xhMbuyer, Model model) {
+		XhGoods xhGoods = new XhGoods();
+		List<XhGoods> xlist=xhGoodsService.findList(xhGoods);
+		model.addAttribute("xlist",xlist);
+		model.addAttribute("xhMbuyer", xhMbuyer);
+		return "modules/xhmbuyer/xhMbuyerForm";
+	}
+
+	/**
+	 * 保存包月信息
+	 */
+	@RequiresPermissions(value={"xhmbuyer:xhMbuyer:add","xhmbuyer:xhMbuyer:edit"},logical=Logical.OR)
+	@RequestMapping(value = "save")
+	public String save(XhMbuyer xhMbuyer, Model model, RedirectAttributes redirectAttributes) throws Exception{
+		if (!beanValidator(model, xhMbuyer)){
+			return form(xhMbuyer, model);
+		}
+		if(!xhMbuyer.getIsNewRecord()){//编辑表单保存
+			XhMbuyer t = xhMbuyerService.get(xhMbuyer.getId());//从数据库取出记录的值
+			MyBeanUtils.copyBeanNotNull2Bean(xhMbuyer, t);//将编辑表单中的非NULL值覆盖数据库记录中的值
+			xhMbuyerService.save(t);//保存
+		}else{//新增表单保存
+			xhMbuyerService.save(xhMbuyer);//保存
+		}
+		addMessage(redirectAttributes, "保存包月信息成功");
+		return "redirect:"+Global.getAdminPath()+"/xhmbuyer/xhMbuyer/?repage";
+	}
+	
+	/**
+	 * 删除包月信息
+	 */
+	@RequiresPermissions("xhmbuyer:xhMbuyer:del")
+	@RequestMapping(value = "delete")
+	public String delete(XhMbuyer xhMbuyer, RedirectAttributes redirectAttributes) {
+		xhMbuyerService.delete(xhMbuyer);
+		addMessage(redirectAttributes, "删除包月信息成功");
+		return "redirect:"+Global.getAdminPath()+"/xhmbuyer/xhMbuyer/?repage";
+	}
+	
+	/**
+	 * 批量删除包月信息
+	 */
+	@RequiresPermissions("xhmbuyer:xhMbuyer:del")
+	@RequestMapping(value = "deleteAll")
+	public String deleteAll(String ids, RedirectAttributes redirectAttributes) {
+		String idArray[] =ids.split(",");
+		for(String id : idArray){
+			xhMbuyerService.delete(xhMbuyerService.get(id));
+		}
+		addMessage(redirectAttributes, "删除包月信息成功");
+		return "redirect:"+Global.getAdminPath()+"/xhmbuyer/xhMbuyer/?repage";
+	}
+	
+	/**
+	 * 导出excel文件
+	 */
+	@RequiresPermissions("xhmbuyer:xhMbuyer:export")
+    @RequestMapping(value = "export", method=RequestMethod.POST)
+    public String exportFile(XhMbuyer xhMbuyer, HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes) {
+		try {
+            String fileName = "包月信息"+DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
+            Page<XhMbuyer> page = xhMbuyerService.findPage(new Page<XhMbuyer>(request, response, -1), xhMbuyer);
+    		new ExportExcel("包月信息", XhMbuyer.class).setDataList(page.getList()).write(response, fileName).dispose();
+    		return null;
+		} catch (Exception e) {
+			addMessage(redirectAttributes, "导出包月信息记录失败！失败信息："+e.getMessage());
+		}
+		return "redirect:"+Global.getAdminPath()+"/xhmbuyer/xhMbuyer/?repage";
+    }
+
+	/**
+	 * 导入Excel数据
+
+	 */
+	@RequiresPermissions("xhmbuyer:xhMbuyer:import")
+    @RequestMapping(value = "import", method=RequestMethod.POST)
+    public String importFile(MultipartFile file, RedirectAttributes redirectAttributes) {
+		try {
+			int successNum = 0;
+			int failureNum = 0;
+			StringBuilder failureMsg = new StringBuilder();
+			ImportExcel ei = new ImportExcel(file, 1, 0);
+			List<XhMbuyer> list = ei.getDataList(XhMbuyer.class);
+			for (XhMbuyer xhMbuyer : list){
+				try{
+					xhMbuyerService.save(xhMbuyer);
+					successNum++;
+				}catch(ConstraintViolationException ex){
+					failureNum++;
+				}catch (Exception ex) {
+					failureNum++;
+				}
+			}
+			if (failureNum>0){
+				failureMsg.insert(0, "，失败 "+failureNum+" 条包月信息记录。");
+			}
+			addMessage(redirectAttributes, "已成功导入 "+successNum+" 条包月信息记录"+failureMsg);
+		} catch (Exception e) {
+			addMessage(redirectAttributes, "导入包月信息失败！失败信息："+e.getMessage());
+		}
+		return "redirect:"+Global.getAdminPath()+"/xhmbuyer/xhMbuyer/?repage";
+    }
+	
+	/**
+	 * 下载导入包月信息数据模板
+	 */
+	@RequiresPermissions("xhmbuyer:xhMbuyer:import")
+    @RequestMapping(value = "import/template")
+    public String importFileTemplate(HttpServletResponse response, RedirectAttributes redirectAttributes) {
+		try {
+            String fileName = "包月信息数据导入模板.xlsx";
+    		List<XhMbuyer> list = Lists.newArrayList(); 
+    		new ExportExcel("包月信息数据", XhMbuyer.class, 1).setDataList(list).write(response, fileName).dispose();
+    		return null;
+		} catch (Exception e) {
+			addMessage(redirectAttributes, "导入模板下载失败！失败信息："+e.getMessage());
+		}
+		return "redirect:"+Global.getAdminPath()+"/xhmbuyer/xhMbuyer/?repage";
+    }
+	
+	
+	
+
+}

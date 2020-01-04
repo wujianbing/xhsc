@@ -1,0 +1,82 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>${xhFloor8.name}</title>
+		<link rel="stylesheet" type="text/css" href="static/xhreception/css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="static/xhreception/css/base/base.css"/>
+		<link rel="stylesheet" href="static/xhreception/css/item.css" />
+		<script type="text/javascript" src="static/xhreception/js/jquery.js"></script>
+		<script type="text/javascript" src="static/xhreception/js/layer/layer.js"></script>
+	</head>
+	<body>
+		<header>
+			<%@ include file="fansbase.jsp" %>
+		</header>
+		<nav>
+			<ul>
+				<c:forEach items="${xhFloors}" var="xhFloors">
+					<li><a href="${xhFloors.url}">${xhFloors.name}</a></li>
+				</c:forEach>
+				<!-- <li><a href="#">推荐</a></li>
+				<li><a href="item">单品花束</a></li>
+				<li><a href="#">混合花束</a></li>
+				<li><a href="#">MINI花束</a></li>
+				<li><a href="#">礼品花</a></li> -->
+			</ul>
+		</nav>
+		<section>
+			<div class="itemcont">
+				<div class="adtitle">
+					<h3>${xhFloor8.name}</h3>
+					<hr />
+					<p>${xhFloor8.remarks}</p>
+				</div>
+				<div class="itemlist">
+					<ul>
+						<c:forEach items="${item}" var="item">
+						<li>
+							<a href="itemDetail?id=${item.id}&name=${xhFloor8.name}">
+								<img class="img-responsive" src="${item.uploadFile.relaPath}" alt="" />
+								<p>${item.name}</p>
+								
+								<p>￥<span>${item.price}</span>${fns:getDictLabel(item.unit, 'unit', '')}/${fns:getDictLabel(item.bigUnit, 'bigunit', '')}</p>
+							</a>
+						</li>
+						</c:forEach>
+						<!-- <li>
+							<a href="">
+								<img class="img-responsive" src="images/gd2.jpg" alt="" />
+								<p>洋花园——进口鲜花全球购</p>
+								<p>￥<span>169</span>元起/月</p>
+							</a>
+						</li>
+						<li>
+							<a href="">
+								<img class="img-responsive" src="images/gd3.png" alt="" />
+								<p>简花</p>
+								<p>￥<span>99</span>元起/月</p>
+							</a>
+						</li>
+						<li>
+							<a href="">
+								<img class="img-responsive" src="images/gd4.png" alt="" />
+								<p>简花</p>
+								<p>￥<span>99</span>元起/月</p>
+							</a>
+						</li> -->
+					</ul>
+				</div>
+			</div>
+		</section>
+		<footer>
+			<ul>
+				<%@ include file="webBase.jsp" %>
+			</ul>
+		</footer>
+		<script type="text/javascript" src="static/xhreception/js/base.js"></script>
+	</body>
+</html>

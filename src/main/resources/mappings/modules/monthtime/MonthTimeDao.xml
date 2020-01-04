@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.monthtime.dao.MonthTimeDao">
+    
+	<sql id="monthTimeColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.mid AS "xhMonthbuy.id",
+		(select xhMonthbuy.m_title from xh_monthbuy xhMonthbuy where xhMonthbuy.id = a.mid) AS "xhMonthbuy.mTitle",
+		(select xhGoods.name from xh_goods xhGoods where xhGoods.id = (select xhMonthbuy.gid from xh_monthbuy xhMonthbuy where xhMonthbuy.id = a.mid)) AS "xhMonthbuy.xhGoods.name",
+		a.m_time AS "mTime",
+		a.m_price AS "mPrice"
+	</sql>
+	
+	<sql id="monthTimeJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="MonthTime" >
+		SELECT 
+			<include refid="monthTimeColumns"/>
+		FROM month_time a
+		<include refid="monthTimeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="MonthTime" >
+		SELECT 
+			<include refid="monthTimeColumns"/>
+		FROM month_time a
+		<include refid="monthTimeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="xhMonthbuy != null and xhMonthbuy.id != null and xhMonthbuy.id != ''">
+				AND a.mid = #{xhMonthbuy.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!--findMonthTimeByMid -->
+	<select id="findMonthTimeByMid" resultType="MonthTime">
+		select 
+			<include refid="monthTimeColumns"/>
+		from month_time a
+		<where>
+			a.mid = #{mid}
+		</where>
+	</select>
+	
+	<select id="findAllList" resultType="MonthTime" >
+		SELECT 
+			<include refid="monthTimeColumns"/>
+		FROM month_time a
+		<include refid="monthTimeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO month_time(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			mid,
+			m_time,
+			m_price
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{xhMonthbuy.id},
+			#{mTime},
+			#{mPrice}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE month_time SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			mid = #{xhMonthbuy.id},
+			m_time = #{mTime},
+			m_price=#{mPrice}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM month_time
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE month_time SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="MonthTime" statementType="STATEMENT">
+		select * FROM month_time  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

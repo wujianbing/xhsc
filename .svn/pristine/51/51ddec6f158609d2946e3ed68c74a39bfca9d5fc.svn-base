@@ -1,0 +1,24 @@
+.itemlist{
+	width: 100%;
+	padding: 0 4%;
+	overflow: hidden;
+	margin:20px 0 60px 0;
+}
+.itemlist li a{
+	display: block;
+}
+.itemlist li{
+	float: left;
+	width: 49%;
+	overflow: hidden;
+}
+.itemlist li:nth-child(odd){
+	margin-right: 2%;
+}
+.itemlist li p{
+	margin:5% 0;
+	font-size: 1.5rem;
+	overflow: hidden;
+	text-overflow:ellipsis;
+	white-space: nowrap;
+}

@@ -1,0 +1,158 @@
+body{
+	background: #eeeeee;
+}
+.carlist,.gdlist{
+	width: 100%;
+	padding:2% 0;
+	background: #fff;
+}
+.topopt{
+	height: 60px;
+	line-height: 60px;
+	padding: 0 3%;
+	border-bottom:1px solid #dcdcdc;
+}
+.checkout{
+	float: left;
+	width: 5%;
+	padding-top:6%;
+}
+.optleft{
+	width: 60%;
+	float: left;
+	padding-left:15px;
+}
+.optleft span{
+	padding-left: 1.2rem;
+	font-size: 1.5rem;
+}
+.optright{
+	float: right;
+	font-size: 1.2rem;
+	color: #31B0D5;
+}
+.gdlist{
+	width: 100%;
+	padding:5% 3%;
+	border-bottom:1px solid #dcdcdc;
+	overflow: hidden;
+}
+.gdlist img.checkout{
+	padding-top: 40px;
+}
+.gdlist .dbimg{
+	width:24%;
+	float: left;
+	margin-left:20px;
+}
+.gdlist .det{
+	width: 64%;
+	float: left;
+	padding-left:3%;
+	font-size: 1.2rem;
+}
+.gdlist .det h5{
+	float: left;
+	width: 70%;
+	font-size: 1.3rem;
+	overflow: hidden;
+	text-overflow:ellipsis;
+	white-space: nowrap;
+	font-weight: 700;
+	margin: 5% 0;
+	
+}
+.gdlist .det .tj{
+	float: right;
+	font-size: 1.2rem;
+	color: #ff6597;
+	padding: 4% 0;
+}
+.gdlist .det p{
+	clear: both;
+	font-size: 1.2rem;
+	margin-bottom: 1%;
+}
+.gdlist .det p:last-child{
+	margin-bottom: 0;
+}
+.gdlist .det p span.price,.gdlist .det p sm{
+	color: #ff6597;
+}
+.gdlist .det p span.num{
+	float: right;
+	display:inline-block;
+}
+
+.bottom{
+	position: fixed;
+	bottom: 0;
+	background: #fff;
+	height: 45px;
+	padding:0 0 0 3%;
+	width: 100%;
+}
+.bottom img.checkout{
+	padding-top: 23%;
+	width: 25%;
+}
+.bottom .btleft{
+	float: left;
+	width: 20%;
+	line-height: 50px;
+	font-size: 1.5rem;
+}
+.bottom .btright{
+	float: right;
+	width:60%;
+	text-align: right;
+}
+.bottom .btright p{
+	font-size: 1.2rem;
+	width: 50%;
+	float: left;
+	color: #ff6597;
+	margin: 0;
+	padding-top: 4%;
+	text-align: left;
+}
+.bottom .btright p span:last-child{
+	color: #000;
+}
+.bottom .btright button{
+	width: 40%;
+	background:  #ff6597;
+	color: #fff;
+	height: 45px;
+	line-height: 45px;
+	border:0;
+	font-size: 1.5rem;
+}
+/*璐墿杞︾紪杈�*/
+.optnum{
+	clear: both;
+	width: 100%;
+	margin: 5% 0;
+    height: 30px;
+    display: none;
+}
+.optnum input{
+	width: 50px;
+	height: 30px;
+	border:0;
+	background:#d7d6d6;
+	float: left;
+	font-size: 1.2rem;
+}
+.optnum .optnumdec,.optnumadd{
+	float: left;
+	width: 30px;
+	height: 30px;
+	font-size: 2rem;
+	background: #eee;
+	line-height: 30px;
+	text-align: center;
+}
+.btright .delete{
+	display: none;
+}

@@ -1,0 +1,241 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.xhbuyer.web;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolationException;
+
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.collect.Lists;
+import com.jeeplus.common.config.Global;
+import com.jeeplus.common.persistence.Page;
+import com.jeeplus.common.utils.DateUtils;
+import com.jeeplus.common.utils.MyBeanUtils;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.common.utils.excel.ExportExcel;
+import com.jeeplus.common.utils.excel.ImportExcel;
+import com.jeeplus.common.web.BaseController;
+import com.jeeplus.modules.xhbuyer.entity.XhBuyer;
+import com.jeeplus.modules.xhbuyer.service.XhBuyerService;
+import com.jeeplus.modules.xhorder.entity.XhOrder;
+import com.jeeplus.modules.xhorder.service.XhOrderService;
+import com.jeeplus.modules.xhreception.pay.PayUtils;
+import com.jeeplus.modules.xhreception.pay.WxRefundData;
+
+/**
+ * 团购详情Controller
+ * @author wujianbing
+ * @version 2019-04-15
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/xhbuyer/xhBuyer")
+public class XhBuyerController extends BaseController {
+
+	@Autowired
+	private XhBuyerService xhBuyerService;
+	@Autowired
+	private XhOrderService orderService;
+	@ModelAttribute
+	public XhBuyer get(@RequestParam(required=false) String id) {
+		XhBuyer entity = null;
+		if (StringUtils.isNotBlank(id)){
+			entity = xhBuyerService.get(id);
+		}
+		if (entity == null){
+			entity = new XhBuyer();
+		}
+		return entity;
+	}
+	
+	/**
+	 * 团购详情列表页面
+	 */
+	@RequiresPermissions("xhbuyer:xhBuyer:list")
+	@RequestMapping(value = {"list", ""})
+	public String list(XhBuyer xhBuyer, HttpServletRequest request, HttpServletResponse response, Model model) {
+		Page<XhBuyer> page = xhBuyerService.findPage(new Page<XhBuyer>(request, response), xhBuyer); 
+		model.addAttribute("page", page);
+		return "modules/xhbuyer/xhBuyerList";
+	}
+	
+	@RequestMapping(value = {"waitRefund", ""})
+	public String waitRefund(XhBuyer xhBuyer, HttpServletRequest request, HttpServletResponse response, Model model) {
+		xhBuyer.setGbStatus("3");
+		Page<XhBuyer> page = xhBuyerService.findPage(new Page<XhBuyer>(request, response), xhBuyer); 
+		model.addAttribute("page", page);
+		return "modules/xhbuyer/waitRefund";
+	}
+
+	/**
+	 * 查看，增加，编辑团购详情表单页面
+	 */
+	@RequiresPermissions(value={"xhbuyer:xhBuyer:view","xhbuyer:xhBuyer:add","xhbuyer:xhBuyer:edit"},logical=Logical.OR)
+	@RequestMapping(value = "form")
+	public String form(XhBuyer xhBuyer, Model model) {
+		model.addAttribute("xhBuyer", xhBuyer);
+		return "modules/xhbuyer/xhBuyerForm";
+	}
+
+	/**
+	 * 保存团购详情
+	 */
+	@RequiresPermissions(value={"xhbuyer:xhBuyer:add","xhbuyer:xhBuyer:edit"},logical=Logical.OR)
+	@RequestMapping(value = "save")
+	public String save(XhBuyer xhBuyer, Model model, RedirectAttributes redirectAttributes) throws Exception{
+		if (!beanValidator(model, xhBuyer)){
+			return form(xhBuyer, model);
+		}
+		if(!xhBuyer.getIsNewRecord()){//编辑表单保存
+			XhBuyer t = xhBuyerService.get(xhBuyer.getId());//从数据库取出记录的值
+			MyBeanUtils.copyBeanNotNull2Bean(xhBuyer, t);//将编辑表单中的非NULL值覆盖数据库记录中的值
+			xhBuyerService.save(t);//保存
+		}else{//新增表单保存
+			xhBuyerService.save(xhBuyer);//保存
+		}
+		addMessage(redirectAttributes, "保存团购详情成功");
+		return "redirect:"+Global.getAdminPath()+"/xhbuyer/xhBuyer/?repage";
+	}
+	
+	/**
+	 * 删除团购详情
+	 */
+	@RequiresPermissions("xhbuyer:xhBuyer:del")
+	@RequestMapping(value = "delete")
+	public String delete(XhBuyer xhBuyer, RedirectAttributes redirectAttributes) {
+		xhBuyerService.delete(xhBuyer);
+		addMessage(redirectAttributes, "删除团购详情成功");
+		return "redirect:"+Global.getAdminPath()+"/xhbuyer/xhBuyer/?repage";
+	}
+	
+	/**
+	 * 批量删除团购详情
+	 */
+	@RequiresPermissions("xhbuyer:xhBuyer:del")
+	@RequestMapping(value = "deleteAll")
+	public String deleteAll(String ids, RedirectAttributes redirectAttributes) {
+		String idArray[] =ids.split(",");
+		for(String id : idArray){
+			xhBuyerService.delete(xhBuyerService.get(id));
+		}
+		addMessage(redirectAttributes, "删除团购详情成功");
+		return "redirect:"+Global.getAdminPath()+"/xhbuyer/xhBuyer/?repage";
+	}
+	
+	/**
+	 * 导出excel文件
+	 */
+	@RequiresPermissions("xhbuyer:xhBuyer:export")
+    @RequestMapping(value = "export", method=RequestMethod.POST)
+    public String exportFile(XhBuyer xhBuyer, HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes) {
+		try {
+            String fileName = "团购详情"+DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
+            Page<XhBuyer> page = xhBuyerService.findPage(new Page<XhBuyer>(request, response, -1), xhBuyer);
+    		new ExportExcel("团购详情", XhBuyer.class).setDataList(page.getList()).write(response, fileName).dispose();
+    		return null;
+		} catch (Exception e) {
+			addMessage(redirectAttributes, "导出团购详情记录失败！失败信息："+e.getMessage());
+		}
+		return "redirect:"+Global.getAdminPath()+"/xhbuyer/xhBuyer/?repage";
+    }
+
+	/**
+	 * 导入Excel数据
+
+	 */
+	@RequiresPermissions("xhbuyer:xhBuyer:import")
+    @RequestMapping(value = "import", method=RequestMethod.POST)
+    public String importFile(MultipartFile file, RedirectAttributes redirectAttributes) {
+		try {
+			int successNum = 0;
+			int failureNum = 0;
+			StringBuilder failureMsg = new StringBuilder();
+			ImportExcel ei = new ImportExcel(file, 1, 0);
+			List<XhBuyer> list = ei.getDataList(XhBuyer.class);
+			for (XhBuyer xhBuyer : list){
+				try{
+					xhBuyerService.save(xhBuyer);
+					successNum++;
+				}catch(ConstraintViolationException ex){
+					failureNum++;
+				}catch (Exception ex) {
+					failureNum++;
+				}
+			}
+			if (failureNum>0){
+				failureMsg.insert(0, "，失败 "+failureNum+" 条团购详情记录。");
+			}
+			addMessage(redirectAttributes, "已成功导入 "+successNum+" 条团购详情记录"+failureMsg);
+		} catch (Exception e) {
+			addMessage(redirectAttributes, "导入团购详情失败！失败信息："+e.getMessage());
+		}
+		return "redirect:"+Global.getAdminPath()+"/xhbuyer/xhBuyer/?repage";
+    }
+	
+	/**
+	 * 下载导入团购详情数据模板
+	 */
+	@RequiresPermissions("xhbuyer:xhBuyer:import")
+    @RequestMapping(value = "import/template")
+    public String importFileTemplate(HttpServletResponse response, RedirectAttributes redirectAttributes) {
+		try {
+            String fileName = "团购详情数据导入模板.xlsx";
+    		List<XhBuyer> list = Lists.newArrayList(); 
+    		new ExportExcel("团购详情数据", XhBuyer.class, 1).setDataList(list).write(response, fileName).dispose();
+    		return null;
+		} catch (Exception e) {
+			addMessage(redirectAttributes, "导入模板下载失败！失败信息："+e.getMessage());
+		}
+		return "redirect:"+Global.getAdminPath()+"/xhbuyer/xhBuyer/?repage";
+    }
+	
+	/**
+	 * 微信退款
+	 * @param redirectAttributes
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("wxRefund")
+	public String wxRefund(RedirectAttributes redirectAttributes) throws Exception{
+		XhBuyer xhBuyer = new XhBuyer();
+		xhBuyer.setGbStatus("3");
+		List<XhBuyer> xhBuyers = xhBuyerService.findList(xhBuyer);
+		for(XhBuyer xhBuyer1:xhBuyers){
+			String out_trade_no = xhBuyer1.getXhOrder().getId();
+			int total_fee = xhBuyer1.getXhOrder().getAmount().multiply(new java.math.BigDecimal(100)).intValue(); 
+			WxRefundData data = PayUtils.createRefund(out_trade_no, total_fee);
+			String resultCode = data.getReturn_code();
+			if(resultCode.equals("SUCCESS")){
+				XhOrder xhOrder = xhBuyer1.getXhOrder();
+				xhOrder.setOrderStatus("0");
+				orderService.upStatusById(xhOrder);
+				xhOrder.setPayStatus("3");
+				orderService.upPayStatusById(xhOrder);
+				xhBuyerService.updateStatusByGroupNo(xhBuyer1.getGroupNo(), "4");
+			}else if(resultCode.equals("FAIL")){
+				addMessage(redirectAttributes, data.getReturn_msg());
+				return "redirect:"+Global.getAdminPath()+"/xhbuyer/xhBuyer/waitRefund?repage";
+			}
+		}
+		
+		return "redirect:"+Global.getAdminPath()+"/xhbuyer/xhBuyer/waitRefund?repage";
+	}
+	
+	
+
+
+}

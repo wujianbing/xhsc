@@ -1,0 +1,5 @@
+				<%@ page contentType="text/html;charset=UTF-8" %>
+				<li><a href="index" class="selted"><i class="iconfont">&#xe51b;</i>商城首页</a></li>
+				<li><a href="news"><i class="iconfont">&#xe602;</i>花卉知识</a></li>
+				<li><a href="shopCar"><i class="iconfont">&#xe506;</i>购物车</a></li>
+				<li><a href="personContre"><i class="iconfont">&#xe507;</i>个人中心</a></li>

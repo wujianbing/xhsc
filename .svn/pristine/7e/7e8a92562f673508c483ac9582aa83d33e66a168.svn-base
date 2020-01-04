@@ -1,0 +1,36 @@
+*{
+			margin: 0;
+			padding: 0;
+		}
+		body{
+			background: #f8f8f8;
+			font-size: 1rem;
+		}
+		.box{
+			padding: 2% 0;
+			
+		}
+		input{
+			border:0;
+			font-size: 1rem;
+			padding-left: 2%;
+			margin-left: 10%;
+			height: 40px;
+			line-height: 40px;
+		}
+		input[type="button"]{
+			width: 90%;
+			height: 50px;
+			background: #fe5479;
+			color: #fff;
+			margin: 5% auto;
+    		display: block;
+    		border-radius: 2%;
+		}
+		li{
+			height: 50px;
+			line-height: 50px;
+			border-bottom:1px solid #f4f4f4;
+			padding: 0 2%;
+			background: #ffffff;
+		}

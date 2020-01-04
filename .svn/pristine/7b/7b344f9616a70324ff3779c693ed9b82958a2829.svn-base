@@ -1,0 +1,94 @@
+package com.jeeplus.modules.xhreception.xhController;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.jeeplus.common.web.BaseController;
+import com.jeeplus.modules.xhcolor.entity.XhColor;
+import com.jeeplus.modules.xhcolor.service.XhColorService;
+import com.jeeplus.modules.xhfloor.service.XhFloorService;
+import com.jeeplus.modules.xhgoods.entity.XhGoods;
+import com.jeeplus.modules.xhgoods.service.XhGoodsService;
+import com.jeeplus.modules.xhrim.service.XhRimService;
+import com.jeeplus.modules.xhrule.entity.XhRule;
+import com.jeeplus.modules.xhrule.service.XhRuleService;
+import com.jeeplus.modules.xhshoper.entity.XhShopcar;
+import com.jeeplus.modules.xhshoper.service.XhShopcarService;
+import com.jeeplus.modules.xhtime.entity.XhTime;
+import com.jeeplus.modules.xhtime.service.XhTimeService;
+
+/**
+ * 购物车
+ * @author Administrator
+ *
+ */
+@Controller
+public class ShopCarController extends BaseController {
+	@Autowired
+	private XhGoodsService xhGoodsService;
+	@Autowired
+	private XhRuleService xhRuleService;
+	
+	@Autowired
+	private XhTimeService xhTimeService;
+	@Autowired
+	private XhColorService xhColorService;
+	@Autowired
+	private XhShopcarService xhShopcarService;
+	@RequestMapping("shopCar")
+	public String shopCar(HttpServletRequest request, HttpServletResponse response, Model model){
+		//从session中获取用户信息
+		XhShopcar xhShopcar = new XhShopcar();
+		List<XhShopcar> xhShopcars = xhShopcarService.findList(xhShopcar);
+		model.addAttribute("xhShopcars", xhShopcars);
+		return "modules/xhreception/shopcar";
+	}
+	/**
+	 * 加入购物车
+	 * @param request
+	 * @param response
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping("addcar")
+	public String addCar(HttpServletRequest request, HttpServletResponse response, Model model,RedirectAttributes redirectAttributes){
+		//TODO 用户id传递
+		String uid = "";
+		String gid = request.getParameter("gid");
+		String rid = request.getParameter("rid");
+		String sid = request.getParameter("sid");
+		String tid = request.getParameter("tid");
+		String remarks =request.getParameter("remarks");
+		String num =request.getParameter("num");
+		if(gid.isEmpty() || gid == null){
+			return "redirect:index";
+		}
+		XhShopcar xhShopcar = new XhShopcar();
+		XhGoods xhGoods = new XhGoods();
+		XhRule xhRule = new XhRule();
+		XhColor xhColor = new XhColor();
+		XhTime xhTime = new XhTime();
+		xhGoods.setId(gid);
+		xhRule.setId(rid);
+		xhColor.setId(sid);
+		xhTime.setId(tid);
+		xhShopcar.setXhGoods(xhGoods);
+		xhShopcar.setXhRule(xhRule);
+		xhShopcar.setXhColor(xhColor);
+		xhShopcar.setXhTime(xhTime);
+		xhShopcar.setNum(num);
+		xhShopcar.setRemarks(remarks);
+		xhShopcarService.save(xhShopcar);
+		addMessage(redirectAttributes, "添加购物车成功");
+		return "redirect:itemDetail?id="+gid;
+	}
+}

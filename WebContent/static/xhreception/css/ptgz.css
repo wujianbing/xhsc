@@ -1,0 +1,34 @@
+*{
+	margin: 0;
+	padding: 0;
+}
+.box{
+	width: 100%;
+	font-size: 1.3rem;
+	background: #f7f7f7;
+	overflow: hidden;
+}
+.box .one,.tow ,.three,.four{
+	width: 94%;
+	margin: 5% 0;
+	padding: 0 3%;
+	
+}
+.box h3,.four h3{
+	margin: 2% 0;
+	font-size: 1rem;
+}
+.box p{
+	margin: 1% 0;
+	font-size: 1rem;
+	color: #2c2c2c;
+}
+.four{
+	background: #fff;
+}
+.four img{
+	max-width: 100%;
+	height: auto;
+	display: block;
+	margin: 0;
+}

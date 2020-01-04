@@ -1,0 +1,89 @@
+*{
+			margin: 0;
+			padding: 0;
+		}
+		body{
+			background: #f8f8f8;
+			font-size: 1rem;
+		}
+		.box2{
+			padding: 2% 0;
+			display: none;
+			position: absolute;
+			bottom: 0;
+			height: 420px;
+			overflow: scroll;
+			width: 100%;
+			background: #F4F4F4;
+			
+		}
+		.box2 form{
+			clear: both;
+		}
+		.box2 input{
+			border:0;
+			font-size: 1rem;
+			padding-left: 2%;
+			margin-left: 10%;
+			height: 40px;
+			line-height: 40px;
+			background: #f4f4f4;
+		}
+		.box2 input[type="button"]{
+			width: 90%;
+			height: 50px;
+			background: #fe5479;
+			color: #fff;
+			margin: 5% auto;
+    		display: block;
+    		border-radius: 2%;
+		}
+		.box2 input.delete{
+			background: #fff;
+			color: #000000;
+			border:1px solid #f4f4f4;
+			border-radius: 3%;
+		}
+		.box2 li{
+			height: 50px;
+			line-height: 50px;
+			border-bottom:1px solid #f4f4f4;
+			padding: 0 2%;
+			background: #f4f4f4;
+		}
+		.box2 li:nth-child(1){
+		    background: #e6e6e6;
+		}
+		.box2 .wheel-scroll.wheel-scroll-hook {
+            margin: 0;
+            padding: 0;
+        }
+        #picker{
+            
+        }
+        .box2 li.wheel-item {
+        	line-height: 36px;
+        	border: 0;
+        }
+        .box2 h4{
+        	float: left;
+        	width: 50%;
+        	padding-left: 2%;
+        }
+		.close{
+			width: 20%;
+			float: right;
+			text-align: right;
+			background: #666666;
+		    color: #FFFFFF;
+		    margin-right: 3%;
+		    border-radius: 50%;
+		    width: 20px;
+		    height: 20px;
+		    font-size: 1rem;
+		    text-align: center;
+		    line-height: 20px;
+		    margin-top: 12px;
+		}
+		
+

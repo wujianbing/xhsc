@@ -1,0 +1,76 @@
+*{
+	margin: 0;
+	padding: 0;
+}
+section .byitemlist{
+	width: 100%;
+	padding: 0 3%;
+	overflow: hidden;
+	margin:0 0 60px 0;
+}
+section .byitemlist li{
+	list-style: none;
+	margin-bottom: 5%;
+	position: relative;
+}
+section .box{
+	height: auto;
+	overflow: hidden;
+	position: absolute;
+	z-index: 1;
+	top: 0;
+	left: 0;
+}
+section .box .bleft,.bright{
+	width: 60%;
+	float: left;
+}
+section .box .bleft img{
+	float: left;
+	width: 45%;
+	margin:0 5% 5% 0;
+	height: 100px;
+}
+section .box .bright h1{
+	font-size: 2rem;
+	color: #ff557b;
+	font-weight: bold;
+	margin-top: 0;
+}
+section .box .bright{
+	margin-left: 3%;
+	width: 37%;
+}
+section .box .bright p{
+	margin: 10% 0;
+}
+section .box .bright .ill{
+	color: #999999;
+}
+section .box .bright .price{
+	color: #ff557b;
+	font-weight: bold;
+	font-size: 1.8rem;
+	margin-top: 13%;
+}
+section .box .bright .price m{
+	color: #666666;
+	font-size: 1.3rem;
+}
+section .box .bright .bby a{
+	display: block;
+	background: #ff557b;
+	color: #FFFFFF;
+	padding: 2% 3%;
+	width: 60%;
+    font-size: 1.5rem;
+    text-align: center;
+}
+@media only screen and (device-width: 320px) {
+	section .box .bright p{
+	margin: 2% 0;
+}
+section .box .bright .bby a{
+	width: 70%;
+}
+}

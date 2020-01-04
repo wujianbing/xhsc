@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.xhtime.dao.XhTimeDao">
+    
+	<sql id="xhTimeColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.gid AS "xhGoods.id",
+		(select xhGoods.name from xh_goods xhGoods where xhGoods.id = a.gid) AS "xhGoods.name",
+		a.xh_time AS "xhTime"
+	</sql>
+	
+	<sql id="xhTimeJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="XhTime" >
+		SELECT 
+			<include refid="xhTimeColumns"/>
+		FROM xh_time a
+		<include refid="xhTimeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	<!-- findListBygid -->
+	<select id="findListBygid" resultType="XhTime" parameterType="java.lang.String">
+		select 
+			<include refid="xhTimeColumns"/>
+		from xh_time a
+		where a.gid = #{gid}
+	</select>
+	<select id="findList" resultType="XhTime" >
+		SELECT 
+			<include refid="xhTimeColumns"/>
+		FROM xh_time a
+		<include refid="xhTimeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="xhGoods != null and xhGoods != ''">
+				AND a.gid = #{xhGoods.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="XhTime" >
+		SELECT 
+			<include refid="xhTimeColumns"/>
+		FROM xh_time a
+		<include refid="xhTimeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO xh_time(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			gid,
+			xh_time
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{xhGoods.id},
+			#{xhTime}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE xh_time SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			gid = #{xhGoods.id},
+			xh_time = #{xhTime}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM xh_time
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE xh_time SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="XhTime" statementType="STATEMENT">
+		select * FROM xh_time  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

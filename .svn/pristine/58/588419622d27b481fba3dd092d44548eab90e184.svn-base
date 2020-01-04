@@ -1,0 +1,382 @@
+<%@ page contentType="text/html;charset=UTF-8"%>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+<title>拼团购买</title>
+<link rel="stylesheet" type="text/css"	href="static/xhreception/css/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css"	href="static/xhreception/css/ptorder.css" />
+<link rel="stylesheet" type="text/css"	href="static/xhreception/css/base/base.css" />
+<link rel="stylesheet" type="text/css" href="static/xhreception/css/arguments.css"/>
+
+</head>
+<script type="text/javascript"
+	src="static/xhreception/js/TouchSlide.1.1.js"></script>
+<script type="text/javascript" src="static/xhreception/js/jquery.js"></script>
+<body>
+	<header>
+		<div class="logo">
+			<img src="static/xhreception/images/logo.jpg" />
+		</div>
+		<div class="gzhu">
+			<a href="#"><span>+</span>关注</a>
+		</div>
+	</header>
+
+	<div id="slideBox" class="slideBox">
+		<div class="bd">
+			<ul>
+				<li><a class="pic" href="#"><img
+						src="${xhGroup.xhGoods.uploadFile1.relaPath }" /></a></li>
+				<li><a class="pic" href="#"><img
+						src="${xhGroup.xhGoods.uploadFile2.relaPath }" /></a></li>
+				<li><a class="pic" href="#"><img
+						src="${xhGroup.xhGoods.uploadFile3.relaPath }" /></a></li>
+				<li><a class="pic" href="#"><img
+						src="${xhGroup.xhGoods.uploadFile4.relaPath }" /></a></li>
+			</ul>
+		</div>
+
+		<div class="hd">
+			<ul></ul>
+		</div>
+	</div>
+
+	<!--拼团告示-->
+	<div class="ptadv">
+		<p>拼团</p>
+		<div class="tmer">
+			距结束<span id="lefttime_0" time="${endTime}"></span>
+		</div>
+	</div>
+
+	<section>
+		<h5>${xhGroup.xhGoods.name}</h5>
+		<p class="price">
+			￥<span>${xhGroup.lPrice}-${xhGroup.maxPrice}</span><span>${xhGroup.maxNum}人拼团价</span>
+		</p>
+		<p class="yprice">
+			原价<s>${xhGroup.xhGoods.price}~${xhGroup.xhGoods.maxPrice}</s>
+		</p>
+		<p class="yfnum">
+			运费：￥<span>0.00~10.00</span>
+			<%-- 剩余<span>${xhGroup.xhGoods.xhInventory} </span>--%>
+		</p>
+		<!--以下小伙伴正在发起拼团，你可以直接参加-->
+		<div class="pthb">
+			<h5>以下小伙伴正在发起拼团，你可以直接参加</h5>
+			<ul>
+				<c:forEach items="${xhBuyers}" var="xhBuyers"  varStatus="status">
+				<li><img src="static/xhreception/images/2.png" alt="" />
+					<p>
+						<span class="pname">${xhBuyers.xhUser.username}</span><br /> 还差<span class="pnum">${xhBuyers.hasNum}</span>人成团，<span
+							id="lefttime_${status.count}" time="${xhBuyers.sTime}"></span>
+					</p> <a href="groupUp?id=${xhBuyers.id}">去凑团</a></li>
+				</c:forEach>
+				<!-- <li><img src="static/xhreception/images/2.png" alt="" />
+					<p>
+						<span class="pname">田花花</span><br /> 还差<span class="pnum">2</span>人成团，<span
+							id="timer3">23时22分56秒</span>
+					</p> <a href="static/xhreception/ptgo.html">去凑团</a></li>
+				<li><img src="static/xhreception/images/2.png" alt="" />
+					<p>
+						<span class="pname">田花花</span><br /> 还差<span class="pnum">2</span>人成团，<span
+							id="timer4">23时22分56秒</span>
+					</p> <a href="ptgo.html">去凑团</a></li> -->
+			</ul>
+		</div>
+		<!--支付开团-->
+		<div class="ptgz">
+			<p>
+				支付开团邀请${xhGroup.maxNum-1}人参团，人数不足自动退款<a href="groupRule">玩法详情</a>
+			</p>
+		</div>
+
+
+		<p class="select">选择：规格 颜色 </p>
+		<p class="psfs">配送方式：快递、自提</p>
+	</section>
+
+
+
+	<div class="bottom">
+		<div class="icon">
+			<a href="shopcar">购物车</a>
+		</div>
+		<button id="kt">
+			￥<span>${xhGroup.lPrice}</span>开团
+		</button>
+		<!-- <button id="dm">￥<span>139.00</span>单买</button> -->
+
+	</div>
+<!------开团弹出窗口---------------------------------------------------------------------------------  -->	
+<!--弹出窗立即购买  -->
+		<div class="back">
+		<div class="overfl">
+		<div id="close">
+					X
+		</div>
+		<div id="div1">
+		<div class="gdinfo">
+			<img src="${xhGoods.uploadFile.relaPath}"/>
+			<div class="gdname">
+				<h5 id="${xhGoods.id}">${xhGoods.name}</h5>
+				<p class="iteminfo_price"><m>￥</m><span class="sys_item_price">${xhGoods.price}-${xhGoods.maxPrice}</span></p>
+			</div>
+		</div>
+		<div class="iteminfo_buying">
+		<!--规格属性-->
+			<div class="sys_item_spec">
+				<form action="groupNextLoad" method="post" id="form1" onsubmit="return cc()">
+				 <input hidden="hidden" value="${xhGoods.id}" name="gid"> 
+				<c:if test="${!empty xhRules}">
+				<dl class="clearfix iteminfo_parameter sys_item_specpara">
+					<dt>规格选择：</dt>
+					<dd>
+						<c:forEach items="${xhRules}" var="xhRules">
+						<label><input name="rid" price="${xhRules.unitPrice}" type="radio" value="${xhRules.id}" class="r1" />${xhRules.rule}</label>
+						</c:forEach>
+					</dd>
+				</dl>
+				</c:if>
+				<c:if test="${!empty xhColors}">
+				<dl class="clearfix iteminfo_parameter sys_item_specpara">
+					<dt>颜色偏好：</dt>
+					<dd>
+						<c:forEach items="${xhColors}" var="xhColors">
+						<label><input price="0" name="sid" type="radio" value="${xhColors.id}" />${xhColors.color}</label>
+						</c:forEach>
+					</dd>
+				</dl>
+				</c:if>
+				<c:if test="${!empty xhTimes}">
+				<dl class="clearfix iteminfo_parameter sys_item_specpara">
+					<dt>收花时间：</dt>
+					<dd>
+						<c:forEach items="${xhTimes}" var="xhTimes">
+						<label><input name="tid" price="0" type="radio" value="${xhTimes.id}"  class=""/>${xhTimes.xhTime}</label>
+						</c:forEach>
+					</dd>
+				</dl>
+				</c:if>
+				<dl class="clearfix iteminfo_parameter sys_item_specpara mb100">
+					<dt class="gnum">购买数量：</dt>
+					<dd class="gopnm">
+						<div class="optnum">
+						<div class="optnumdec left">-</div>
+						<input id="num0" type="text" value="0" class="shang" name="num" onkeyup="this.value=this.value.replace(/\D/g, '')"/>
+						<div class="optnumadd left">+</div>
+					</div>
+					</dd>
+				</dl>
+				<!-- <dl class="clearfix iteminfo_parameter sys_item_specpara mb-50">
+					<dt class="bzhu ">卡片留言：</dt>
+					<dd class="bzhucotn">
+						<input id="message" type="text" name="remarks"/>
+					</dd>
+				</dl> -->
+				<input id="kt" type="submit" value="下一步" />
+				</form>
+				</div>
+		      </div>
+			</div>
+		  </div>
+		</div>	
+<!------------------------------------------------------------------------------------------------  -->	
+</body>
+<script type="text/javascript">
+	 /*立即開團*/
+				var btn = document.getElementById('kt');
+				
+				var close = document.getElementById('close');
+				var div = $('.back');
+				var form1 = document.getElementById('div1');
+				
+				
+				btn.onclick = function show() {
+					div.show();
+					
+					form1.style.display="block";
+					
+					var o = 0;
+				//商品规格选择
+				$(".sys_item_spec .sys_item_specpara").each(function(){
+					var i=$(this);
+					var p=$(this).find("label");
+					p.click(function(){
+						var s = 0;
+						var m = 0;
+						$(this).addClass("selected").siblings("label").removeClass("selected");
+						$(this).addClass("selected").siblings("label").children("input");
+						s=$(this).children("input").attr("price");
+						i.attr("data-val",s);
+						if(s != 0 && typeof s!="undefined"){
+								o = i.attr("data-val")*100/100;
+								$("#div1 ").find(".sys_item_price").text(o);
+							}
+						})
+					});	
+				}
+				
+				 
+				 
+				
+				close.onclick = function close() {
+					
+					div.hide();
+					
+				}	
+				
+				
+			$().each(function(){
+			})
+			 
+				 /*购买数量增加*/
+					$(".optnumadd").click(function(){
+						var num=$(this).parent().children("input");
+						num.val(parseInt(num.val())+1);
+						$(this).parent().siblings("p.ppri").children("span.num").text('x'+num.val());
+						
+					})
+					/*数量减少*/
+					$(".optnumdec").click(function(){
+						var num=$(this).parent().children("input");
+						if(num.val()>0){
+							num.val(parseInt(num.val())-1);
+							$(this).parent().siblings("p.ppri").children("span.num").text('x'+num.val());
+						}
+						else{
+							num.val(0);
+						}
+						
+					});		
+</script>
+
+<script type="text/javascript" language="javascript"> 
+		function cc(){
+		 
+		for(var i = 1;i<2;i++){ 
+		var num = $(".r"+i).length; 
+		var x = 0; 
+		var bool = true; 
+		for(var j=0;j<num;j++){ 
+		var aa = $(".r"+i+":eq("+j+"):checked").val();    
+		if(aa == null){ 
+		x++ 
+		}    
+		} 
+		if(x == num ){
+		alert("请选择参数"); 
+		bool = false; 
+		return bool; 
+		}    
+		
+		}
+		var shuliang = $("#num0").val();
+		 if(shuliang == 0){
+		 	alert("请选择参数");
+		 	bool=false;
+		 	return false;
+		 }
+		if(bool){
+		  
+		return true; 
+		} 
+		} 
+</script>
+
+<script type="text/javascript" language="javascript"> 
+		function aa(){
+		debugger; 
+		for(var i = 1;i<2;i++){ 
+		var num = $(".r"+i).length; 
+		var x = 0; 
+		var bool = true; 
+		for(var j=0;j<num;j++){ 
+		var aa = $(".r"+i+":eq("+j+"):checked").val();    
+		if(aa == null){ 
+		x++ 
+		}    
+		} 
+		if(x == num ){ 
+		alert("请选择参数"); 
+		bool = false; 
+		return bool; 
+		}    
+		
+		}
+		var shuliang = $("#num1").val();
+		 if(shuliang == 0){
+		 	alert("请选择参数");
+		 	bool=false;
+		 	return false;
+		 } 
+		if(bool){
+		alert("加入购物车成功");  
+		return true; 
+		} 
+		} 
+</script>
+<!------------------------------------------------------------------------------------------------  -->
+<script type="text/javascript" src="static/xhreception/js/ptorder.js"></script>
+<script type="text/javascript">
+	function showTime(tuanid, time_distance) {
+		this.tuanid = tuanid;
+		//PHP时间是秒，JS时间是微秒 
+		this.time_distance = time_distance * 1000;
+	}
+	showTime.prototype.setTimeShow = function() {
+		var timer = $("#lefttime_" + this.tuanid);
+		var str_time;
+		var int_day,
+			int_hour,
+			int_minute,
+			int_second;
+		time_distance = this.time_distance;
+		this.time_distance = this.time_distance - 1000;
+		if (time_distance > 0) {
+			int_day = Math.floor(time_distance / 86400000);
+			time_distance -= int_day * 86400000;
+			int_hour = Math.floor(time_distance / 3600000);
+			time_distance -= int_hour * 3600000;
+			int_minute = Math.floor(time_distance / 60000);
+			time_distance -= int_minute * 60000;
+			int_second = Math.floor(time_distance / 1000);
+			if (int_hour < 10)
+				int_hour = "0" + int_hour;
+			if (int_minute < 10)
+				int_minute = "0" + int_minute;
+			if (int_second < 10)
+				int_second = "0" + int_second;
+			str_time = int_day + "天" + int_hour + "小时" + int_minute + "分钟" + int_second + "秒";
+			timer.text(str_time);
+			var self = this;
+			setTimeout(function() {
+				self.setTimeShow();
+			}, 1000); //D:正确 
+		} else {
+			timer.text("团购结束");
+			return;
+		}
+	}
+</script>
+<script type="text/javascript">
+	var p = $("#lefttime_0").attr("time");
+	var st = new showTime(0, p);
+	//st.tuanid = 1; 
+	//st.time_distance = 10000; 
+	st.setTimeShow();
+	
+	var i=$(".pthb").find("li").length;
+		for(var m=1; m<=i;m++){
+	  var x=$("#lefttime_"+m).attr("time");
+	  var st = new showTime(m,x); 
+//st.tuanid = 1; 
+//st.time_distance = 10000; 
+	st.setTimeShow(); 
+		}
+</script>
+</html>

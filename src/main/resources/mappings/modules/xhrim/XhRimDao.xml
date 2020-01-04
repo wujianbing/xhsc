@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.xhrim.dao.XhRimDao">
+    
+	<sql id="xhRimColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.gid AS "xhGoods.id",
+		(select xhGoods.name from xh_goods xhGoods where xhGoods.id = a.gid) AS "xhGoods.name",
+		a.rim_name AS "rimName",
+		a.rim_price AS "rimPrice",
+		a.rim_pic AS "rimPic",
+		(select f.name from sys_upload_file f where f.id = a.rim_pic ) AS "uploadFile.name",
+		(select f.abso_path from sys_upload_file f where f.id = a.rim_pic ) AS "uploadFile.absoPath",
+		(select f.rela_path from sys_upload_file f where f.id = a.rim_pic ) AS "uploadFile.relaPath",
+		(select f.id from sys_upload_file f where f.id = a.rim_pic ) AS "uploadFile.id"
+	</sql>
+	
+	<sql id="xhRimJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="XhRim" >
+		SELECT 
+			<include refid="xhRimColumns"/>
+		FROM xh_rim a
+		<include refid="xhRimJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<!-- findListBygid -->
+	<select id="findListBygid" resultType="XhRim" parameterType="java.lang.String">
+		select 
+			<include refid="xhRimColumns"/>
+		from xh_rim a
+		where a.gid = #{gid}
+	</select>
+	
+	<select id="findList" resultType="XhRim" >
+		SELECT 
+			<include refid="xhRimColumns"/>
+		FROM xh_rim a
+		<include refid="xhRimJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="XhRim" >
+		SELECT 
+			<include refid="xhRimColumns"/>
+		FROM xh_rim a
+		<include refid="xhRimJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO xh_rim(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			gid,
+			rim_name,
+			rim_price,
+			rim_pic
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{xhGoods.id},
+			#{rimName},
+			#{rimPrice},
+			#{uploadFile.id}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE xh_rim SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			gid = #{xhGoods.id},
+			rim_name = #{rimName},
+			rim_price = #{rimPrice},
+			rim_pic = #{uploadFile.id}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM xh_rim
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE xh_rim SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="XhRim" statementType="STATEMENT">
+		select * FROM xh_rim  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>
